@@ -275,6 +275,15 @@ const translations: Translations = {
   'admin.enabled': { en: 'Enabled', fr: 'Activé' },
   'admin.disabled': { en: 'Disabled', fr: 'Désactivé' },
   
+  // Notifications
+  'notifications.title': { en: 'Notifications', fr: 'Notifications' },
+  'notifications.empty': { en: 'No notifications', fr: 'Aucune notification' },
+  'notifications.markAllRead': { en: 'Mark all read', fr: 'Tout marquer comme lu' },
+  'notifications.clearAll': { en: 'Clear all', fr: 'Tout effacer' },
+  'notifications.courseDeadline': { en: 'Course Deadline', fr: 'Échéance de formation' },
+  'notifications.newAssignment': { en: 'New Assignment', fr: 'Nouvelle affectation' },
+  'notifications.meetingReminder': { en: 'Meeting Reminder', fr: 'Rappel de réunion' },
+  
   // Common
   'common.save': { en: 'Save', fr: 'Enregistrer' },
   'common.cancel': { en: 'Cancel', fr: 'Annuler' },
