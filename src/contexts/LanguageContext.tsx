@@ -189,9 +189,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   // Get localized field from an object with _en and _fr suffixes
-  const getLocalizedField = <T extends Record<string, unknown>>(obj: T, field: string): string => {
-    const localizedKey = `${field}_${language}` as keyof T;
-    const fallbackKey = `${field}_en` as keyof T;
+  const getLocalizedField = (obj: Record<string, unknown>, field: string): string => {
+    const localizedKey = `${field}_${language}`;
+    const fallbackKey = `${field}_en`;
     
     const value = obj[localizedKey] as string | undefined;
     const fallback = obj[fallbackKey] as string | undefined;
