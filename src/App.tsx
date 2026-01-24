@@ -11,6 +11,7 @@ import People from "./pages/People";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
+import Development from "./pages/Development";
 import Courses from "./pages/Courses";
 import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
@@ -67,7 +68,7 @@ function AppRoutes() {
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
-      <Route path="/development" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
