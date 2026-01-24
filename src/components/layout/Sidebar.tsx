@@ -156,7 +156,10 @@ export function Sidebar() {
         {/* Footer */}
         <div className="border-t border-sidebar-border p-4">
           {!isCollapsed && (
-            <div className="flex items-center gap-3 mb-3">
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 mb-3 p-2 -mx-2 rounded-lg hover:bg-sidebar-accent transition-colors"
+            >
               <div className="w-9 h-9 rounded-full bg-sidebar-accent flex items-center justify-center">
                 <span className="text-sm font-medium text-sidebar-foreground">
                   {displayName.charAt(0).toUpperCase()}
@@ -166,8 +169,9 @@ export function Sidebar() {
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
                   {displayName}
                 </p>
+                <p className="text-xs text-sidebar-foreground/50">{t('profile.title')}</p>
               </div>
-            </div>
+            </Link>
           )}
           <Button
             variant="ghost"
