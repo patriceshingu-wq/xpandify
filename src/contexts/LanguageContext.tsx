@@ -26,6 +26,7 @@ const translations: Translations = {
   'nav.feedback': { en: 'Feedback', fr: 'Feedback' },
   'nav.reviews': { en: 'Reviews', fr: 'Évaluations' },
   'nav.surveys': { en: 'Surveys', fr: 'Sondages' },
+  'nav.analytics': { en: 'Analytics', fr: 'Analytique' },
   'nav.admin': { en: 'Admin', fr: 'Administration' },
   'nav.settings': { en: 'Settings', fr: 'Paramètres' },
   'nav.logout': { en: 'Logout', fr: 'Déconnexion' },

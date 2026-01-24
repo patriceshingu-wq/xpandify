@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Church,
+  PieChart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -47,6 +48,7 @@ const developmentNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
+  { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
   { icon: Shield, labelKey: 'nav.admin', path: '/admin', roles: ['super_admin', 'admin'] },
 ];
 
