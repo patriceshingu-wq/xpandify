@@ -11,6 +11,10 @@ import People from "./pages/People";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
+import Courses from "./pages/Courses";
+import FeedbackPage from "./pages/Feedback";
+import Reviews from "./pages/Reviews";
+import Surveys from "./pages/Surveys";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -63,10 +67,10 @@ function AppRoutes() {
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/feedback" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/reviews" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/surveys" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
+      <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
+      <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

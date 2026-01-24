@@ -1,0 +1,223 @@
+import { useState } from 'react';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCourses, Course, useDeleteCourse } from '@/hooks/useCourses';
+import { PageHeader } from '@/components/ui/page-header';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EmptyState } from '@/components/ui/empty-state';
+import { CourseFormDialog } from '@/components/courses/CourseFormDialog';
+import { Plus, Search, GraduationCap, Clock, Laptop, Users, Book, Trash2, Edit } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
+const deliveryIcons: Record<string, React.ReactNode> = {
+  in_person: <Users className="h-4 w-4" />,
+  online: <Laptop className="h-4 w-4" />,
+  hybrid: <Users className="h-4 w-4" />,
+  reading_plan: <Book className="h-4 w-4" />,
+};
+
+export default function Courses() {
+  const { t, getLocalizedField } = useLanguage();
+  const { isAdminOrSuper } = useAuth();
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [deliveryType, setDeliveryType] = useState('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
+
+  const { data: courses, isLoading } = useCourses({
+    search: search || undefined,
+    category,
+    delivery_type: deliveryType,
+  });
+
+  const deleteCourse = useDeleteCourse();
+
+  const handleEdit = (course: Course) => {
+    setEditingCourse(course);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingCourse(null);
+  };
+
+  const handleDelete = async () => {
+    if (deletingCourse) {
+      await deleteCourse.mutateAsync(deletingCourse.id);
+      setDeletingCourse(null);
+    }
+  };
+
+  return (
+    <MainLayout title={t('courses.title')} subtitle={t('courses.subtitle')}>
+      <div className="space-y-6 animate-fade-in">
+        <PageHeader
+          title={t('courses.title')}
+          subtitle={t('courses.subtitle')}
+          actions={
+            isAdminOrSuper && (
+              <Button onClick={() => setIsFormOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t('courses.addCourse')}
+              </Button>
+            )
+          }
+        />
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={t('courses.search')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-full sm:w-44">
+                  <SelectValue placeholder={t('common.category')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('common.all')}</SelectItem>
+                  <SelectItem value="theology">{t('courses.theology')}</SelectItem>
+                  <SelectItem value="leadership">{t('courses.leadership')}</SelectItem>
+                  <SelectItem value="ministry_skills">{t('courses.ministrySkills')}</SelectItem>
+                  <SelectItem value="pastoral_skills">{t('courses.pastoralSkills')}</SelectItem>
+                  <SelectItem value="character">{t('courses.character')}</SelectItem>
+                  <SelectItem value="other">{t('common.other')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={deliveryType} onValueChange={setDeliveryType}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder={t('courses.deliveryType')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('common.all')}</SelectItem>
+                  <SelectItem value="in_person">{t('courses.inPerson')}</SelectItem>
+                  <SelectItem value="online">{t('courses.online')}</SelectItem>
+                  <SelectItem value="hybrid">{t('courses.hybrid')}</SelectItem>
+                  <SelectItem value="reading_plan">{t('courses.readingPlan')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Courses Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="spinner" />
+          </div>
+        ) : courses && courses.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courses.map((course) => (
+              <Card
+                key={course.id}
+                className="cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
+                onClick={() => handleEdit(course)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      {course.code && (
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {course.code}
+                        </Badge>
+                      )}
+                      {!course.is_active && (
+                        <Badge variant="secondary">{t('courses.inactive')}</Badge>
+                      )}
+                    </div>
+                    {isAdminOrSuper && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeletingCourse(course);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <h3 className="font-medium text-foreground mb-2">
+                    {getLocalizedField(course, 'title')}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                    {getLocalizedField(course, 'description') || t('courses.noDescription')}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{course.estimated_duration_hours}h</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {deliveryIcons[course.delivery_type || 'in_person']}
+                      <span className="capitalize">{course.delivery_type?.replace('_', ' ')}</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <Badge variant="secondary" className="capitalize">
+                      {course.category?.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<GraduationCap className="h-16 w-16" />}
+            title={t('common.noResults')}
+            description={t('courses.noCourses')}
+            action={
+              isAdminOrSuper
+                ? {
+                    label: t('courses.addCourse'),
+                    onClick: () => setIsFormOpen(true),
+                  }
+                : undefined
+            }
+          />
+        )}
+      </div>
+
+      <CourseFormDialog
+        open={isFormOpen}
+        onOpenChange={handleCloseForm}
+        course={editingCourse}
+      />
+
+      <AlertDialog open={!!deletingCourse} onOpenChange={() => setDeletingCourse(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('courses.deleteConfirm')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('courses.deleteWarning')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </MainLayout>
+  );
+}
