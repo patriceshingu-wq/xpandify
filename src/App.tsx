@@ -11,6 +11,7 @@ import People from "./pages/People";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,7 +67,7 @@ function AppRoutes() {
       <Route path="/feedback" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/reviews" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/surveys" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
