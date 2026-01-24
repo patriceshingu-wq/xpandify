@@ -5,10 +5,13 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
+import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart';
+import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
+import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
 import { useMeetings } from '@/hooks/useMeetings';
-import { Users, Target, Calendar } from 'lucide-react';
+import { Users, Target, Calendar, BarChart3 } from 'lucide-react';
 import { format, isToday, isTomorrow, isAfter } from 'date-fns';
 
 export default function Dashboard() {
@@ -203,6 +206,19 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* Analytics Charts */}
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+            <BarChart3 className="h-5 w-5 text-accent" />
+            Analytics & Insights
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <GoalCompletionChart />
+            <TrainingProgressChart />
+            <TeamEngagementChart />
+          </div>
         </div>
 
         {/* Development Progress Widget */}
