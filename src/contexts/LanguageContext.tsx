@@ -163,7 +163,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
-  getLocalizedField: <T extends Record<string, unknown>>(obj: T, field: string) => string;
+  getLocalizedField: (obj: object, field: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -189,12 +189,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   // Get localized field from an object with _en and _fr suffixes
-  const getLocalizedField = (obj: Record<string, unknown>, field: string): string => {
+  const getLocalizedField = (obj: object, field: string): string => {
+    const record = obj as Record<string, unknown>;
     const localizedKey = `${field}_${language}`;
     const fallbackKey = `${field}_en`;
     
-    const value = obj[localizedKey] as string | undefined;
-    const fallback = obj[fallbackKey] as string | undefined;
+    const value = record[localizedKey] as string | undefined;
+    const fallback = record[fallbackKey] as string | undefined;
     
     return value || fallback || '';
   };
