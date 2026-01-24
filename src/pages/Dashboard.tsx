@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
 import { Users, Target, Calendar, GraduationCap } from 'lucide-react';
 
 export default function Dashboard() {
@@ -105,6 +106,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Development Progress Widget */}
+        <DevelopmentProgressWidget />
       </div>
     </MainLayout>
   );
