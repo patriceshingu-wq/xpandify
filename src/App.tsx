@@ -7,6 +7,10 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import People from "./pages/People";
+import Ministries from "./pages/Ministries";
+import Goals from "./pages/Goals";
+import Meetings from "./pages/Meetings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,10 +57,10 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/people" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/ministries" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/goals" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/meetings" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+      <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
+      <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+      <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/feedback" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
