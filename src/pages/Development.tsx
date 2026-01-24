@@ -46,8 +46,8 @@ export default function Development() {
   const { isAdminOrSuper } = useAuth();
 
   // Filters
-  const [pdpStatus, setPdpStatus] = useState<string>('');
-  const [assignmentStatus, setAssignmentStatus] = useState<string>('');
+  const [pdpStatus, setPdpStatus] = useState<string>('all');
+  const [assignmentStatus, setAssignmentStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Dialogs
@@ -58,8 +58,8 @@ export default function Development() {
   const [editingAssignment, setEditingAssignment] = useState<CourseAssignment | null>(null);
 
   // Data
-  const { data: pdps, isLoading: pdpsLoading } = useDevelopmentPlans({ status: pdpStatus || undefined });
-  const { data: assignments, isLoading: assignmentsLoading } = useCourseAssignments({ status: assignmentStatus || undefined });
+  const { data: pdps, isLoading: pdpsLoading } = useDevelopmentPlans({ status: pdpStatus === 'all' ? undefined : pdpStatus });
+  const { data: assignments, isLoading: assignmentsLoading } = useCourseAssignments({ status: assignmentStatus === 'all' ? undefined : assignmentStatus });
 
   // Filter PDPs by search
   const filteredPDPs = (pdps || []).filter((pdp) => {
@@ -158,7 +158,7 @@ export default function Development() {
                 <SelectValue placeholder={t('common.all')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('common.all')}</SelectItem>
+                <SelectItem value="all">{t('common.all')}</SelectItem>
                 <SelectItem value="active">{t('people.active')}</SelectItem>
                 <SelectItem value="completed">{t('goals.completed')}</SelectItem>
                 <SelectItem value="on_hold">{t('goals.onHold')}</SelectItem>
@@ -261,7 +261,7 @@ export default function Development() {
                 <SelectValue placeholder={t('common.all')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('common.all')}</SelectItem>
+                <SelectItem value="all">{t('common.all')}</SelectItem>
                 <SelectItem value="not_started">{t('goals.notStarted')}</SelectItem>
                 <SelectItem value="in_progress">{t('goals.inProgress')}</SelectItem>
                 <SelectItem value="completed">{t('goals.completed')}</SelectItem>
