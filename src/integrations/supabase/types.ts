@@ -340,6 +340,7 @@ export type Database = {
           created_at: string | null
           discussion_notes: string | null
           id: string
+          linked_feedback_id: string | null
           linked_goal_id: string | null
           linked_pdp_item_id: string | null
           meeting_id: string
@@ -359,6 +360,7 @@ export type Database = {
           created_at?: string | null
           discussion_notes?: string | null
           id?: string
+          linked_feedback_id?: string | null
           linked_goal_id?: string | null
           linked_pdp_item_id?: string | null
           meeting_id: string
@@ -378,6 +380,7 @@ export type Database = {
           created_at?: string | null
           discussion_notes?: string | null
           id?: string
+          linked_feedback_id?: string | null
           linked_goal_id?: string | null
           linked_pdp_item_id?: string | null
           meeting_id?: string
@@ -395,6 +398,13 @@ export type Database = {
             columns: ["action_owner_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_agenda_items_linked_feedback_id_fkey"
+            columns: ["linked_feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback"
             referencedColumns: ["id"]
           },
           {

@@ -59,6 +59,17 @@ export function useVisibleFeedback(personId: string | undefined) {
  * Fetch visible feedback directly (not as a hook) for use in mutation callbacks
  */
 export async function fetchVisibleFeedback(personId: string): Promise<VisibleFeedback[]> {
+  // First, get feedback IDs that are already linked to meeting agenda items
+  const { data: linkedItems } = await supabase
+    .from('meeting_agenda_items')
+    .select('linked_feedback_id')
+    .not('linked_feedback_id', 'is', null);
+
+  const linkedFeedbackIds = new Set(
+    (linkedItems || []).map(item => item.linked_feedback_id).filter(Boolean)
+  );
+
+  // Fetch visible feedback
   const { data, error } = await supabase
     .from('feedback')
     .select(`
@@ -77,10 +88,15 @@ export async function fetchVisibleFeedback(personId: string): Promise<VisibleFee
 
   if (error) throw error;
 
-  return (data || []).map(item => ({
-    ...item,
-    given_by: Array.isArray(item.given_by) ? item.given_by[0] || null : item.given_by,
-  })) as VisibleFeedback[];
+  // Filter out feedback that's already linked to a meeting
+  const feedbackList = (data || [])
+    .filter(item => !linkedFeedbackIds.has(item.id))
+    .map(item => ({
+      ...item,
+      given_by: Array.isArray(item.given_by) ? item.given_by[0] || null : item.given_by,
+    })) as VisibleFeedback[];
+
+  return feedbackList;
 }
 
 /**

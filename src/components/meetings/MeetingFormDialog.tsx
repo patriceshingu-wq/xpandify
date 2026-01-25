@@ -216,6 +216,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
               section_type: 'feedback_coaching',
               discussion_notes: formatFeedbackForNotes(feedback, 'en'),
               order_index: templateOrderIndex++,
+              linked_feedback_id: feedback.id,
             });
           }
         } catch (error) {
