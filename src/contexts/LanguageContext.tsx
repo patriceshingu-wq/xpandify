@@ -283,6 +283,13 @@ const translations: Translations = {
   'admin.emailConfirmationDescription': { en: 'Require email confirmation for new signups', fr: 'Exiger la confirmation par courriel pour les nouvelles inscriptions' },
   'admin.signupEnabled': { en: 'Signup Enabled', fr: 'Inscription activée' },
   'admin.signupEnabledDescription': { en: 'Allow new users to create accounts', fr: 'Permettre aux nouveaux utilisateurs de créer des comptes' },
+  
+  // Settings
+  'settings.title': { en: 'Settings', fr: 'Paramètres' },
+  'settings.basicInfo': { en: 'Basic Information', fr: 'Informations de base' },
+  'settings.campuses': { en: 'Campuses', fr: 'Campus' },
+  'settings.email': { en: 'Email Preferences', fr: 'Préférences de courriel' },
+  'settings.branding': { en: 'Branding', fr: 'Image de marque' },
   'admin.enabled': { en: 'Enabled', fr: 'Activé' },
   'admin.disabled': { en: 'Disabled', fr: 'Désactivé' },
   
