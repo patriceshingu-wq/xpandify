@@ -1,14 +1,16 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Mail, Phone, MapPin, Crown } from 'lucide-react';
+import { Mail, Phone, MapPin, Crown, Calendar } from 'lucide-react';
 import { Supervisor } from '@/hooks/useSupervisor';
 
 interface SupervisorCardProps {
   supervisor: Supervisor;
+  onScheduleMeeting?: () => void;
 }
 
-export function SupervisorCard({ supervisor }: SupervisorCardProps) {
+export function SupervisorCard({ supervisor, onScheduleMeeting }: SupervisorCardProps) {
   const initials = `${supervisor.first_name[0]}${supervisor.last_name[0]}`.toUpperCase();
   const displayName = supervisor.preferred_name || `${supervisor.first_name} ${supervisor.last_name}`;
 
@@ -59,6 +61,12 @@ export function SupervisorCard({ supervisor }: SupervisorCardProps) {
               )}
             </div>
           </div>
+          {onScheduleMeeting && (
+            <Button onClick={onScheduleMeeting} className="gap-2 shrink-0">
+              <Calendar className="h-4 w-4" />
+              Schedule 1:1
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
