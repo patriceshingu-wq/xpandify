@@ -18,15 +18,15 @@ import {
   BookOpen,
   Mail,
   Phone,
-  Clock,
   MapPin,
   Heart,
   TrendingUp,
-  Briefcase,
   User,
   Star,
-  AlertCircle,
+  Plus,
 } from 'lucide-react';
+import { CourseAssignmentDialog } from '@/components/development/CourseAssignmentDialog';
+import { FeedbackFormDialog } from '@/components/feedback/FeedbackFormDialog';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface TeamMemberDetailDialogProps {
@@ -43,6 +43,8 @@ export function TeamMemberDetailDialog({
   onScheduleMeeting,
 }: TeamMemberDetailDialogProps) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCourseAssignment, setShowCourseAssignment] = useState(false);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
 
   if (!member) return null;
 
@@ -251,10 +253,16 @@ export function TeamMemberDetailDialog({
                 {/* Courses */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      Training & Courses
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4" />
+                        Training & Courses
+                      </CardTitle>
+                      <Button size="sm" variant="outline" onClick={() => setShowCourseAssignment(true)}>
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        Assign Course
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -306,10 +314,16 @@ export function TeamMemberDetailDialog({
                 {/* Feedback */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      Feedback Received
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Feedback Received
+                      </CardTitle>
+                      <Button size="sm" variant="outline" onClick={() => setShowFeedbackForm(true)}>
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        Give Feedback
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4 text-center">
@@ -406,6 +420,20 @@ export function TeamMemberDetailDialog({
             </div>
           </ScrollArea>
         </Tabs>
+
+        {/* Course Assignment Dialog */}
+        <CourseAssignmentDialog
+          open={showCourseAssignment}
+          onOpenChange={setShowCourseAssignment}
+          defaultPersonId={member.member.id}
+        />
+
+        {/* Feedback Form Dialog */}
+        <FeedbackFormDialog
+          open={showFeedbackForm}
+          onOpenChange={setShowFeedbackForm}
+          defaultPersonId={member.member.id}
+        />
       </DialogContent>
     </Dialog>
   );

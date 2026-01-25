@@ -14,6 +14,7 @@ import { usePeople } from '@/hooks/usePeople';
 interface FeedbackFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultPersonId?: string;
 }
 
 interface FeedbackFormData {
@@ -26,7 +27,7 @@ interface FeedbackFormData {
   visible_to_person: boolean;
 }
 
-export function FeedbackFormDialog({ open, onOpenChange }: FeedbackFormDialogProps) {
+export function FeedbackFormDialog({ open, onOpenChange, defaultPersonId }: FeedbackFormDialogProps) {
   const { t, language } = useLanguage();
   const { person } = useAuth();
   const createFeedback = useCreateFeedback();
@@ -47,7 +48,7 @@ export function FeedbackFormDialog({ open, onOpenChange }: FeedbackFormDialogPro
   useEffect(() => {
     if (open) {
       reset({
-        person_id: '',
+        person_id: defaultPersonId || '',
         feedback_type: 'encouragement',
         title_en: '',
         title_fr: '',
@@ -56,7 +57,7 @@ export function FeedbackFormDialog({ open, onOpenChange }: FeedbackFormDialogPro
         visible_to_person: true,
       });
     }
-  }, [open, reset]);
+  }, [open, reset, defaultPersonId]);
 
   const onSubmit = async (data: FeedbackFormData) => {
     if (!person) return;
