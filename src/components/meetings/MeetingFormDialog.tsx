@@ -185,7 +185,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
       }
 
       // Apply template if selected
-      if (selectedTemplateId) {
+      if (selectedTemplateId && selectedTemplateId !== 'none') {
         const template = templates?.find(t => t.id === selectedTemplateId);
         if (template?.items && template.items.length > 0) {
           for (const item of template.items) {
@@ -260,14 +260,14 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
                 Use Template
               </Label>
               <Select
-                value={selectedTemplateId}
-                onValueChange={setSelectedTemplateId}
+                value={selectedTemplateId || 'none'}
+                onValueChange={(value) => setSelectedTemplateId(value === 'none' ? '' : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a template (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No template</SelectItem>
+                  <SelectItem value="none">No template</SelectItem>
                   {availableTemplates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {getLocalizedField(template, 'name')}
@@ -440,14 +440,14 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
             <div className="space-y-2">
               <Label htmlFor="recurrence">Recurrence Pattern</Label>
               <Select
-                value={formData.recurrence_pattern}
-                onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value })}
+                value={formData.recurrence_pattern || 'none'}
+                onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value === 'none' ? '' : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="No recurrence" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No recurrence</SelectItem>
+                  <SelectItem value="none">No recurrence</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
                   <SelectItem value="biweekly">Bi-weekly</SelectItem>
                   <SelectItem value="monthly">Monthly</SelectItem>
