@@ -203,6 +203,17 @@ const translations: Translations = {
   'surveys.deleteWarning': { en: 'This will delete all responses. This action cannot be undone.', fr: 'Cela supprimera toutes les réponses. Cette action est irréversible.' },
   'surveys.addSurveyDescription': { en: 'Create a new pulse survey', fr: 'Créer un nouveau sondage' },
   'surveys.editSurveyDescription': { en: 'Update survey details', fr: 'Mettre à jour le sondage' },
+  'surveys.visibleToRoles': { en: 'Visible to Roles', fr: 'Visible par les rôles' },
+  'surveys.visibleToRolesHint': { en: 'Leave empty to make visible to all authenticated users', fr: 'Laisser vide pour rendre visible à tous les utilisateurs authentifiés' },
+  'surveys.allUsers': { en: 'All Users', fr: 'Tous les utilisateurs' },
+  'surveys.roleRestricted': { en: 'Role Restricted', fr: 'Restreint par rôle' },
+  
+  // Role names for display
+  'roles.super_admin': { en: 'Super Admin', fr: 'Super Admin' },
+  'roles.admin': { en: 'Admin', fr: 'Admin' },
+  'roles.pastor_supervisor': { en: 'Pastor / Supervisor', fr: 'Pasteur / Superviseur' },
+  'roles.staff': { en: 'Staff', fr: 'Personnel' },
+  'roles.volunteer': { en: 'Volunteer', fr: 'Bénévole' },
   
   // Profile
   'profile.title': { en: 'My Profile', fr: 'Mon Profil' },

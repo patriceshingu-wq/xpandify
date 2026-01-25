@@ -1050,6 +1050,35 @@ export type Database = {
           },
         ]
       }
+      survey_visible_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role_name: Database["public"]["Enums"]["app_role_type"]
+          survey_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role_name: Database["public"]["Enums"]["app_role_type"]
+          survey_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role_name?: Database["public"]["Enums"]["app_role_type"]
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_visible_roles_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1084,6 +1113,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_survey: {
+        Args: { check_survey_id: string; check_user_id: string }
+        Returns: boolean
+      }
       get_person_id_for_user: {
         Args: { check_user_id: string }
         Returns: string

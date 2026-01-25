@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
+import { AppRoleType } from '@/contexts/AuthContext';
 
 type SurveyRow = Database['public']['Tables']['pulse_surveys']['Row'];
 type SurveyInsert = Database['public']['Tables']['pulse_surveys']['Insert'];
@@ -9,6 +10,7 @@ type ResponseRow = Database['public']['Tables']['pulse_responses']['Row'];
 
 export interface Survey extends SurveyRow {
   response_count?: number;
+  visible_roles?: AppRoleType[];
 }
 
 export interface SurveyResponse extends ResponseRow {
@@ -60,9 +62,23 @@ export function useSurveys(filters: SurveyFilters = {}) {
         responseCounts[r.pulse_survey_id] = (responseCounts[r.pulse_survey_id] || 0) + 1;
       });
 
+      // Get visible roles for all surveys
+      const surveyIds = (data || []).map((s) => s.id);
+      const { data: visibleRoles } = await supabase
+        .from('survey_visible_roles')
+        .select('survey_id, role_name')
+        .in('survey_id', surveyIds);
+
+      const rolesMap: Record<string, AppRoleType[]> = {};
+      visibleRoles?.forEach((vr) => {
+        if (!rolesMap[vr.survey_id]) rolesMap[vr.survey_id] = [];
+        rolesMap[vr.survey_id].push(vr.role_name as AppRoleType);
+      });
+
       return (data || []).map((survey) => ({
         ...survey,
         response_count: responseCounts[survey.id] || 0,
+        visible_roles: rolesMap[survey.id] || [],
       }));
     },
   });
@@ -88,12 +104,16 @@ export function useSurveyResponses(surveyId: string) {
   });
 }
 
+interface CreateSurveyInput extends SurveyInsert {
+  visible_roles?: AppRoleType[];
+}
+
 export function useCreateSurvey() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (survey: SurveyInsert) => {
+    mutationFn: async ({ visible_roles, ...survey }: CreateSurveyInput) => {
       const { data, error } = await supabase
         .from('pulse_surveys')
         .insert(survey)
@@ -101,6 +121,19 @@ export function useCreateSurvey() {
         .single();
 
       if (error) throw error;
+
+      // Insert visible roles if any
+      if (visible_roles && visible_roles.length > 0) {
+        const roleInserts = visible_roles.map((role_name) => ({
+          survey_id: data.id,
+          role_name,
+        }));
+        const { error: rolesError } = await supabase
+          .from('survey_visible_roles')
+          .insert(roleInserts);
+        if (rolesError) throw rolesError;
+      }
+
       return data;
     },
     onSuccess: () => {
@@ -113,12 +146,21 @@ export function useCreateSurvey() {
   });
 }
 
+interface UpdateSurveyInput {
+  id: string;
+  title?: string;
+  description?: string | null;
+  target_group?: Database['public']['Enums']['pulse_target'];
+  is_active?: boolean;
+  visible_roles?: AppRoleType[];
+}
+
 export function useUpdateSurvey() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Survey> & { id: string }) => {
+    mutationFn: async ({ id, visible_roles, ...updates }: UpdateSurveyInput) => {
       const { data, error } = await supabase
         .from('pulse_surveys')
         .update(updates)
@@ -127,6 +169,23 @@ export function useUpdateSurvey() {
         .single();
 
       if (error) throw error;
+
+      // Update visible roles - delete existing and insert new
+      if (visible_roles !== undefined) {
+        await supabase.from('survey_visible_roles').delete().eq('survey_id', id);
+        
+        if (visible_roles.length > 0) {
+          const roleInserts = visible_roles.map((role_name) => ({
+            survey_id: id,
+            role_name,
+          }));
+          const { error: rolesError } = await supabase
+            .from('survey_visible_roles')
+            .insert(roleInserts);
+          if (rolesError) throw rolesError;
+        }
+      }
+
       return data;
     },
     onSuccess: () => {

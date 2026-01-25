@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AppRoleType } from '@/contexts/AuthContext';
 import { Survey, useCreateSurvey, useUpdateSurvey } from '@/hooks/useSurveys';
+import { useAppRoles } from '@/hooks/useAdminUsers';
+import { Shield, Users, Crown, Briefcase, Heart } from 'lucide-react';
 
 interface SurveyFormDialogProps {
   open: boolean;
@@ -23,10 +27,20 @@ interface SurveyFormData {
   is_active: boolean;
 }
 
+const roleIcons: Record<AppRoleType, React.ReactNode> = {
+  super_admin: <Crown className="h-4 w-4" />,
+  admin: <Shield className="h-4 w-4" />,
+  pastor_supervisor: <Users className="h-4 w-4" />,
+  staff: <Briefcase className="h-4 w-4" />,
+  volunteer: <Heart className="h-4 w-4" />,
+};
+
 export function SurveyFormDialog({ open, onOpenChange, survey }: SurveyFormDialogProps) {
   const { t } = useLanguage();
   const createSurvey = useCreateSurvey();
   const updateSurvey = useUpdateSurvey();
+  const { data: appRoles = [] } = useAppRoles();
+  const [selectedRoles, setSelectedRoles] = useState<AppRoleType[]>([]);
 
   const { register, handleSubmit, reset, setValue, watch } = useForm<SurveyFormData>({
     defaultValues: {
@@ -45,6 +59,7 @@ export function SurveyFormDialog({ open, onOpenChange, survey }: SurveyFormDialo
         target_group: survey.target_group || 'all_staff',
         is_active: survey.is_active ?? true,
       });
+      setSelectedRoles(survey.visible_roles || []);
     } else {
       reset({
         title: '',
@@ -52,8 +67,15 @@ export function SurveyFormDialog({ open, onOpenChange, survey }: SurveyFormDialo
         target_group: 'all_staff',
         is_active: true,
       });
+      setSelectedRoles([]);
     }
   }, [survey, reset]);
+
+  const handleRoleToggle = (roleName: AppRoleType, checked: boolean) => {
+    setSelectedRoles((prev) =>
+      checked ? [...prev, roleName] : prev.filter((r) => r !== roleName)
+    );
+  };
 
   const onSubmit = async (data: SurveyFormData) => {
     const surveyData = {
@@ -61,6 +83,7 @@ export function SurveyFormDialog({ open, onOpenChange, survey }: SurveyFormDialo
       description: data.description || null,
       target_group: data.target_group as any,
       is_active: data.is_active,
+      visible_roles: selectedRoles,
     };
 
     if (survey) {
@@ -106,6 +129,37 @@ export function SurveyFormDialog({ open, onOpenChange, survey }: SurveyFormDialo
                 <SelectItem value="custom">{t('surveys.custom')}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Role Visibility Section */}
+          <div className="space-y-3">
+            <div>
+              <Label>{t('surveys.visibleToRoles')}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t('surveys.visibleToRolesHint')}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-2 p-3 border rounded-lg bg-muted/30">
+              {appRoles.map((role) => (
+                <div key={role.id} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`role-${role.name}`}
+                    checked={selectedRoles.includes(role.name)}
+                    onCheckedChange={(checked) => handleRoleToggle(role.name, checked === true)}
+                  />
+                  <Label
+                    htmlFor={`role-${role.name}`}
+                    className="flex items-center gap-2 cursor-pointer font-normal"
+                  >
+                    {roleIcons[role.name]}
+                    <span>{t(`roles.${role.name}`)}</span>
+                  </Label>
+                </div>
+              ))}
+              {appRoles.length === 0 && (
+                <p className="text-sm text-muted-foreground">Loading roles...</p>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-lg">

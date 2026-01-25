@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, AppRoleType } from '@/contexts/AuthContext';
 import { useSurveys, Survey, useDeleteSurvey, useUpdateSurvey } from '@/hooks/useSurveys';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
 import { SurveyFormDialog } from '@/components/surveys/SurveyFormDialog';
-import { Plus, BarChart3, Search, Users, Heart, Trash2, MessageCircle } from 'lucide-react';
+import { Plus, BarChart3, Search, Users, Heart, Trash2, MessageCircle, Shield, Lock } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const targetIcons: Record<string, React.ReactNode> = {
   all_staff: <Users className="h-4 w-4" />,
@@ -154,9 +155,45 @@ export default function Surveys() {
                     </div>
                   </div>
                   <h3 className="font-medium text-foreground mb-2">{survey.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                     {survey.description || t('surveys.noDescription')}
                   </p>
+                  
+                  {/* Role Badges */}
+                  {isAdminOrSuper && survey.visible_roles && survey.visible_roles.length > 0 && (
+                    <div className="mb-3">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1.5">
+                              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                              <div className="flex flex-wrap gap-1">
+                                {survey.visible_roles.slice(0, 2).map((role) => (
+                                  <Badge key={role} variant="outline" className="text-xs px-1.5 py-0">
+                                    {t(`roles.${role}`)}
+                                  </Badge>
+                                ))}
+                                {survey.visible_roles.length > 2 && (
+                                  <Badge variant="outline" className="text-xs px-1.5 py-0">
+                                    +{survey.visible_roles.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-medium mb-1">{t('surveys.visibleToRoles')}:</p>
+                            <ul className="text-xs">
+                              {survey.visible_roles.map((role) => (
+                                <li key={role}>{t(`roles.${role}`)}</li>
+                              ))}
+                            </ul>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       {targetIcons[survey.target_group || 'all_staff']}
