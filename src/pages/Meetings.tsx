@@ -8,11 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, CalendarDays, Clock, User, Users, Eye, List } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Calendar, CalendarDays, CalendarRange, User, Eye, List } from 'lucide-react';
 import { MeetingFormDialog } from '@/components/meetings/MeetingFormDialog';
 import { MeetingDetailDialog } from '@/components/meetings/MeetingDetailDialog';
 import { WeeklyCalendarView } from '@/components/meetings/WeeklyCalendarView';
+import { MonthlyCalendarView } from '@/components/meetings/MonthlyCalendarView';
 import { format } from 'date-fns';
 
 export default function Meetings() {
@@ -22,7 +23,7 @@ export default function Meetings() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [viewingMeetingId, setViewingMeetingId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'week' | 'month'>('list');
 
   // For calendar view, we need all meetings (not just upcoming)
   const { data: meetings, isLoading } = useMeetings({
@@ -128,15 +129,19 @@ export default function Meetings() {
                   </Select>
                 )}
               </div>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'calendar')}>
+              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'week' | 'month')}>
                 <TabsList>
                   <TabsTrigger value="list" className="gap-2">
                     <List className="h-4 w-4" />
-                    List
+                    <span className="hidden sm:inline">List</span>
                   </TabsTrigger>
-                  <TabsTrigger value="calendar" className="gap-2">
+                  <TabsTrigger value="week" className="gap-2">
                     <CalendarDays className="h-4 w-4" />
-                    Calendar
+                    <span className="hidden sm:inline">Week</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="month" className="gap-2">
+                    <CalendarRange className="h-4 w-4" />
+                    <span className="hidden sm:inline">Month</span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -149,11 +154,16 @@ export default function Meetings() {
           <div className="flex items-center justify-center py-12">
             <div className="spinner" />
           </div>
-        ) : viewMode === 'calendar' ? (
+        ) : viewMode === 'week' ? (
           <WeeklyCalendarView
             meetings={meetings || []}
             onMeetingClick={handleView}
             onMeetingEdit={handleEdit}
+          />
+        ) : viewMode === 'month' ? (
+          <MonthlyCalendarView
+            meetings={meetings || []}
+            onMeetingClick={handleView}
           />
         ) : Object.keys(groupedMeetings).length > 0 ? (
           <div className="space-y-6">
