@@ -1,6 +1,6 @@
 # E2E Tests with Playwright
 
-This directory contains end-to-end tests for the Expandify application using Playwright.
+This directory contains end-to-end tests for the Xpandify application using Playwright.
 
 ## Prerequisites
 

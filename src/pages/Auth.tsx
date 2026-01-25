@@ -73,9 +73,9 @@ export default function Auth() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-accent mb-4 shadow-gold">
-            <span className="text-3xl font-bold text-primary">E</span>
+            <span className="text-3xl font-bold text-primary">X</span>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-primary-foreground">Expandify</h1>
+          <h1 className="text-3xl font-serif font-bold text-primary-foreground">Xpandify</h1>
           <p className="text-primary-foreground/70 mt-2">{t('app.tagline')}</p>
         </div>
 

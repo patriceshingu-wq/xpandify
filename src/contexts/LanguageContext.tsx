@@ -12,7 +12,7 @@ interface Translations {
 // Core application translations
 const translations: Translations = {
   // App
-  'app.name': { en: 'Expandify', fr: 'Expandify' },
+  'app.name': { en: 'Xpandify', fr: 'Xpandify' },
   'app.tagline': { en: 'Grow Your Ministry Team', fr: 'Développez Votre Équipe Ministérielle' },
   
   // Navigation
@@ -347,12 +347,12 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('expandify-language');
+    const saved = localStorage.getItem('xpandify-language');
     return (saved === 'fr' ? 'fr' : 'en') as Language;
   });
 
   useEffect(() => {
-    localStorage.setItem('expandify-language', language);
+    localStorage.setItem('xpandify-language', language);
     document.documentElement.lang = language;
   }, [language]);
 

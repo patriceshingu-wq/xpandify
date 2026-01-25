@@ -106,10 +106,10 @@ export function Sidebar() {
           {!isCollapsed && (
             <Link to="/dashboard" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
-                <span className="text-sidebar-primary-foreground font-bold text-lg">E</span>
+                <span className="text-sidebar-primary-foreground font-bold text-lg">X</span>
               </div>
               <span className="font-serif text-xl font-semibold text-sidebar-foreground">
-                Expandify
+                Xpandify
               </span>
             </Link>
           )}

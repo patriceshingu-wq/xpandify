@@ -337,7 +337,7 @@ export default function Settings() {
                         id="email_sender_name"
                         value={formData.email_sender_name || settings?.email_sender_name || ''}
                         onChange={(e) => handleFieldChange('email_sender_name', e.target.value)}
-                        placeholder="Expandify"
+                        placeholder="Xpandify"
                       />
                     </div>
                     <div className="space-y-2">
