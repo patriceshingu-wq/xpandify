@@ -9,6 +9,8 @@ import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart'
 import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
 import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
 import { SupervisorDashboard } from '@/components/dashboard/SupervisorDashboard';
+import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
+import { useDirectReports } from '@/hooks/useDirectReports';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
 import { useMeetings } from '@/hooks/useMeetings';
@@ -23,6 +25,9 @@ export default function Dashboard() {
   const { data: allPeople, isLoading: peopleLoading } = usePeople();
   const { data: goals, isLoading: goalsLoading } = useGoals();
   const { data: meetings, isLoading: meetingsLoading } = useMeetings();
+  const { data: directReports } = useDirectReports();
+
+  const hasDirectReports = (directReports?.length || 0) > 0;
 
   const displayName = person?.preferred_name || person?.first_name || 'User';
 
@@ -121,8 +126,12 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Supervisor Dashboard - Direct Reports */}
-        <SupervisorDashboard />
+        {/* Role-Based Dashboards */}
+        {hasDirectReports ? (
+          <SupervisorDashboard />
+        ) : (
+          <StaffDashboard />
+        )}
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
