@@ -4,6 +4,22 @@ import { screen, waitFor } from "@testing-library/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { ReactNode } from "react";
+import { 
+  createMockAuthState, 
+  adminAuthState, 
+  staffAuthState, 
+  loadingAuthState,
+  languageContextMock,
+  MockAuthState 
+} from "../mocks/authMock";
+import { 
+  createDirectReportsMock,
+  createMeetingsMock,
+  createGoalsMock,
+  createDevelopmentPlansMock,
+  createUserActionItemsMock,
+  createMeetingTemplatesMock
+} from "../mocks/hookMocks";
 
 /**
  * Role-Based Access Control Tests
@@ -17,34 +33,14 @@ import { ReactNode } from "react";
  */
 
 // Configurable mock auth context
-let mockAuthState = {
-  user: null as { id: string; email: string } | null,
-  person: null as { id: string; first_name: string; last_name: string } | null,
-  isAdminOrSuper: false,
-  isLoading: false,
-  signOut: vi.fn(),
-};
+let mockAuthState: MockAuthState = staffAuthState;
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => mockAuthState,
   AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
-// Mock the hasAnyRole function used in Sidebar
-vi.mock("@/hooks/useAdminUsers", () => ({
-  useAdminUsers: () => ({ data: [], isLoading: false }),
-  useAppRoles: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock("@/contexts/LanguageContext", () => ({
-  useLanguage: () => ({
-    t: (key: string) => key,
-    getLocalizedField: (obj: any, field: string) => obj?.[`${field}_en`] || "",
-    language: "en",
-    setLanguage: vi.fn(),
-  }),
-  LanguageProvider: ({ children }: { children: ReactNode }) => children,
-}));
+vi.mock("@/contexts/LanguageContext", () => languageContextMock);
 
 // Mock hooks
 vi.mock("@/hooks/useAdminUsers", () => ({
@@ -52,31 +48,12 @@ vi.mock("@/hooks/useAdminUsers", () => ({
   useAppRoles: () => ({ data: [], isLoading: false }),
 }));
 
-vi.mock("@/hooks/useDirectReports", () => ({
-  useDirectReports: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock("@/hooks/useMeetings", () => ({
-  useMeetings: () => ({ data: [], isLoading: false }),
-  useUpdateAgendaItem: () => ({ mutateAsync: vi.fn(), isPending: false }),
-}));
-
-vi.mock("@/hooks/useGoals", () => ({
-  useGoals: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock("@/hooks/useDevelopmentPlans", () => ({
-  useDevelopmentPlans: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock("@/hooks/useUserActionItems", () => ({
-  useUserActionItems: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock("@/hooks/useMeetingTemplates", () => ({
-  useMeetingTemplates: () => ({ data: [], isLoading: false }),
-  useDeleteMeetingTemplate: () => ({ mutateAsync: vi.fn(), isPending: false }),
-}));
+vi.mock("@/hooks/useDirectReports", () => createDirectReportsMock([]));
+vi.mock("@/hooks/useMeetings", () => createMeetingsMock([]));
+vi.mock("@/hooks/useGoals", () => createGoalsMock([]));
+vi.mock("@/hooks/useDevelopmentPlans", () => createDevelopmentPlansMock([]));
+vi.mock("@/hooks/useUserActionItems", () => createUserActionItemsMock([]));
+vi.mock("@/hooks/useMeetingTemplates", () => createMeetingTemplatesMock([]));
 
 const createWrapper = (initialRoute = "/") => {
   const queryClient = new QueryClient({
@@ -95,36 +72,26 @@ describe("Admin Page Access Control", () => {
   });
 
   it("should render admin page for admin users", async () => {
-    mockAuthState = {
-      user: { id: "user-1", email: "admin@test.com" },
-      person: { id: "person-1", first_name: "Admin", last_name: "User" },
-      isAdminOrSuper: true,
-      isLoading: false,
-      signOut: vi.fn(),
-    };
+    mockAuthState = adminAuthState;
 
     const Admin = (await import("@/pages/Admin")).default;
 
     render(<Admin />, { wrapper: createWrapper("/admin") });
 
     await waitFor(() => {
-      expect(screen.getByText("admin.title")).toBeInTheDocument();
+      // May have multiple elements with admin.title (header + page title)
+      const elements = screen.getAllByText("admin.title");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("should redirect non-admin users from admin page", async () => {
-    mockAuthState = {
-      user: { id: "user-2", email: "staff@test.com" },
-      person: { id: "person-2", first_name: "Staff", last_name: "User" },
-      isAdminOrSuper: false,
-      isLoading: false,
-      signOut: vi.fn(),
-    };
+    mockAuthState = staffAuthState;
 
     const Admin = (await import("@/pages/Admin")).default;
 
     // The component should redirect - we check that it doesn't render admin content
-    const { container } = render(<Admin />, { wrapper: createWrapper("/admin") });
+    render(<Admin />, { wrapper: createWrapper("/admin") });
 
     // Should not show admin content
     await waitFor(() => {
@@ -133,13 +100,7 @@ describe("Admin Page Access Control", () => {
   });
 
   it("should show loading state while checking auth", async () => {
-    mockAuthState = {
-      user: null,
-      person: null,
-      isAdminOrSuper: false,
-      isLoading: true,
-      signOut: vi.fn(),
-    };
+    mockAuthState = loadingAuthState;
 
     const Admin = (await import("@/pages/Admin")).default;
 
@@ -156,51 +117,37 @@ describe("Dashboard Role-Based Views", () => {
   });
 
   it("should show appropriate dashboard for authenticated staff", async () => {
-    mockAuthState = {
-      user: { id: "user-1", email: "staff@test.com" },
-      person: { id: "person-1", first_name: "Staff", last_name: "User" },
-      isAdminOrSuper: false,
-      isLoading: false,
-      signOut: vi.fn(),
-    };
+    mockAuthState = staffAuthState;
 
     const Dashboard = (await import("@/pages/Dashboard")).default;
 
     render(<Dashboard />, { wrapper: createWrapper("/dashboard") });
 
     await waitFor(() => {
-      expect(screen.getByText("dashboard.overview")).toBeInTheDocument();
+      // Multiple elements may have dashboard.overview text
+      const elements = screen.getAllByText("dashboard.overview");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("should render for admin users", async () => {
-    mockAuthState = {
-      user: { id: "user-1", email: "admin@test.com" },
-      person: { id: "person-1", first_name: "Admin", last_name: "User" },
-      isAdminOrSuper: true,
-      isLoading: false,
-      signOut: vi.fn(),
-    };
+    mockAuthState = adminAuthState;
 
     const Dashboard = (await import("@/pages/Dashboard")).default;
 
     render(<Dashboard />, { wrapper: createWrapper("/dashboard") });
 
     await waitFor(() => {
-      expect(screen.getByText("dashboard.overview")).toBeInTheDocument();
+      // Multiple elements may have dashboard.overview text
+      const elements = screen.getAllByText("dashboard.overview");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 });
 
 describe("Settings Page Access", () => {
   it("should redirect non-admin from settings", async () => {
-    mockAuthState = {
-      user: { id: "user-1", email: "staff@test.com" },
-      person: { id: "person-1", first_name: "Staff", last_name: "User" },
-      isAdminOrSuper: false,
-      isLoading: false,
-      signOut: vi.fn(),
-    };
+    mockAuthState = staffAuthState;
 
     // Settings page has similar admin check
     const Settings = (await import("@/pages/Settings")).default;
@@ -217,24 +164,20 @@ describe("Settings Page Access", () => {
 describe("Role Helper Functions", () => {
   it("should correctly identify admin status", () => {
     // Test the auth state directly
-    const adminState = {
-      isAdminOrSuper: true,
-    };
-    expect(adminState.isAdminOrSuper).toBe(true);
+    expect(adminAuthState.isAdminOrSuper).toBe(true);
+    expect(adminAuthState.hasAnyRole(['admin'])).toBe(true);
+    expect(adminAuthState.hasRole('super_admin')).toBe(true);
 
-    const staffState = {
-      isAdminOrSuper: false,
-    };
-    expect(staffState.isAdminOrSuper).toBe(false);
+    expect(staffAuthState.isAdminOrSuper).toBe(false);
+    expect(staffAuthState.hasAnyRole(['admin'])).toBe(false);
+    expect(staffAuthState.hasRole('staff')).toBe(true);
   });
 
   it("should handle null user gracefully", () => {
-    const state = {
-      user: null,
-      isAdminOrSuper: false,
-    };
+    const nullUserState = createMockAuthState({ user: null, person: null });
     
-    expect(state.user).toBeNull();
-    expect(state.isAdminOrSuper).toBe(false);
+    expect(nullUserState.user).toBeNull();
+    expect(nullUserState.isAdminOrSuper).toBe(false);
+    expect(nullUserState.hasAnyRole(['admin'])).toBe(false);
   });
 });

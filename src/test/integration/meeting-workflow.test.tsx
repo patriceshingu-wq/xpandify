@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
-import { screen, fireEvent, waitFor } from "@testing-library/dom";
+import { screen, waitFor } from "@testing-library/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { ReactNode } from "react";
+import { adminAuthState, languageContextMock, MockAuthState } from "../mocks/authMock";
 
 /**
  * Integration tests for the Meeting Workflow
@@ -17,23 +18,15 @@ import { ReactNode } from "react";
  * 6. Verify notifications are generated
  */
 
-// Mock all dependencies
+// Configurable auth state
+let mockAuthState: MockAuthState = adminAuthState;
+
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({
-    user: { id: "user-1" },
-    person: { id: "person-1", first_name: "Test", last_name: "User" },
-    isAdminOrSuper: true,
-    isLoading: false,
-  }),
+  useAuth: () => mockAuthState,
+  AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
-vi.mock("@/contexts/LanguageContext", () => ({
-  useLanguage: () => ({
-    t: (key: string) => key,
-    getLocalizedField: (obj: any, field: string) => obj?.[`${field}_en`] || obj?.title_en || "",
-    language: "en",
-  }),
-}));
+vi.mock("@/contexts/LanguageContext", () => languageContextMock);
 
 // Track mutation calls for verification
 const mutationCalls: Record<string, any[]> = {
@@ -122,6 +115,10 @@ vi.mock("@/hooks/useMeetingParticipants", () => ({
     ],
     isLoading: false,
   }),
+  useBulkAddMeetingParticipants: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
 }));
 
 vi.mock("@/hooks/usePeople", () => ({
@@ -173,8 +170,21 @@ vi.mock("@/hooks/useDevelopmentPlans", () => ({
 
 vi.mock("@/hooks/useMeetingTemplates", () => ({
   useMeetingTemplates: () => ({ data: [], isLoading: false }),
+  useDeleteMeetingTemplate: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
   getSectionTypeLabel: (type: string) => type,
   getSectionTypeColor: () => "bg-gray-100 text-gray-800",
+}));
+
+vi.mock("@/hooks/useDirectReports", () => ({
+  useDirectReports: () => ({ data: [], isLoading: false }),
+  useDirectReportsWithStats: () => ({ data: [], isLoading: false }),
+}));
+
+vi.mock("@/hooks/useUserActionItems", () => ({
+  useUserActionItems: () => ({ data: [], isLoading: false }),
 }));
 
 const createWrapper = () => {
@@ -191,6 +201,7 @@ const createWrapper = () => {
 describe("Meeting Workflow Integration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuthState = adminAuthState;
     Object.keys(mutationCalls).forEach((key) => {
       mutationCalls[key] = [];
     });
@@ -212,7 +223,9 @@ describe("Meeting Workflow Integration", () => {
 
       render(<Meetings />, { wrapper: createWrapper() });
 
-      expect(screen.getByText("meetings.addMeeting")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("meetings.addMeeting")).toBeInTheDocument();
+      });
     });
   });
 
