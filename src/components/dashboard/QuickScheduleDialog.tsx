@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MeetingTemplate } from '@/hooks/useMeetingTemplates';
+import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, FileText, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Calendar, FileText, Loader2, AlertTriangle } from 'lucide-react';
 
 interface QuickScheduleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   personId: string;
   personName: string;
+  organizerId: string;
   templates: MeetingTemplate[];
   defaultTemplateId?: string;
   onSchedule: (data: {
@@ -29,6 +32,7 @@ export function QuickScheduleDialog({
   onOpenChange,
   personId,
   personName,
+  organizerId,
   templates,
   defaultTemplateId,
   onSchedule,
@@ -51,23 +55,57 @@ export function QuickScheduleDialog({
   const [dateTime, setDateTime] = useState(getDefaultDateTime());
   const [selectedTemplateId, setSelectedTemplateId] = useState(defaultTemplateId || 'none');
   const [title, setTitle] = useState(`1:1 with ${personName}`);
+  const [conflicts, setConflicts] = useState<MeetingConflict[]>([]);
+  const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
 
   useEffect(() => {
     if (open) {
       setDateTime(getDefaultDateTime());
       setSelectedTemplateId(defaultTemplateId || 'none');
       setTitle(`1:1 with ${personName}`);
+      setConflicts([]);
     }
   }, [open, personName, defaultTemplateId]);
 
+  // Check for conflicts when date/time changes
+  useEffect(() => {
+    const checkConflicts = async () => {
+      if (!dateTime || !personId || !organizerId) return;
+
+      setIsCheckingConflicts(true);
+      try {
+        const foundConflicts = await checkMeetingConflicts({
+          dateTime: new Date(dateTime),
+          durationMinutes: 60, // Default 1:1 duration
+          personIds: [personId, organizerId],
+        });
+        setConflicts(foundConflicts);
+      } catch (error) {
+        console.error('Error checking conflicts:', error);
+      } finally {
+        setIsCheckingConflicts(false);
+      }
+    };
+
+    // Debounce the check
+    const timeoutId = setTimeout(checkConflicts, 300);
+    return () => clearTimeout(timeoutId);
+  }, [dateTime, personId, organizerId]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-      onSchedule({
-        personId,
-        dateTime: new Date(dateTime),
-        templateId: selectedTemplateId === 'none' ? null : selectedTemplateId || null,
-        title,
-      });
+    if (conflicts.length > 0) {
+      // Allow scheduling with warning, but show confirmation
+      if (!window.confirm(`There are scheduling conflicts. ${formatConflictMessage(conflicts)}\n\nDo you want to proceed anyway?`)) {
+        return;
+      }
+    }
+    onSchedule({
+      personId,
+      dateTime: new Date(dateTime),
+      templateId: selectedTemplateId === 'none' ? null : selectedTemplateId || null,
+      title,
+    });
   };
 
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
@@ -108,7 +146,23 @@ export function QuickScheduleDialog({
               onChange={(e) => setDateTime(e.target.value)}
               required
             />
+            {isCheckingConflicts && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Checking availability...
+              </p>
+            )}
           </div>
+
+          {/* Conflict Warning */}
+          {conflicts.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                {formatConflictMessage(conflicts)}
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Template Selection */}
           <div className="space-y-2">

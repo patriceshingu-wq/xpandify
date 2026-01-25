@@ -214,6 +214,7 @@ export function SupervisorDashboard() {
         onOpenChange={setScheduleDialogOpen}
         personId={selectedPerson?.id || ''}
         personName={selectedPerson?.name || ''}
+        organizerId={person?.id || ''}
         templates={oneOnOneTemplates}
         defaultTemplateId={defaultTemplate?.id}
         onSchedule={handleQuickSchedule}
