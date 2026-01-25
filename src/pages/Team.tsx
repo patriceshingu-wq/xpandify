@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -49,9 +49,22 @@ export default function Team() {
   const createAgendaItem = useCreateAgendaItem();
   const bulkAddParticipants = useBulkAddMeetingParticipants();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'supervisor' | 'direct-reports' | 'teammates'>('supervisor');
+  const [activeTab, setActiveTab] = useState<'supervisor' | 'direct-reports' | 'teammates' | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMemberStats | null>(null);
   const [scheduleForMember, setScheduleForMember] = useState<TeamMemberStats | null>(null);
+
+  // Set default tab based on available data
+  useEffect(() => {
+    if (activeTab === null && !isLoading && !isLoadingTeammates) {
+      if (teamMembers && teamMembers.length > 0) {
+        setActiveTab('direct-reports');
+      } else if (teammates && teammates.length > 0) {
+        setActiveTab('teammates');
+      } else {
+        setActiveTab('supervisor');
+      }
+    }
+  }, [activeTab, isLoading, isLoadingTeammates, teamMembers, teammates]);
 
   // Filter templates for 1:1 meetings
   const oneOnOneTemplates = templates?.filter(t => t.meeting_type === 'one_on_one') || [];
@@ -107,7 +120,7 @@ export default function Team() {
         />
 
         {/* Tab Navigation */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
+        <Tabs value={activeTab || 'supervisor'} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
           <TabsList>
             <TabsTrigger value="supervisor" className="gap-2">
               <Crown className="h-4 w-4" />
