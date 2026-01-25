@@ -30,6 +30,10 @@ export interface MeetingAgendaItem extends AgendaItemRow {
     first_name: string;
     last_name: string;
   } | null;
+  linked_pdp_item?: {
+    id: string;
+    pdp_id: string;
+  } | null;
 }
 
 export interface MeetingFilters {
@@ -120,7 +124,8 @@ export function useMeetingAgendaItems(meetingId: string | undefined) {
         .from('meeting_agenda_items')
         .select(`
           *,
-          action_owner:people!meeting_agenda_items_action_owner_id_fkey(id, first_name, last_name)
+          action_owner:people!meeting_agenda_items_action_owner_id_fkey(id, first_name, last_name),
+          linked_pdp_item:pdp_items!meeting_agenda_items_linked_pdp_item_id_fkey(id, pdp_id)
         `)
         .eq('meeting_id', meetingId)
         .order('order_index', { ascending: true });
@@ -129,7 +134,8 @@ export function useMeetingAgendaItems(meetingId: string | undefined) {
       
       return (data || []).map(item => ({
         ...item,
-        action_owner: Array.isArray(item.action_owner) ? item.action_owner[0] || null : item.action_owner
+        action_owner: Array.isArray(item.action_owner) ? item.action_owner[0] || null : item.action_owner,
+        linked_pdp_item: Array.isArray(item.linked_pdp_item) ? item.linked_pdp_item[0] || null : item.linked_pdp_item
       })) as MeetingAgendaItem[];
     },
     enabled: !!meetingId,
