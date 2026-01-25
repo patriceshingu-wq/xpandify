@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
-import { Search, Users, Shield, Settings, ShieldAlert } from 'lucide-react';
+import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateManagement';
+import { Search, Users, Shield, Settings, ShieldAlert, FileText } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function Admin() {
@@ -98,6 +99,10 @@ export default function Admin() {
               <Shield className="h-4 w-4" />
               {t('admin.roleManagement')}
             </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Meeting Templates
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
               {t('admin.systemSettings')}
@@ -170,6 +175,10 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-6">
+            <MeetingTemplateManagement />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
