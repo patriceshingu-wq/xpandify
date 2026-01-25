@@ -41,9 +41,9 @@ export interface MeetingTemplateItem {
   created_at: string | null;
 }
 
-export function useMeetingTemplates(meetingType?: MeetingType) {
+export function useMeetingTemplates(meetingType?: MeetingType, includeInactive = false) {
   return useQuery({
-    queryKey: ['meeting-templates', meetingType],
+    queryKey: ['meeting-templates', meetingType, includeInactive],
     queryFn: async () => {
       let query = supabase
         .from('meeting_templates')
@@ -51,8 +51,11 @@ export function useMeetingTemplates(meetingType?: MeetingType) {
           *,
           items:meeting_template_items(*)
         `)
-        .eq('is_active', true)
         .order('name_en');
+
+      if (!includeInactive) {
+        query = query.eq('is_active', true);
+      }
 
       if (meetingType) {
         query = query.eq('meeting_type', meetingType);
@@ -208,6 +211,41 @@ export function useCreateTemplateItem() {
   });
 }
 
+export function useUpdateTemplateItem() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { t } = useLanguage();
+
+  return useMutation({
+    mutationFn: async ({ id, template_id, ...item }: Partial<MeetingTemplateItem> & { id: string; template_id: string }) => {
+      const { data, error } = await supabase
+        .from('meeting_template_items')
+        .update(item)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { ...data, template_id };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['meeting-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['meeting-template', data.template_id] });
+      toast({
+        title: t('common.success'),
+        description: 'Template item updated',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
 export function useDeleteTemplateItem() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -229,6 +267,47 @@ export function useDeleteTemplateItem() {
       toast({
         title: t('common.success'),
         description: 'Template item removed',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useDeleteMeetingTemplate() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { t } = useLanguage();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // First delete all template items
+      const { error: itemsError } = await supabase
+        .from('meeting_template_items')
+        .delete()
+        .eq('template_id', id);
+
+      if (itemsError) throw itemsError;
+
+      // Then delete the template
+      const { error } = await supabase
+        .from('meeting_templates')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meeting-templates'] });
+      toast({
+        title: t('common.success'),
+        description: 'Template deleted successfully',
       });
     },
     onError: (error: Error) => {
