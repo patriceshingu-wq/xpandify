@@ -45,80 +45,84 @@ export default function Admin() {
 
   return (
     <MainLayout title={t('admin.title')} subtitle={t('admin.subtitle')}>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-4 md:space-y-6 animate-fade-in">
         <PageHeader
           title={t('admin.title')}
           subtitle={t('admin.subtitle')}
         />
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Stats - Horizontal scroll on mobile */}
+        <div className="grid grid-cols-3 gap-2 md:gap-4">
           <Card>
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <Users className="h-6 w-6 text-success" />
+            <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
+                <Users className="h-5 w-5 md:h-6 md:w-6 text-success" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{activeUsers}</p>
-                <p className="text-sm text-muted-foreground">{t('admin.activeUsers')}</p>
+              <div className="min-w-0">
+                <p className="text-lg md:text-2xl font-bold">{activeUsers}</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">{t('admin.activeUsers')}</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-info" />
+            <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-info/10 flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 md:h-6 md:w-6 text-info" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{totalRoles}</p>
-                <p className="text-sm text-muted-foreground">{t('admin.systemRoles')}</p>
+              <div className="min-w-0">
+                <p className="text-lg md:text-2xl font-bold">{totalRoles}</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">{t('admin.systemRoles')}</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                <ShieldAlert className="h-6 w-6 text-warning" />
+            <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
+                <ShieldAlert className="h-5 w-5 md:h-6 md:w-6 text-warning" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{unlinkedUsers}</p>
-                <p className="text-sm text-muted-foreground">{t('admin.unlinkedUsers')}</p>
+              <div className="min-w-0">
+                <p className="text-lg md:text-2xl font-bold">{unlinkedUsers}</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">{t('admin.unlinkedUsers')}</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - Scrollable on mobile */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="users" className="gap-2">
+          <TabsList className="w-full md:w-auto overflow-x-auto flex-nowrap">
+            <TabsTrigger value="users" className="gap-1.5 touch-target flex-shrink-0">
               <Users className="h-4 w-4" />
-              {t('admin.userManagement')}
+              <span className="hidden sm:inline">{t('admin.userManagement')}</span>
+              <span className="sm:hidden">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="roles" className="gap-2">
+            <TabsTrigger value="roles" className="gap-1.5 touch-target flex-shrink-0">
               <Shield className="h-4 w-4" />
-              {t('admin.roleManagement')}
+              <span className="hidden sm:inline">{t('admin.roleManagement')}</span>
+              <span className="sm:hidden">Roles</span>
             </TabsTrigger>
-            <TabsTrigger value="templates" className="gap-2">
+            <TabsTrigger value="templates" className="gap-1.5 touch-target flex-shrink-0">
               <FileText className="h-4 w-4" />
-              Meeting Templates
+              <span className="hidden sm:inline">Meeting Templates</span>
+              <span className="sm:hidden">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
+            <TabsTrigger value="settings" className="gap-1.5 touch-target flex-shrink-0">
               <Settings className="h-4 w-4" />
-              {t('admin.systemSettings')}
+              <span className="hidden sm:inline">{t('admin.systemSettings')}</span>
+              <span className="sm:hidden">Settings</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users" className="mt-6 space-y-4">
+          <TabsContent value="users" className="mt-4 md:mt-6 space-y-4">
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 md:p-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={t('admin.searchUsers')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 max-w-sm"
+                    className="pl-9 touch-target w-full md:max-w-sm"
                   />
                 </div>
               </CardContent>
