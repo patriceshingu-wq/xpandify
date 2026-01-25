@@ -90,37 +90,41 @@ export default function Dashboard() {
       subtitle={t('dashboard.overview')}
     >
       <div className="space-y-6 animate-fade-in">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats Grid - 2 cols on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {isLoading ? (
             <>
-              <Skeleton className="h-[120px] rounded-xl" />
-              <Skeleton className="h-[120px] rounded-xl" />
-              <Skeleton className="h-[120px] rounded-xl" />
-              <Skeleton className="h-[120px] rounded-xl" />
+              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
+              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
+              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
+              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
             </>
           ) : (
             <>
               <StatCard
                 title={t('dashboard.totalPeople')}
                 value={totalActive.toString()}
-                subtitle={`${activeStaff} staff, ${activeVolunteers} volunteers`}
-                icon={<Users className="h-6 w-6 text-accent" />}
+                subtitle={`${activeStaff} staff, ${activeVolunteers} vol.`}
+                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-accent" />}
+                className="p-4 md:p-6"
               />
               <StatCard
                 title={t('dashboard.activeStaff')}
                 value={activeStaff.toString()}
-                icon={<Users className="h-6 w-6 text-info" />}
+                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-info" />}
+                className="p-4 md:p-6"
               />
               <StatCard
                 title={t('dashboard.activeVolunteers')}
                 value={activeVolunteers.toString()}
-                icon={<Users className="h-6 w-6 text-success" />}
+                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-success" />}
+                className="p-4 md:p-6"
               />
               <StatCard
                 title={t('dashboard.goalsInProgress')}
                 value={goalsInProgress.toString()}
-                icon={<Target className="h-6 w-6 text-warning" />}
+                icon={<Target className="h-5 w-5 md:h-6 md:w-6 text-warning" />}
+                className="p-4 md:p-6"
               />
             </>
           )}
@@ -133,8 +137,8 @@ export default function Dashboard() {
           <StaffDashboard />
         )}
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Content Grid - Stack on mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Upcoming Meetings */}
           <Card>
             <CardHeader>
@@ -221,13 +225,13 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Analytics Charts */}
+        {/* Analytics Charts - Single column on mobile */}
         <div>
           <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
             <BarChart3 className="h-5 w-5 text-accent" />
             Analytics & Insights
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <GoalCompletionChart />
             <TrainingProgressChart />
             <TeamEngagementChart />

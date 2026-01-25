@@ -115,31 +115,31 @@ export default function Team() {
 
   return (
     <MainLayout title="My Team" subtitle="Manage and support your direct reports">
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-4 md:space-y-6 animate-fade-in">
         <PageHeader
           title="My Team"
-          subtitle="View detailed profiles, track performance, and manage your direct reports"
+          subtitle="View profiles and track performance"
         />
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation - Scrollable on mobile */}
         <Tabs value={activeTab || 'supervisor'} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
-          <TabsList>
-            <TabsTrigger value="supervisor" className="gap-2">
+          <TabsList className="w-full md:w-auto overflow-x-auto flex-nowrap">
+            <TabsTrigger value="supervisor" className="gap-1.5 touch-target flex-shrink-0">
               <Crown className="h-4 w-4" />
-              My Supervisor
+              <span className="hidden sm:inline">My</span> Supervisor
             </TabsTrigger>
-            <TabsTrigger value="direct-reports" className="gap-2">
+            <TabsTrigger value="direct-reports" className="gap-1.5 touch-target flex-shrink-0">
               <Users className="h-4 w-4" />
-              Direct Reports
+              <span className="hidden sm:inline">Direct</span> Reports
               {hasDirectReports && (
-                <Badge variant="secondary" className="ml-1">{teamMembers.length}</Badge>
+                <Badge variant="secondary" className="ml-1 text-xs">{teamMembers.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="teammates" className="gap-2">
+            <TabsTrigger value="teammates" className="gap-1.5 touch-target flex-shrink-0">
               <UsersRound className="h-4 w-4" />
-              My Teammates
+              Teammates
               {hasTeammates && (
-                <Badge variant="secondary" className="ml-1">{teammates.length}</Badge>
+                <Badge variant="secondary" className="ml-1 text-xs">{teammates.length}</Badge>
               )}
             </TabsTrigger>
           </TabsList>
@@ -161,49 +161,51 @@ export default function Team() {
             )}
           </TabsContent>
 
-          {/* Direct Reports Tab */}
-          <TabsContent value="direct-reports" className="mt-6 space-y-6">
+          <TabsContent value="direct-reports" className="mt-4 md:mt-6 space-y-4 md:space-y-6">
             {hasDirectReports && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
                 <StatCard
-                  title="Team Members"
+                  title="Team"
                   value={teamMembers.length}
-                  icon={<Users className="h-5 w-5" />}
+                  icon={<Users className="h-4 w-4 md:h-5 md:w-5" />}
+                  className="p-3 md:p-4"
                 />
                 <StatCard
-                  title="Goal Completion"
+                  title="Goal %"
                   value={`${teamStats?.totalGoals ? Math.round((teamStats.completedGoals / teamStats.totalGoals) * 100) : 0}%`}
-                  icon={<Target className="h-5 w-5" />}
-                  trend={teamStats?.completedGoals ? { value: teamStats.completedGoals, isPositive: true } : undefined}
+                  icon={<Target className="h-4 w-4 md:h-5 md:w-5" />}
+                  className="p-3 md:p-4"
                 />
                 <StatCard
-                  title="Open Actions"
+                  title="Actions"
                   value={teamStats?.openActions || 0}
-                  icon={<CheckSquare className="h-5 w-5" />}
+                  icon={<CheckSquare className="h-4 w-4 md:h-5 md:w-5" />}
+                  className="p-3 md:p-4"
                 />
                 <StatCard
-                  title="Upcoming 1:1s"
+                  title="1:1s"
                   value={teamStats?.upcomingMeetings || 0}
-                  icon={<Calendar className="h-5 w-5" />}
+                  icon={<Calendar className="h-4 w-4 md:h-5 md:w-5" />}
+                  className="p-3 md:p-4"
                 />
                 <StatCard
-                  title="Need Scheduling"
+                  title="Unscheduled"
                   value={teamStats?.noScheduledMeeting || 0}
-                  icon={<AlertTriangle className="h-5 w-5" />}
-                  className={teamStats?.noScheduledMeeting ? 'border-warning/50' : ''}
+                  icon={<AlertTriangle className="h-4 w-4 md:h-5 md:w-5" />}
+                  className={`p-3 md:p-4 ${teamStats?.noScheduledMeeting ? 'border-warning/50' : ''}`}
                 />
               </div>
             )}
 
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 md:p-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search direct reports..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 touch-target"
                   />
                 </div>
               </CardContent>
@@ -214,7 +216,7 @@ export default function Team() {
                 <div className="spinner" />
               </div>
             ) : filteredMembers.length > 0 ? (
-              <div className="grid gap-4">
+              <div className="grid gap-3 md:gap-4">
                 {filteredMembers.map((member) => {
                   const initials = `${member.member.first_name[0]}${member.member.last_name[0]}`.toUpperCase();
                   const displayName = member.member.preferred_name || `${member.member.first_name} ${member.member.last_name}`;
@@ -222,105 +224,93 @@ export default function Team() {
                   const meetingStatus = getMeetingStatus(member);
 
                   return (
-                    <Card key={member.member.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                          <div className="flex items-start gap-4 flex-1 min-w-0">
-                            <Avatar className="h-14 w-14 cursor-pointer" onClick={() => setSelectedMember(member)}>
-                              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                                {initials}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3
-                                  className="font-semibold text-lg cursor-pointer hover:text-primary transition-colors truncate"
-                                  onClick={() => setSelectedMember(member)}
-                                >
+                    <Card 
+                      key={member.member.id} 
+                      className="hover:shadow-md transition-shadow active:scale-[0.99]"
+                      onClick={() => setSelectedMember(member)}
+                    >
+                      <CardContent className="p-4 md:p-6">
+                        {/* Mobile-first layout */}
+                        <div className="flex items-start gap-3 md:gap-4">
+                          <Avatar className="h-12 w-12 md:h-14 md:w-14 flex-shrink-0">
+                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-base md:text-lg">
+                              {initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <h3 className="font-semibold text-base md:text-lg truncate">
                                   {displayName}
                                 </h3>
-                                <Badge variant="secondary" className="text-xs shrink-0">
+                                <Badge variant="secondary" className="text-xs mt-0.5">
                                   {member.member.person_type || 'Staff'}
                                 </Badge>
                               </div>
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                {member.member.email && (
-                                  <span className="flex items-center gap-1">
-                                    <Mail className="h-3.5 w-3.5" />
-                                    {member.member.email}
-                                  </span>
-                                )}
-                                {member.member.start_date && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    Since {format(new Date(member.member.start_date), 'MMM yyyy')}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
-                            <div className="text-center">
-                              <div className="text-xs text-muted-foreground mb-1">Next 1:1</div>
-                              {member.meetings.nextMeetingDate ? (
-                                <p className="text-sm font-medium">
-                                  {formatDistanceToNow(new Date(member.meetings.nextMeetingDate), { addSuffix: true })}
-                                </p>
-                              ) : (
-                                <Badge variant={meetingStatus.color as any} className="text-xs">
-                                  {meetingStatus.label}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-muted-foreground mb-1">Goals</div>
-                              <div className="flex items-center justify-center gap-1">
-                                <Target className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-sm font-medium">
-                                  {member.goals.completed}/{member.goals.total}
-                                </span>
-                              </div>
-                              <Progress value={goalProgress} className="h-1 mt-1" />
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-muted-foreground mb-1">Open Actions</div>
-                              <span className={`text-sm font-medium ${member.actionItems.open > 3 ? 'text-warning' : ''}`}>
-                                {member.actionItems.open}
-                              </span>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-muted-foreground mb-1">Courses</div>
-                              <div className="flex items-center justify-center gap-1">
-                                <GraduationCap className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-sm font-medium">
-                                  {member.courses.completed}/{member.courses.assigned}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2 lg:flex-col lg:items-end shrink-0">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedMember(member)}
-                              className="gap-1"
-                            >
-                              View Profile
-                              <ArrowRight className="h-3.5 w-3.5" />
-                            </Button>
-                            {!member.meetings.nextMeetingDate && (
-                              <Button
-                                size="sm"
-                                onClick={() => setScheduleForMember(member)}
-                                className="gap-1"
+                              {/* Meeting status badge - visible on mobile */}
+                              <Badge 
+                                variant={meetingStatus.color as any} 
+                                className="text-xs shrink-0 md:hidden"
                               >
-                                <Calendar className="h-3.5 w-3.5" />
-                                Schedule 1:1
-                              </Button>
-                            )}
+                                {meetingStatus.label}
+                              </Badge>
+                            </div>
+                            
+                            {/* Stats grid - 2x2 on mobile */}
+                            <div className="grid grid-cols-4 gap-2 mt-3 text-center">
+                              <div>
+                                <div className="text-[10px] md:text-xs text-muted-foreground">Next 1:1</div>
+                                {member.meetings.nextMeetingDate ? (
+                                  <p className="text-xs md:text-sm font-medium truncate">
+                                    {formatDistanceToNow(new Date(member.meetings.nextMeetingDate), { addSuffix: false })}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs font-medium text-warning">None</p>
+                                )}
+                              </div>
+                              <div>
+                                <div className="text-[10px] md:text-xs text-muted-foreground">Goals</div>
+                                <p className="text-xs md:text-sm font-medium">
+                                  {member.goals.completed}/{member.goals.total}
+                                </p>
+                              </div>
+                              <div>
+                                <div className="text-[10px] md:text-xs text-muted-foreground">Actions</div>
+                                <p className={`text-xs md:text-sm font-medium ${member.actionItems.open > 3 ? 'text-warning' : ''}`}>
+                                  {member.actionItems.open}
+                                </p>
+                              </div>
+                              <div>
+                                <div className="text-[10px] md:text-xs text-muted-foreground">Courses</div>
+                                <p className="text-xs md:text-sm font-medium">
+                                  {member.courses.completed}/{member.courses.assigned}
+                                </p>
+                              </div>
+                            </div>
                           </div>
+                        </div>
+                        
+                        {/* Action buttons - full width on mobile */}
+                        <div className="flex gap-2 mt-3 md:mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
+                            className="flex-1 md:flex-none gap-1 touch-target text-xs md:text-sm"
+                          >
+                            Profile
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </Button>
+                          {!member.meetings.nextMeetingDate && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); setScheduleForMember(member); }}
+                              className="flex-1 md:flex-none gap-1 touch-target text-xs md:text-sm"
+                            >
+                              <Calendar className="h-3.5 w-3.5" />
+                              Schedule
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -329,7 +319,7 @@ export default function Team() {
               </div>
             ) : (
               <EmptyState
-                icon={<Users className="h-16 w-16" />}
+                icon={<Users className="h-12 w-12 md:h-16 md:w-16" />}
                 title="No Direct Reports"
                 description={searchQuery ? "No direct reports match your search" : "You don't have any direct reports assigned yet"}
               />
