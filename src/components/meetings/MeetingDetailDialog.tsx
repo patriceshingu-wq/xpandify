@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,6 +59,7 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
   const [newItemSectionType, setNewItemSectionType] = useState<AgendaSectionType>('other');
   const [attachGoalOpen, setAttachGoalOpen] = useState(false);
   const [attachPDPOpen, setAttachPDPOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MeetingAgendaItem | null>(null);
 
   const isOrganizer = meeting?.organizer_id === person?.id;
   const isParticipant = participants?.some(p => p.person_id === person?.id);
@@ -235,8 +246,7 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
                             onToggleActionRequired={handleToggleActionRequired}
                             onUpdateActionStatus={handleUpdateActionStatus}
                             onUpdateActionOwner={handleUpdateActionOwner}
-                            onDelete={(itemToDelete) => deleteAgendaItem.mutate({ id: itemToDelete.id, meeting_id: itemToDelete.meeting_id })}
-                            isDeleting={deleteAgendaItem.isPending}
+                            onDelete={(item) => setItemToDelete(item)}
                             getLocalizedField={getLocalizedField}
                           />
                         ))}
@@ -330,6 +340,31 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
           />
         </>
       )}
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common.confirm')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('common.deleteConfirmation') || 'Are you sure you want to delete this agenda item? This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (itemToDelete) {
+                  deleteAgendaItem.mutate({ id: itemToDelete.id, meeting_id: itemToDelete.meeting_id });
+                  setItemToDelete(null);
+                }
+              }}
+            >
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -343,7 +378,6 @@ interface AgendaItemCardProps {
   onUpdateActionStatus: (item: MeetingAgendaItem, status: string) => void;
   onUpdateActionOwner: (item: MeetingAgendaItem, ownerId: string) => void;
   onDelete: (item: MeetingAgendaItem) => void;
-  isDeleting: boolean;
   getLocalizedField: (obj: any, field: string) => string;
 }
 
@@ -356,7 +390,6 @@ function AgendaItemCard({
   onUpdateActionStatus,
   onUpdateActionOwner,
   onDelete,
-  isDeleting,
   getLocalizedField,
 }: AgendaItemCardProps) {
   const [notes, setNotes] = useState(item.discussion_notes || '');
@@ -391,13 +424,8 @@ function AgendaItemCard({
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-destructive"
                   onClick={() => onDelete(item)}
-                  disabled={isDeleting}
                 >
-                  {isDeleting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </div>
