@@ -340,8 +340,13 @@ export type Database = {
           created_at: string | null
           discussion_notes: string | null
           id: string
+          linked_goal_id: string | null
+          linked_pdp_item_id: string | null
           meeting_id: string
           order_index: number | null
+          section_type:
+            | Database["public"]["Enums"]["agenda_section_type"]
+            | null
           topic_en: string
           topic_fr: string | null
           updated_at: string | null
@@ -354,8 +359,13 @@ export type Database = {
           created_at?: string | null
           discussion_notes?: string | null
           id?: string
+          linked_goal_id?: string | null
+          linked_pdp_item_id?: string | null
           meeting_id: string
           order_index?: number | null
+          section_type?:
+            | Database["public"]["Enums"]["agenda_section_type"]
+            | null
           topic_en: string
           topic_fr?: string | null
           updated_at?: string | null
@@ -368,8 +378,13 @@ export type Database = {
           created_at?: string | null
           discussion_notes?: string | null
           id?: string
+          linked_goal_id?: string | null
+          linked_pdp_item_id?: string | null
           meeting_id?: string
           order_index?: number | null
+          section_type?:
+            | Database["public"]["Enums"]["agenda_section_type"]
+            | null
           topic_en?: string
           topic_fr?: string | null
           updated_at?: string | null
@@ -380,6 +395,20 @@ export type Database = {
             columns: ["action_owner_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_agenda_items_linked_goal_id_fkey"
+            columns: ["linked_goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_agenda_items_linked_pdp_item_id_fkey"
+            columns: ["linked_pdp_item_id"]
+            isOneToOne: false
+            referencedRelation: "pdp_items"
             referencedColumns: ["id"]
           },
           {
@@ -427,6 +456,97 @@ export type Database = {
           },
         ]
       }
+      meeting_template_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          order_index: number | null
+          section_type: Database["public"]["Enums"]["agenda_section_type"]
+          template_id: string
+          topic_en: string
+          topic_fr: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          section_type?: Database["public"]["Enums"]["agenda_section_type"]
+          template_id: string
+          topic_en: string
+          topic_fr?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          section_type?: Database["public"]["Enums"]["agenda_section_type"]
+          template_id?: string
+          topic_en?: string
+          topic_fr?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_templates: {
+        Row: {
+          created_at: string | null
+          created_by_id: string | null
+          description_en: string | null
+          description_fr: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          meeting_type: Database["public"]["Enums"]["meeting_type"]
+          name_en: string
+          name_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_id?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"]
+          name_en: string
+          name_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by_id?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          meeting_type?: Database["public"]["Enums"]["meeting_type"]
+          name_en?: string
+          name_fr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_templates_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meetings: {
         Row: {
           created_at: string | null
@@ -436,7 +556,10 @@ export type Database = {
           meeting_type: Database["public"]["Enums"]["meeting_type"] | null
           ministry_id: string | null
           organizer_id: string
+          person_focus_id: string | null
+          recurrence_pattern: string | null
           recurring_series_id: string | null
+          spiritual_focus: boolean | null
           title_en: string
           title_fr: string | null
           updated_at: string | null
@@ -449,7 +572,10 @@ export type Database = {
           meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
           ministry_id?: string | null
           organizer_id: string
+          person_focus_id?: string | null
+          recurrence_pattern?: string | null
           recurring_series_id?: string | null
+          spiritual_focus?: boolean | null
           title_en: string
           title_fr?: string | null
           updated_at?: string | null
@@ -462,7 +588,10 @@ export type Database = {
           meeting_type?: Database["public"]["Enums"]["meeting_type"] | null
           ministry_id?: string | null
           organizer_id?: string
+          person_focus_id?: string | null
+          recurrence_pattern?: string | null
           recurring_series_id?: string | null
+          spiritual_focus?: boolean | null
           title_en?: string
           title_fr?: string | null
           updated_at?: string | null
@@ -478,6 +607,13 @@ export type Database = {
           {
             foreignKeyName: "meetings_organizer_id_fkey"
             columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_person_focus_id_fkey"
+            columns: ["person_focus_id"]
             isOneToOne: false
             referencedRelation: "people"
             referencedColumns: ["id"]
@@ -1269,6 +1405,14 @@ export type Database = {
     }
     Enums: {
       action_status: "open" | "in_progress" | "done" | "cancelled"
+      agenda_section_type:
+        | "spiritual_life"
+        | "personal_family"
+        | "ministry_updates"
+        | "goals_review"
+        | "development_training"
+        | "feedback_coaching"
+        | "other"
       app_role_type:
         | "super_admin"
         | "admin"
@@ -1444,6 +1588,15 @@ export const Constants = {
   public: {
     Enums: {
       action_status: ["open", "in_progress", "done", "cancelled"],
+      agenda_section_type: [
+        "spiritual_life",
+        "personal_family",
+        "ministry_updates",
+        "goals_review",
+        "development_training",
+        "feedback_coaching",
+        "other",
+      ],
       app_role_type: [
         "super_admin",
         "admin",
