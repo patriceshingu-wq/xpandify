@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Goal, useCreateGoal, useUpdateGoal, useDeleteGoal } from '@/hooks/useGoals';
+import { Goal, useCreateGoal, useUpdateGoal, useDeleteGoal, useGoals } from '@/hooks/useGoals';
 import { usePeople } from '@/hooks/usePeople';
 import { useMinistries } from '@/hooks/useMinistries';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -10,8 +10,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, GitBranch, Church, Building2, Users, User } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
+const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
+
+const getLevelIcon = (level: string) => {
+  switch (level) {
+    case 'church': return <Church className="h-4 w-4" />;
+    case 'ministry': return <Building2 className="h-4 w-4" />;
+    case 'department': return <Users className="h-4 w-4" />;
+    case 'individual': return <User className="h-4 w-4" />;
+    default: return null;
+  }
+};
 
 interface GoalFormDialogProps {
   open: boolean;
@@ -28,6 +40,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
   const deleteGoal = useDeleteGoal();
   const { data: people } = usePeople();
   const { data: ministries } = useMinistries();
+  const { data: allGoals } = useGoals();
   
   const isEditing = !!goal;
 
@@ -39,6 +52,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
     goal_level: 'individual' as 'church' | 'ministry' | 'department' | 'individual',
     owner_person_id: '',
     owner_ministry_id: '',
+    parent_goal_id: '',
     year: currentYear,
     start_date: '',
     due_date: '',
@@ -46,6 +60,19 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
     progress_percent: 0,
     category: 'other' as 'discipleship' | 'evangelism' | 'operations' | 'finance' | 'training' | 'other',
   });
+
+  // Filter parent goals - only allow linking to higher-level goals
+  const availableParentGoals = useMemo(() => {
+    if (!allGoals) return [];
+    const currentLevelIndex = LEVEL_ORDER.indexOf(formData.goal_level);
+    return allGoals.filter(g => {
+      // Exclude self
+      if (goal && g.id === goal.id) return false;
+      // Only allow parent goals at higher levels
+      const parentLevelIndex = LEVEL_ORDER.indexOf(g.goal_level as any);
+      return parentLevelIndex < currentLevelIndex;
+    });
+  }, [allGoals, formData.goal_level, goal]);
 
   useEffect(() => {
     if (goal) {
@@ -57,6 +84,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
         goal_level: goal.goal_level || 'individual',
         owner_person_id: goal.owner_person_id || '',
         owner_ministry_id: goal.owner_ministry_id || '',
+        parent_goal_id: goal.parent_goal_id || '',
         year: goal.year || currentYear,
         start_date: goal.start_date || '',
         due_date: goal.due_date || '',
@@ -73,6 +101,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
         goal_level: 'individual',
         owner_person_id: '',
         owner_ministry_id: '',
+        parent_goal_id: '',
         year: currentYear,
         start_date: '',
         due_date: '',
@@ -90,6 +119,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
       ...formData,
       owner_person_id: formData.owner_person_id || null,
       owner_ministry_id: formData.owner_ministry_id || null,
+      parent_goal_id: formData.parent_goal_id || null,
       start_date: formData.start_date || null,
       due_date: formData.due_date || null,
     };
@@ -208,6 +238,39 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
               </Select>
             </div>
           </div>
+
+          {/* Parent Goal (Cascade Link) */}
+          {formData.goal_level !== 'church' && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <GitBranch className="h-4 w-4" />
+                Parent Goal (Cascade Link)
+              </Label>
+              <Select
+                value={formData.parent_goal_id}
+                onValueChange={(value) => setFormData({ ...formData, parent_goal_id: value === 'none' ? '' : value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Link to a higher-level goal (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No parent goal</SelectItem>
+                  {availableParentGoals.map((g) => (
+                    <SelectItem key={g.id} value={g.id}>
+                      <div className="flex items-center gap-2">
+                        {getLevelIcon(g.goal_level)}
+                        <span className="capitalize text-xs text-muted-foreground">[{g.goal_level}]</span>
+                        <span>{g.title_en}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Link this goal to a higher-level objective to show how it contributes to organizational priorities.
+              </p>
+            </div>
+          )}
 
           {/* Owner */}
           <div className="grid grid-cols-2 gap-4">
