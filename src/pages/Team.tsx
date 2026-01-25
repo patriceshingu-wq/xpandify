@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeamMembersWithDetails, TeamMemberStats } from '@/hooks/useTeamMembers';
 import { useTeammates } from '@/hooks/useTeammates';
+import { useSupervisor } from '@/hooks/useSupervisor';
 import { useMeetingTemplates } from '@/hooks/useMeetingTemplates';
 import { useCreateMeeting, useCreateAgendaItem } from '@/hooks/useMeetings';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
@@ -20,6 +21,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import {
   Users,
   UsersRound,
+  Crown,
   Search,
   Calendar,
   Target,
@@ -34,18 +36,20 @@ import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
 import { TeamMemberDetailDialog } from '@/components/team/TeamMemberDetailDialog';
 import { QuickScheduleDialog } from '@/components/dashboard/QuickScheduleDialog';
 import { TeammateCard } from '@/components/team/TeammateCard';
+import { SupervisorCard } from '@/components/team/SupervisorCard';
 
 export default function Team() {
   const { t } = useLanguage();
   const { person } = useAuth();
   const { data: teamMembers, isLoading } = useTeamMembersWithDetails();
   const { data: teammates, isLoading: isLoadingTeammates } = useTeammates();
+  const { data: supervisor, isLoading: isLoadingSupervisor } = useSupervisor();
   const { data: templates } = useMeetingTemplates();
   const createMeeting = useCreateMeeting();
   const createAgendaItem = useCreateAgendaItem();
   const bulkAddParticipants = useBulkAddMeetingParticipants();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'direct-reports' | 'teammates'>('direct-reports');
+  const [activeTab, setActiveTab] = useState<'supervisor' | 'direct-reports' | 'teammates'>('supervisor');
   const [selectedMember, setSelectedMember] = useState<TeamMemberStats | null>(null);
   const [scheduleForMember, setScheduleForMember] = useState<TeamMemberStats | null>(null);
 
@@ -65,6 +69,7 @@ export default function Team() {
     return fullName.includes(searchQuery.toLowerCase()) || preferredName.includes(searchQuery.toLowerCase());
   }) || [];
 
+  const hasSupervisor = !!supervisor;
   const hasDirectReports = teamMembers && teamMembers.length > 0;
   const hasTeammates = teammates && teammates.length > 0;
 
@@ -102,8 +107,12 @@ export default function Team() {
         />
 
         {/* Tab Navigation */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'direct-reports' | 'teammates')}>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
           <TabsList>
+            <TabsTrigger value="supervisor" className="gap-2">
+              <Crown className="h-4 w-4" />
+              My Supervisor
+            </TabsTrigger>
             <TabsTrigger value="direct-reports" className="gap-2">
               <Users className="h-4 w-4" />
               Direct Reports
@@ -119,6 +128,23 @@ export default function Team() {
               )}
             </TabsTrigger>
           </TabsList>
+
+          {/* Supervisor Tab */}
+          <TabsContent value="supervisor" className="mt-6 space-y-6">
+            {isLoadingSupervisor ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="spinner" />
+              </div>
+            ) : supervisor ? (
+              <SupervisorCard supervisor={supervisor} />
+            ) : (
+              <EmptyState
+                icon={<Crown className="h-16 w-16" />}
+                title="No Supervisor Assigned"
+                description="You don't have a supervisor assigned in the system yet"
+              />
+            )}
+          </TabsContent>
 
           {/* Direct Reports Tab */}
           <TabsContent value="direct-reports" className="mt-6 space-y-6">
