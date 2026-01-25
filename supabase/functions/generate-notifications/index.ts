@@ -10,7 +10,7 @@ interface NotificationPayload {
   user_id: string;
   title: string;
   message: string;
-  type: 'course_deadline' | 'assignment' | 'meeting_reminder' | 'general';
+  type: 'course_deadline' | 'assignment' | 'meeting_reminder' | 'action_item_overdue' | 'general';
   link?: string;
   metadata?: Record<string, unknown>;
 }
@@ -18,7 +18,7 @@ interface NotificationPayload {
 interface EmailPayload {
   to: string;
   subject: string;
-  type: 'meeting_reminder' | 'course_deadline' | 'assignment' | 'general';
+  type: 'meeting_reminder' | 'course_deadline' | 'assignment' | 'action_item_overdue' | 'general';
   data: {
     recipientName?: string;
     title?: string;
@@ -284,6 +284,101 @@ serve(async (req) => {
                   title: 'New Course Assignment',
                   message: `You have been assigned a new course: "${courseTitle}". Please start working on it at your earliest convenience.`,
                   link: `${supabaseUrl.replace('.supabase.co', '.lovable.app')}/development`,
+                },
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // 4. Check for overdue action items (action_required = true, action_due_date < today, action_status != 'done')
+    console.log('Checking for overdue action items...');
+    const { data: overdueActions, error: overdueError } = await supabase
+      .from('meeting_agenda_items')
+      .select(`
+        id,
+        topic_en,
+        topic_fr,
+        action_due_date,
+        action_status,
+        action_owner_id,
+        meeting_id,
+        meeting:meetings (
+          id,
+          title_en,
+          title_fr
+        )
+      `)
+      .eq('action_required', true)
+      .lt('action_due_date', now.toISOString().split('T')[0])
+      .neq('action_status', 'done')
+      .neq('action_status', 'cancelled');
+
+    if (overdueError) {
+      console.error('Error fetching overdue actions:', overdueError);
+    } else if (overdueActions) {
+      console.log(`Found ${overdueActions.length} overdue action items`);
+      
+      for (const action of overdueActions) {
+        if (!action.action_owner_id) continue;
+
+        const { data: owner } = await supabase
+          .from('people')
+          .select('id, user_id, first_name, last_name, email')
+          .eq('id', action.action_owner_id)
+          .maybeSingle();
+
+        if (owner?.user_id) {
+          // Only send notification once per week per action item
+          const { data: existing } = await supabase
+            .from('notifications')
+            .select('id')
+            .eq('user_id', owner.user_id)
+            .eq('type', 'action_item_overdue')
+            .eq('metadata->>action_item_id', action.id)
+            .gte('created_at', new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())
+            .maybeSingle();
+
+          if (!existing) {
+            const meetingData = action.meeting as unknown as { id: string; title_en: string; title_fr: string | null } | null;
+            const topicTitle = action.topic_en || 'Action item';
+            const meetingTitle = meetingData?.title_en || 'Meeting';
+            const dueDate = action.action_due_date ? new Date(action.action_due_date) : null;
+            const daysOverdue = dueDate ? Math.floor((now.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000)) : 0;
+            
+            const message = `"${topicTitle}" from "${meetingTitle}" was due ${daysOverdue} day${daysOverdue !== 1 ? 's' : ''} ago`;
+            
+            notifications.push({
+              user_id: owner.user_id,
+              title: 'Overdue Action Item',
+              message,
+              type: 'action_item_overdue',
+              link: '/meetings',
+              metadata: { 
+                action_item_id: action.id, 
+                meeting_id: action.meeting_id,
+                days_overdue: daysOverdue 
+              },
+            });
+
+            // Send email for overdue action items (critical alert)
+            if (owner.email) {
+              emailsToSend.push({
+                to: owner.email,
+                subject: `Overdue: ${topicTitle}`,
+                type: 'action_item_overdue',
+                data: {
+                  recipientName: `${owner.first_name} ${owner.last_name}`,
+                  title: 'Action Item Overdue',
+                  message: `Your action item "${topicTitle}" from the meeting "${meetingTitle}" was due on ${dueDate?.toLocaleDateString()} (${daysOverdue} day${daysOverdue !== 1 ? 's' : ''} ago). Please complete it as soon as possible.`,
+                  dateTime: dueDate?.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }),
+                  link: `${supabaseUrl.replace('.supabase.co', '.lovable.app')}/meetings`,
                 },
               });
             }
