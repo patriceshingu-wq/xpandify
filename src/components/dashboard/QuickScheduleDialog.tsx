@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MeetingTemplate } from '@/hooks/useMeetingTemplates';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
+import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +58,7 @@ export function QuickScheduleDialog({
   const [title, setTitle] = useState(`1:1 with ${personName}`);
   const [conflicts, setConflicts] = useState<MeetingConflict[]>([]);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -64,6 +66,7 @@ export function QuickScheduleDialog({
       setSelectedTemplateId(defaultTemplateId || 'none');
       setTitle(`1:1 with ${personName}`);
       setConflicts([]);
+      setShowRescheduleDialog(false);
     }
   }, [open, personName, defaultTemplateId]);
 
@@ -95,17 +98,25 @@ export function QuickScheduleDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (conflicts.length > 0) {
-      // Allow scheduling with warning, but show confirmation
-      if (!window.confirm(`There are scheduling conflicts. ${formatConflictMessage(conflicts)}\n\nDo you want to proceed anyway?`)) {
-        return;
-      }
+      // Open the reschedule dialog instead of simple confirm
+      setShowRescheduleDialog(true);
+      return;
     }
+    proceedWithSchedule();
+  };
+
+  const proceedWithSchedule = () => {
     onSchedule({
       personId,
       dateTime: new Date(dateTime),
       templateId: selectedTemplateId === 'none' ? null : selectedTemplateId || null,
       title,
     });
+  };
+
+  const handleRescheduled = () => {
+    // Re-check conflicts after rescheduling
+    setConflicts([]);
   };
 
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
@@ -211,6 +222,18 @@ export function QuickScheduleDialog({
           </div>
         </form>
       </DialogContent>
+
+      {/* Reschedule Conflicts Dialog */}
+      <RescheduleConflictsDialog
+        open={showRescheduleDialog}
+        onOpenChange={setShowRescheduleDialog}
+        conflicts={conflicts}
+        proposedDateTime={new Date(dateTime)}
+        proposedDuration={60}
+        personIds={[personId, organizerId]}
+        onProceedAnyway={proceedWithSchedule}
+        onRescheduled={handleRescheduled}
+      />
     </Dialog>
   );
 }

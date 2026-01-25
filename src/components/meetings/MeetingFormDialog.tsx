@@ -7,6 +7,7 @@ import { useMinistries } from '@/hooks/useMinistries';
 import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplates';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
+import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [conflicts, setConflicts] = useState<MeetingConflict[]>([]);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
   // Filter templates by meeting type
   const availableTemplates = templates?.filter(t => t.meeting_type === formData.meeting_type) || [];
@@ -145,12 +147,15 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Warn if conflicts exist
+    // Open reschedule dialog if conflicts exist
     if (conflicts.length > 0) {
-      if (!window.confirm(`There are scheduling conflicts. ${formatConflictMessage(conflicts)}\n\nDo you want to proceed anyway?`)) {
-        return;
-      }
+      setShowRescheduleDialog(true);
+      return;
     }
+    proceedWithSave();
+  };
+
+  const proceedWithSave = async () => {
     const payload = {
       meeting_type: formData.meeting_type,
       title_en: formData.title_en,
@@ -197,6 +202,19 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
 
       onOpenChange(false);
     }
+  };
+
+  const handleRescheduled = () => {
+    // Re-check conflicts after rescheduling
+    setConflicts([]);
+  };
+
+  const getPersonIdsForConflictCheck = () => {
+    const ids = [formData.organizer_id];
+    if (formData.person_focus_id) {
+      ids.push(formData.person_focus_id);
+    }
+    return ids.filter(Boolean);
   };
 
   const isLoading = createMeeting.isPending || updateMeeting.isPending || createAgendaItem.isPending;
@@ -450,6 +468,18 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
           </div>
         </form>
       </DialogContent>
+
+      {/* Reschedule Conflicts Dialog */}
+      <RescheduleConflictsDialog
+        open={showRescheduleDialog}
+        onOpenChange={setShowRescheduleDialog}
+        conflicts={conflicts}
+        proposedDateTime={new Date(formData.date_time)}
+        proposedDuration={formData.duration_minutes}
+        personIds={getPersonIdsForConflictCheck()}
+        onProceedAnyway={proceedWithSave}
+        onRescheduled={handleRescheduled}
+      />
     </Dialog>
   );
 }
