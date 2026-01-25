@@ -6,6 +6,7 @@ import { useDirectReportsWithStats } from '@/hooks/useDirectReports';
 import { useMeetingTemplates } from '@/hooks/useMeetingTemplates';
 import { useCreateMeeting, useCreateAgendaItem } from '@/hooks/useMeetings';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
+import { fetchVisibleFeedback, formatFeedbackForNotes } from '@/hooks/useVisibleFeedback';
 import { DirectReportCard } from './DirectReportCard';
 import { QuickScheduleDialog } from './QuickScheduleDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,6 +73,7 @@ export function SupervisorDashboard() {
       });
 
       // Apply template if selected
+      let orderIndex = 0;
       if (data.templateId) {
         const template = templates?.find(t => t.id === data.templateId);
         if (template?.items && template.items.length > 0) {
@@ -81,10 +83,28 @@ export function SupervisorDashboard() {
               topic_en: item.topic_en,
               topic_fr: item.topic_fr,
               section_type: item.section_type as any,
-              order_index: item.order_index || 0,
+              order_index: item.order_index || orderIndex,
             });
+            orderIndex = Math.max(orderIndex, (item.order_index || 0) + 1);
           }
         }
+      }
+
+      // Add visible feedback as agenda items
+      try {
+        const visibleFeedback = await fetchVisibleFeedback(data.personId);
+        for (const feedback of visibleFeedback) {
+          await createAgendaItem.mutateAsync({
+            meeting_id: newMeeting.id,
+            topic_en: 'Received Feedback',
+            topic_fr: 'Rétroaction reçue',
+            section_type: 'feedback_coaching',
+            discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+            order_index: orderIndex++,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching feedback for agenda:', error);
       }
 
       toast.success('1:1 scheduled successfully');

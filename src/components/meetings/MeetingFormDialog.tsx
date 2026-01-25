@@ -7,6 +7,7 @@ import { useMinistries } from '@/hooks/useMinistries';
 import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplates';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
+import { fetchVisibleFeedback, formatFeedbackForNotes } from '@/hooks/useVisibleFeedback';
 import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -185,6 +186,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
       }
 
       // Apply template if selected
+      let templateOrderIndex = 0;
       if (selectedTemplateId && selectedTemplateId !== 'none') {
         const template = templates?.find(t => t.id === selectedTemplateId);
         if (template?.items && template.items.length > 0) {
@@ -194,9 +196,29 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
               topic_en: item.topic_en,
               topic_fr: item.topic_fr,
               section_type: item.section_type as any,
-              order_index: item.order_index || 0,
+              order_index: item.order_index || templateOrderIndex,
+            });
+            templateOrderIndex = Math.max(templateOrderIndex, (item.order_index || 0) + 1);
+          }
+        }
+      }
+
+      // Add visible feedback as agenda items for 1:1 meetings
+      if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
+        try {
+          const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
+          for (const feedback of visibleFeedback) {
+            await createAgendaItem.mutateAsync({
+              meeting_id: newMeeting.id,
+              topic_en: 'Received Feedback',
+              topic_fr: 'Rétroaction reçue',
+              section_type: 'feedback_coaching',
+              discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+              order_index: templateOrderIndex++,
             });
           }
+        } catch (error) {
+          console.error('Error fetching feedback for agenda:', error);
         }
       }
 

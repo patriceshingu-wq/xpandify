@@ -8,6 +8,7 @@ import { useSupervisor } from '@/hooks/useSupervisor';
 import { useMeetingTemplates } from '@/hooks/useMeetingTemplates';
 import { useCreateMeeting, useCreateAgendaItem } from '@/hooks/useMeetings';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
+import { fetchVisibleFeedback, formatFeedbackForNotes } from '@/hooks/useVisibleFeedback';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -409,6 +410,7 @@ export default function Team() {
               person_ids: [data.personId],
             });
 
+            let orderIndex = 0;
             if (data.templateId) {
               const template = templates?.find(t => t.id === data.templateId);
               if (template?.items) {
@@ -418,10 +420,28 @@ export default function Team() {
                     topic_en: item.topic_en,
                     topic_fr: item.topic_fr,
                     section_type: item.section_type as any,
-                    order_index: item.order_index || 0,
+                    order_index: item.order_index || orderIndex,
                   });
+                  orderIndex = Math.max(orderIndex, (item.order_index || 0) + 1);
                 }
               }
+            }
+
+            // Add visible feedback as agenda items
+            try {
+              const visibleFeedback = await fetchVisibleFeedback(data.personId);
+              for (const feedback of visibleFeedback) {
+                await createAgendaItem.mutateAsync({
+                  meeting_id: meeting.id,
+                  topic_en: 'Received Feedback',
+                  topic_fr: 'Rétroaction reçue',
+                  section_type: 'feedback_coaching',
+                  discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+                  order_index: orderIndex++,
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching feedback for agenda:', error);
             }
 
             setScheduleForMember(null);
@@ -455,6 +475,7 @@ export default function Team() {
               person_ids: [data.personId],
             });
 
+            let orderIndex = 0;
             if (data.templateId) {
               const template = templates?.find(t => t.id === data.templateId);
               if (template?.items) {
@@ -464,10 +485,28 @@ export default function Team() {
                     topic_en: item.topic_en,
                     topic_fr: item.topic_fr,
                     section_type: item.section_type as any,
-                    order_index: item.order_index || 0,
+                    order_index: item.order_index || orderIndex,
                   });
+                  orderIndex = Math.max(orderIndex, (item.order_index || 0) + 1);
                 }
               }
+            }
+
+            // Add visible feedback as agenda items
+            try {
+              const visibleFeedback = await fetchVisibleFeedback(data.personId);
+              for (const feedback of visibleFeedback) {
+                await createAgendaItem.mutateAsync({
+                  meeting_id: meeting.id,
+                  topic_en: 'Received Feedback',
+                  topic_fr: 'Rétroaction reçue',
+                  section_type: 'feedback_coaching',
+                  discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+                  order_index: orderIndex++,
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching feedback for agenda:', error);
             }
 
             setScheduleForSupervisor(false);
