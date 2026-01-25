@@ -12,6 +12,8 @@ export interface MeetingAgendaItemWithMeeting {
   discussion_notes: string | null;
   action_required: boolean | null;
   action_status: Database['public']['Enums']['action_status'] | null;
+  action_due_date: string | null;
+  action_owner_id: string | null;
   linked_goal_id: string | null;
   linked_pdp_item_id: string | null;
   meeting: {
@@ -21,6 +23,14 @@ export interface MeetingAgendaItemWithMeeting {
     date_time: string;
     meeting_type: Database['public']['Enums']['meeting_type'] | null;
   };
+}
+
+export interface ActionItemSummary {
+  total: number;
+  open: number;
+  in_progress: number;
+  done: number;
+  items: MeetingAgendaItemWithMeeting[];
 }
 
 export interface MeetingWithAgenda {
@@ -92,6 +102,8 @@ export function useReviewMeetingHistory(
           discussion_notes,
           action_required,
           action_status,
+          action_due_date,
+          action_owner_id,
           linked_goal_id,
           linked_pdp_item_id,
           meeting_id
@@ -141,10 +153,38 @@ export function useReviewMeetingHistory(
           discussion_notes: item.discussion_notes,
           action_required: item.action_required,
           action_status: item.action_status,
+          action_due_date: item.action_due_date,
+          action_owner_id: item.action_owner_id,
           linked_goal_id: item.linked_goal_id,
           linked_pdp_item_id: item.linked_pdp_item_id,
           meeting: meetingLookup.get(item.meeting_id)!,
         }));
+
+      // Build action items summary
+      const actionItems = (agendaItems || [])
+        .filter(item => item.action_required)
+        .map(item => ({
+          id: item.id,
+          topic_en: item.topic_en,
+          topic_fr: item.topic_fr,
+          section_type: item.section_type,
+          discussion_notes: item.discussion_notes,
+          action_required: item.action_required,
+          action_status: item.action_status,
+          action_due_date: item.action_due_date,
+          action_owner_id: item.action_owner_id,
+          linked_goal_id: item.linked_goal_id,
+          linked_pdp_item_id: item.linked_pdp_item_id,
+          meeting: meetingLookup.get(item.meeting_id)!,
+        }));
+
+      const actionItemsSummary: ActionItemSummary = {
+        total: actionItems.length,
+        open: actionItems.filter(i => i.action_status === 'open').length,
+        in_progress: actionItems.filter(i => i.action_status === 'in_progress').length,
+        done: actionItems.filter(i => i.action_status === 'done').length,
+        items: actionItems,
+      };
 
       // Group by section type
       const grouped: GroupedAgendaItems[] = [];
@@ -172,6 +212,7 @@ export function useReviewMeetingHistory(
       return {
         meetings: meetingsWithAgenda,
         groupedItems: grouped,
+        actionItems: actionItemsSummary,
       };
     },
     enabled: !!personId && !!startDate && !!endDate,
