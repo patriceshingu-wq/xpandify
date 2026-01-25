@@ -23,6 +23,7 @@ import { useDevelopmentPlans } from '@/hooks/useDevelopmentPlans';
 import { getSectionTypeLabel, getSectionTypeColor, AgendaSectionType } from '@/hooks/useMeetingTemplates';
 import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
+import { LinkedGoalProgress, LinkedPDPItemProgress } from './LinkedItemProgress';
 
 interface MeetingDetailDialogProps {
   open: boolean;
@@ -363,6 +364,10 @@ function AgendaItemCard({
     setNotesTimeout(timeout);
   };
 
+  const linkedGoalId = (item as any).linked_goal_id;
+  const linkedPdpItemId = (item as any).linked_pdp_item_id;
+  const linkedPdpItem = item.linked_pdp_item;
+
   return (
     <Card>
       <CardContent className="p-4 space-y-3">
@@ -372,20 +377,26 @@ function AgendaItemCard({
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <p className="font-medium">{getLocalizedField(item, 'topic')}</p>
-                {(item as any).linked_goal_id && (
-                  <Badge variant="outline" className="text-xs">
-                    <Target className="h-3 w-3 mr-1" />
-                    Goal linked
-                  </Badge>
-                )}
-                {(item as any).linked_pdp_item_id && (
-                  <Badge variant="outline" className="text-xs">
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    PDP linked
-                  </Badge>
-                )}
               </div>
             </div>
+
+            {/* Linked Goal Progress */}
+            {linkedGoalId && (
+              <div className="mt-2">
+                <LinkedGoalProgress goalId={linkedGoalId} canEdit={canEdit} />
+              </div>
+            )}
+
+            {/* Linked PDP Item Progress */}
+            {linkedPdpItemId && linkedPdpItem?.pdp_id && (
+              <div className="mt-2">
+                <LinkedPDPItemProgress
+                  pdpItemId={linkedPdpItemId}
+                  pdpId={linkedPdpItem.pdp_id}
+                  canEdit={canEdit}
+                />
+              </div>
+            )}
 
             {canEdit && (
               <>
