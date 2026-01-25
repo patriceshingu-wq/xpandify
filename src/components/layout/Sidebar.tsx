@@ -50,6 +50,7 @@ const developmentNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
   { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
   { icon: Shield, labelKey: 'nav.admin', path: '/admin', roles: ['super_admin', 'admin'] },
+  { icon: Settings, labelKey: 'settings.title', path: '/settings', roles: ['super_admin', 'admin'] },
 ];
 
 export function Sidebar() {

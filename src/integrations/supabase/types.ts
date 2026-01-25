@@ -35,6 +35,60 @@ export type Database = {
         }
         Relationships: []
       }
+      campuses: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          code: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          is_main_campus: boolean | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          state_province: string | null
+          updated_at: string
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_main_campus?: boolean | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          state_province?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_main_campus?: boolean | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          state_province?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_assignments: {
         Row: {
           assigned_by_id: string | null
@@ -553,6 +607,81 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      organization_settings: {
+        Row: {
+          accent_color: string | null
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          email_footer_text: string | null
+          email_reply_to: string | null
+          email_sender_address: string | null
+          email_sender_name: string | null
+          font_family: string | null
+          id: string
+          organization_logo_url: string | null
+          organization_name: string
+          phone: string | null
+          postal_code: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          state_province: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          email_footer_text?: string | null
+          email_reply_to?: string | null
+          email_sender_address?: string | null
+          email_sender_name?: string | null
+          font_family?: string | null
+          id?: string
+          organization_logo_url?: string | null
+          organization_name?: string
+          phone?: string | null
+          postal_code?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          state_province?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          email_footer_text?: string | null
+          email_reply_to?: string | null
+          email_sender_address?: string | null
+          email_sender_name?: string | null
+          font_family?: string | null
+          id?: string
+          organization_logo_url?: string | null
+          organization_name?: string
+          phone?: string | null
+          postal_code?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          state_province?: string | null
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
