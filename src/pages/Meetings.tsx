@@ -8,8 +8,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, Clock, User, Users } from 'lucide-react';
+import { Plus, Calendar, Clock, User, Users, Eye } from 'lucide-react';
 import { MeetingFormDialog } from '@/components/meetings/MeetingFormDialog';
+import { MeetingDetailDialog } from '@/components/meetings/MeetingDetailDialog';
 import { format } from 'date-fns';
 
 export default function Meetings() {
@@ -18,6 +19,7 @@ export default function Meetings() {
   const [showUpcoming, setShowUpcoming] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [viewingMeetingId, setViewingMeetingId] = useState<string | null>(null);
 
   const { data: meetings, isLoading } = useMeetings({
     meeting_type: meetingType,
@@ -27,6 +29,10 @@ export default function Meetings() {
   const handleEdit = (meeting: Meeting) => {
     setEditingMeeting(meeting);
     setIsFormOpen(true);
+  };
+
+  const handleView = (meetingId: string) => {
+    setViewingMeetingId(meetingId);
   };
 
   const handleCloseForm = () => {
@@ -134,41 +140,51 @@ export default function Meetings() {
                 <div className="space-y-3">
                   {dateMeetings.map((meeting) => (
                     <Card
-                      key={meeting.id}
-                      className="cursor-pointer transition-all hover:shadow-md"
-                      onClick={() => handleEdit(meeting)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <div className="text-center min-w-[50px]">
-                              <div className="text-lg font-bold text-foreground">
-                                {format(new Date(meeting.date_time), 'HH:mm')}
+                          key={meeting.id}
+                          className="transition-all hover:shadow-md"
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-4">
+                              <div 
+                                className="flex items-start gap-4 flex-1 cursor-pointer"
+                                onClick={() => handleView(meeting.id)}
+                              >
+                                <div className="text-center min-w-[50px]">
+                                  <div className="text-lg font-bold text-foreground">
+                                    {format(new Date(meeting.date_time), 'HH:mm')}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {meeting.duration_minutes} min
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
+                                      {getMeetingTypeLabel(meeting.meeting_type)}
+                                    </Badge>
+                                  </div>
+                                  <h4 className="font-medium text-foreground">
+                                    {getLocalizedField(meeting, 'title')}
+                                  </h4>
+                                  {meeting.organizer && (
+                                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                                      <User className="h-3.5 w-3.5" />
+                                      {meeting.organizer.first_name} {meeting.organizer.last_name}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
-                              <div className="text-xs text-muted-foreground">
-                                {meeting.duration_minutes} min
+                              <div className="flex gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => handleView(meeting.id)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleEdit(meeting)}>
+                                  Edit
+                                </Button>
                               </div>
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
-                                  {getMeetingTypeLabel(meeting.meeting_type)}
-                                </Badge>
-                              </div>
-                              <h4 className="font-medium text-foreground">
-                                {getLocalizedField(meeting, 'title')}
-                              </h4>
-                              {meeting.organizer && (
-                                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                                  <User className="h-3.5 w-3.5" />
-                                  {meeting.organizer.first_name} {meeting.organizer.last_name}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                          </CardContent>
+                        </Card>
                   ))}
                 </div>
               </div>
@@ -191,6 +207,12 @@ export default function Meetings() {
         open={isFormOpen}
         onOpenChange={handleCloseForm}
         meeting={editingMeeting}
+      />
+
+      <MeetingDetailDialog
+        open={!!viewingMeetingId}
+        onOpenChange={(open) => !open && setViewingMeetingId(null)}
+        meetingId={viewingMeetingId}
       />
     </MainLayout>
   );
