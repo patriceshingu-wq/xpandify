@@ -129,6 +129,7 @@ const translations: Translations = {
   'courses.addCourseDescription': { en: 'Create a new training course', fr: 'Créer une nouvelle formation' },
   'courses.editCourseDescription': { en: 'Update course details', fr: 'Mettre à jour les détails du cours' },
   'common.other': { en: 'Other', fr: 'Autre' },
+  'common.more': { en: 'More', fr: 'Plus' },
   
   // Feedback
   'feedback.title': { en: 'Feedback', fr: 'Feedback' },
