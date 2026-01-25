@@ -4,13 +4,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGoals, Goal } from '@/hooks/useGoals';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Target, Calendar, User, Building } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Target, Calendar, User, Building, List, GitBranch } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
+import { GoalCascadeView } from '@/components/goals/GoalCascadeView';
 
 const currentYear = new Date().getFullYear();
 
@@ -19,6 +21,7 @@ export default function Goals() {
   const [year, setYear] = useState(currentYear);
   const [level, setLevel] = useState('all');
   const [status, setStatus] = useState('all');
+  const [viewMode, setViewMode] = useState<'list' | 'cascade'>('list');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
@@ -71,10 +74,24 @@ export default function Goals() {
           title={t('goals.title')}
           subtitle={t('goals.subtitle')}
           actions={
-            <Button onClick={() => setIsFormOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              {t('goals.addGoal')}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+                <TabsList>
+                  <TabsTrigger value="list" className="gap-1.5">
+                    <List className="h-4 w-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="cascade" className="gap-1.5">
+                    <GitBranch className="h-4 w-4" />
+                    <span className="hidden sm:inline">Cascade</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Button onClick={() => setIsFormOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t('goals.addGoal')}
+              </Button>
+            </div>
           }
         />
 
@@ -121,63 +138,67 @@ export default function Goals() {
           </CardContent>
         </Card>
 
-        {/* Goals List */}
+        {/* Goals Display */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="spinner" />
           </div>
         ) : goals && goals.length > 0 ? (
-          <div className="space-y-4">
-            {goals.map((goal) => (
-              <Card
-                key={goal.id}
-                className="cursor-pointer transition-all hover:shadow-md"
-                onClick={() => handleEdit(goal)}
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
-                          {getLevelIcon(goal.goal_level)}
-                          {t(`goals.${goal.goal_level}`)}
-                        </span>
-                        <StatusBadge status={goal.status} />
+          viewMode === 'cascade' ? (
+            <GoalCascadeView goals={goals} onGoalClick={handleEdit} />
+          ) : (
+            <div className="space-y-4">
+              {goals.map((goal) => (
+                <Card
+                  key={goal.id}
+                  className="cursor-pointer transition-all hover:shadow-md"
+                  onClick={() => handleEdit(goal)}
+                >
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
+                            {getLevelIcon(goal.goal_level)}
+                            {t(`goals.${goal.goal_level}`)}
+                          </span>
+                          <StatusBadge status={goal.status} />
+                        </div>
+                        <h3 className="font-medium text-lg text-foreground mb-1">
+                          {getLocalizedField(goal, 'title')}
+                        </h3>
+                        {getLocalizedField(goal, 'description') && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {getLocalizedField(goal, 'description')}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          {goal.owner_person && (
+                            <span className="flex items-center gap-1">
+                              <User className="h-3.5 w-3.5" />
+                              {goal.owner_person.first_name} {goal.owner_person.last_name}
+                            </span>
+                          )}
+                          {goal.due_date && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              {new Date(goal.due_date).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="font-medium text-lg text-foreground mb-1">
-                        {getLocalizedField(goal, 'title')}
-                      </h3>
-                      {getLocalizedField(goal, 'description') && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                          {getLocalizedField(goal, 'description')}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        {goal.owner_person && (
-                          <span className="flex items-center gap-1">
-                            <User className="h-3.5 w-3.5" />
-                            {goal.owner_person.first_name} {goal.owner_person.last_name}
-                          </span>
-                        )}
-                        {goal.due_date && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5" />
-                            {new Date(goal.due_date).toLocaleDateString()}
-                          </span>
-                        )}
+                      <div className="text-right min-w-[100px]">
+                        <div className="text-2xl font-bold text-foreground mb-1">
+                          {goal.progress_percent}%
+                        </div>
+                        <Progress value={goal.progress_percent} className="h-2" />
                       </div>
                     </div>
-                    <div className="text-right min-w-[100px]">
-                      <div className="text-2xl font-bold text-foreground mb-1">
-                        {goal.progress_percent}%
-                      </div>
-                      <Progress value={goal.progress_percent} className="h-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )
         ) : (
           <EmptyState
             icon={<Target className="h-16 w-16" />}
