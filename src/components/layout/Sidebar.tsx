@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   Users,
+  UsersRound,
   Target,
   Calendar,
   BookOpen,
@@ -33,6 +34,7 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
+  { icon: UsersRound, labelKey: 'nav.team', path: '/team', roles: ['super_admin', 'admin', 'pastor_supervisor'] },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },

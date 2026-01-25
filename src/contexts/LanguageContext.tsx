@@ -17,6 +17,7 @@ const translations: Translations = {
   
   // Navigation
   'nav.dashboard': { en: 'Dashboard', fr: 'Tableau de Bord' },
+  'nav.team': { en: 'My Team', fr: 'Mon Équipe' },
   'nav.people': { en: 'People', fr: 'Personnes' },
   'nav.ministries': { en: 'Ministries', fr: 'Ministères' },
   'nav.goals': { en: 'Goals', fr: 'Objectifs' },
