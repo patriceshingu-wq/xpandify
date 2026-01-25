@@ -7,7 +7,7 @@ import { useMinistries } from '@/hooks/useMinistries';
 import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplates';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
-import { fetchVisibleFeedback, formatFeedbackForNotes } from '@/hooks/useVisibleFeedback';
+import { fetchVisibleFeedback, formatFeedbackForNotes, getFeedbackTitle } from '@/hooks/useVisibleFeedback';
 import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -208,10 +208,11 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
         try {
           const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
           for (const feedback of visibleFeedback) {
+            const { title_en, title_fr } = getFeedbackTitle(feedback);
             await createAgendaItem.mutateAsync({
               meeting_id: newMeeting.id,
-              topic_en: 'Received Feedback',
-              topic_fr: 'Rétroaction reçue',
+              topic_en: title_en,
+              topic_fr: title_fr,
               section_type: 'feedback_coaching',
               discussion_notes: formatFeedbackForNotes(feedback, 'en'),
               order_index: templateOrderIndex++,

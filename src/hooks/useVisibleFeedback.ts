@@ -84,26 +84,31 @@ export async function fetchVisibleFeedback(personId: string): Promise<VisibleFee
 }
 
 /**
+ * Get the localized title for feedback
+ */
+export function getFeedbackTitle(
+  feedback: VisibleFeedback,
+  language: 'en' | 'fr' = 'en'
+): { title_en: string; title_fr: string } {
+  const title_en = feedback.title_en || 'Received Feedback';
+  const title_fr = feedback.title_fr || feedback.title_en || 'Rétroaction reçue';
+  return { title_en, title_fr };
+}
+
+/**
  * Format feedback content for display in discussion notes
  */
 export function formatFeedbackForNotes(
   feedback: VisibleFeedback,
   language: 'en' | 'fr' = 'en'
 ): string {
-  const title = language === 'fr' && feedback.title_fr ? feedback.title_fr : feedback.title_en;
   const content = language === 'fr' && feedback.content_fr ? feedback.content_fr : feedback.content_en;
   const givenBy = feedback.given_by 
     ? feedback.given_by.preferred_name || `${feedback.given_by.first_name} ${feedback.given_by.last_name}`
     : 'Unknown';
   const type = feedback.feedback_type?.replace(/_/g, ' ') || 'feedback';
   
-  let notes = '';
-  if (title) {
-    notes += `${title}\n\n`;
-  }
-  if (content) {
-    notes += content;
-  }
+  let notes = content || '';
   notes += `\n\n— ${givenBy} (${type})`;
   
   return notes.trim();
