@@ -11,7 +11,7 @@ const corsHeaders = {
 interface EmailNotificationPayload {
   to: string;
   subject: string;
-  type: 'meeting_reminder' | 'course_deadline' | 'assignment' | 'general';
+  type: 'meeting_reminder' | 'course_deadline' | 'assignment' | 'action_item_overdue' | 'general';
   data: {
     recipientName?: string;
     title?: string;
@@ -56,6 +56,8 @@ function generateEmailHtml(type: string, data: EmailNotificationPayload['data'])
         return '⏰';
       case 'assignment':
         return '📚';
+      case 'action_item_overdue':
+        return '⚠️';
       default:
         return '🔔';
     }
@@ -69,6 +71,8 @@ function generateEmailHtml(type: string, data: EmailNotificationPayload['data'])
         return '#f59e0b';
       case 'assignment':
         return '#10b981';
+      case 'action_item_overdue':
+        return '#ef4444';
       default:
         return '#6b7280';
     }
