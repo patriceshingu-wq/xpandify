@@ -78,14 +78,14 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
         to={item.path}
         onClick={() => onOpenChange(false)}
         className={cn(
-          'flex items-center gap-4 px-4 py-3 rounded-xl transition-colors min-h-[48px]',
+          'flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors touch-target',
           active
             ? 'bg-primary/10 text-primary'
             : 'text-foreground active:bg-muted'
         )}
       >
-        <Icon className="h-5 w-5 flex-shrink-0" />
-        <span className="font-medium">{t(item.labelKey)}</span>
+        <Icon className="h-6 w-6 flex-shrink-0" />
+        <span className="font-medium text-base">{t(item.labelKey)}</span>
       </Link>
     );
   };
@@ -94,33 +94,33 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl px-0">
-        <SheetHeader className="px-6 pb-4">
+      <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl px-0 flex flex-col">
+        <SheetHeader className="px-6 pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-xl">Menu</SheetTitle>
+            <SheetTitle className="text-xl font-semibold">Menu</SheetTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange(false)}
-              className="h-10 w-10"
+              className="touch-target rounded-full hover:bg-muted"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </Button>
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto flex-1 px-4 pb-safe">
+        <div className="overflow-y-auto flex-1 px-4 pb-safe overscroll-contain">
           {/* Profile Link */}
           <Link
             to="/profile"
             onClick={() => onOpenChange(false)}
-            className="flex items-center gap-4 p-4 mb-4 rounded-xl bg-muted/50 active:bg-muted transition-colors"
+            className="flex items-center gap-4 p-4 mb-4 rounded-2xl bg-muted/50 active:bg-muted transition-colors touch-target"
           >
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-6 w-6 text-primary" />
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="h-7 w-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate">
+              <p className="font-semibold text-foreground truncate text-base">
                 {displayName}
               </p>
               <p className="text-sm text-muted-foreground">{t('profile.title')}</p>
@@ -128,7 +128,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           </Link>
 
           {/* More Navigation */}
-          <div className="space-y-1 mb-4">
+          <div className="space-y-1 mb-6">
             <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               More
             </p>
@@ -138,7 +138,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           <Separator className="my-4" />
 
           {/* Development */}
-          <div className="space-y-1 mb-4">
+          <div className="space-y-1 mb-6">
             <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Development
             </p>
@@ -149,7 +149,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           {hasAnyRole(['super_admin', 'admin']) && (
             <>
               <Separator className="my-4" />
-              <div className="space-y-1 mb-4">
+              <div className="space-y-1 mb-6">
                 <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   System
                 </p>
@@ -167,11 +167,14 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
               onOpenChange(false);
               signOut();
             }}
-            className="w-full justify-start gap-4 h-12 px-4 text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="w-full justify-start gap-4 touch-target px-4 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
           >
-            <LogOut className="h-5 w-5" />
-            <span className="font-medium">{t('nav.logout')}</span>
+            <LogOut className="h-6 w-6" />
+            <span className="font-medium text-base">{t('nav.logout')}</span>
           </Button>
+          
+          {/* Extra bottom padding for safety */}
+          <div className="h-8" />
         </div>
       </SheetContent>
     </Sheet>

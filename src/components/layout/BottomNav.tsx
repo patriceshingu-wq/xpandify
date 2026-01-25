@@ -33,8 +33,8 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border pb-safe">
+      <div className="flex items-center justify-around h-16 px-1">
         {primaryNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -44,15 +44,15 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[44px] px-3 py-2 rounded-lg transition-colors',
+                'flex flex-col items-center justify-center gap-1 touch-target px-3 py-2 rounded-xl transition-colors',
                 active
-                  ? 'text-primary'
+                  ? 'text-primary bg-primary/10'
                   : 'text-muted-foreground active:bg-muted'
               )}
             >
-              <Icon className={cn('h-5 w-5', active && 'text-primary')} />
+              <Icon className={cn('h-6 w-6', active && 'text-primary')} />
               <span className={cn(
-                'text-[10px] font-medium leading-none',
+                'text-[11px] font-medium leading-none',
                 active && 'text-primary'
               )}>
                 {t(item.labelKey)}
@@ -64,10 +64,10 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
         {/* More button */}
         <button
           onClick={onMoreClick}
-          className="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[44px] px-3 py-2 rounded-lg text-muted-foreground active:bg-muted transition-colors"
+          className="flex flex-col items-center justify-center gap-1 touch-target px-3 py-2 rounded-xl text-muted-foreground active:bg-muted transition-colors"
         >
-          <MoreHorizontal className="h-5 w-5" />
-          <span className="text-[10px] font-medium leading-none">
+          <MoreHorizontal className="h-6 w-6" />
+          <span className="text-[11px] font-medium leading-none">
             {t('common.more') || 'More'}
           </span>
         </button>
