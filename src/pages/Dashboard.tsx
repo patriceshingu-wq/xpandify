@@ -8,6 +8,7 @@ import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentPro
 import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart';
 import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
 import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
+import { SupervisorDashboard } from '@/components/dashboard/SupervisorDashboard';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
 import { useMeetings } from '@/hooks/useMeetings';
@@ -119,6 +120,9 @@ export default function Dashboard() {
             </>
           )}
         </div>
+
+        {/* Supervisor Dashboard - Direct Reports */}
+        <SupervisorDashboard />
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
