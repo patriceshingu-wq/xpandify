@@ -49,25 +49,25 @@ export function QuickScheduleDialog({
   };
 
   const [dateTime, setDateTime] = useState(getDefaultDateTime());
-  const [selectedTemplateId, setSelectedTemplateId] = useState(defaultTemplateId || '');
+  const [selectedTemplateId, setSelectedTemplateId] = useState(defaultTemplateId || 'none');
   const [title, setTitle] = useState(`1:1 with ${personName}`);
 
   useEffect(() => {
     if (open) {
       setDateTime(getDefaultDateTime());
-      setSelectedTemplateId(defaultTemplateId || '');
+      setSelectedTemplateId(defaultTemplateId || 'none');
       setTitle(`1:1 with ${personName}`);
     }
   }, [open, personName, defaultTemplateId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSchedule({
-      personId,
-      dateTime: new Date(dateTime),
-      templateId: selectedTemplateId || null,
-      title,
-    });
+      onSchedule({
+        personId,
+        dateTime: new Date(dateTime),
+        templateId: selectedTemplateId === 'none' ? null : selectedTemplateId || null,
+        title,
+      });
   };
 
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
@@ -124,7 +124,7 @@ export function QuickScheduleDialog({
                 <SelectValue placeholder="Select a template" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No template</SelectItem>
+                <SelectItem value="none">No template</SelectItem>
                 {templates.map((template) => (
                   <SelectItem key={template.id} value={template.id}>
                     {getLocalizedField(template, 'name')}
