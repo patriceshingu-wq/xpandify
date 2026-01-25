@@ -52,6 +52,7 @@ export default function Team() {
   const [activeTab, setActiveTab] = useState<'supervisor' | 'direct-reports' | 'teammates' | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMemberStats | null>(null);
   const [scheduleForMember, setScheduleForMember] = useState<TeamMemberStats | null>(null);
+  const [scheduleForSupervisor, setScheduleForSupervisor] = useState(false);
 
   // Set default tab based on available data
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function Team() {
                 <div className="spinner" />
               </div>
             ) : supervisor ? (
-              <SupervisorCard supervisor={supervisor} />
+              <SupervisorCard supervisor={supervisor} onScheduleMeeting={() => setScheduleForSupervisor(true)} />
             ) : (
               <EmptyState
                 icon={<Crown className="h-16 w-16" />}
@@ -424,6 +425,52 @@ export default function Team() {
             }
 
             setScheduleForMember(null);
+          }}
+          isLoading={createMeeting.isPending}
+        />
+      )}
+
+      {/* Quick Schedule Dialog for Supervisor */}
+      {scheduleForSupervisor && supervisor && person && (
+        <QuickScheduleDialog
+          open={scheduleForSupervisor}
+          onOpenChange={(open) => !open && setScheduleForSupervisor(false)}
+          personId={supervisor.id}
+          personName={`${supervisor.first_name} ${supervisor.last_name}`}
+          organizerId={person.id}
+          templates={oneOnOneTemplates}
+          defaultTemplateId={defaultTemplate?.id}
+          onSchedule={async (data) => {
+            const meeting = await createMeeting.mutateAsync({
+              meeting_type: 'one_on_one',
+              title_en: data.title,
+              date_time: data.dateTime.toISOString(),
+              duration_minutes: 60,
+              organizer_id: person.id,
+              person_focus_id: data.personId,
+            });
+
+            await bulkAddParticipants.mutateAsync({
+              meeting_id: meeting.id,
+              person_ids: [data.personId],
+            });
+
+            if (data.templateId) {
+              const template = templates?.find(t => t.id === data.templateId);
+              if (template?.items) {
+                for (const item of template.items) {
+                  await createAgendaItem.mutateAsync({
+                    meeting_id: meeting.id,
+                    topic_en: item.topic_en,
+                    topic_fr: item.topic_fr,
+                    section_type: item.section_type as any,
+                    order_index: item.order_index || 0,
+                  });
+                }
+              }
+            }
+
+            setScheduleForSupervisor(false);
           }}
           isLoading={createMeeting.isPending}
         />
