@@ -147,6 +147,144 @@ export async function checkMeetingConflicts({
   return conflicts;
 }
 
+export interface SuggestedTimeSlot {
+  start: Date;
+  end: Date;
+  label: string;
+}
+
+interface FindAlternativeSlotsParams {
+  personIds: string[];
+  durationMinutes: number;
+  preferredDate: Date;
+  excludeMeetingId?: string;
+}
+
+/**
+ * Finds available time slots for the given persons around a preferred date
+ * Returns up to 5 suggested alternatives
+ */
+export async function findAlternativeTimeSlots({
+  personIds,
+  durationMinutes,
+  preferredDate,
+  excludeMeetingId,
+}: FindAlternativeSlotsParams): Promise<SuggestedTimeSlot[]> {
+  if (personIds.length === 0) return [];
+
+  // Get all meetings for these persons in a ±7 day window
+  const startWindow = new Date(preferredDate);
+  startWindow.setDate(startWindow.getDate() - 1);
+  startWindow.setHours(0, 0, 0, 0);
+
+  const endWindow = new Date(preferredDate);
+  endWindow.setDate(endWindow.getDate() + 7);
+  endWindow.setHours(23, 59, 59, 999);
+
+  // Fetch all meetings for involved persons
+  let meetingsQuery = supabase
+    .from('meetings')
+    .select('id, date_time, duration_minutes, organizer_id, person_focus_id')
+    .or(`organizer_id.in.(${personIds.join(',')}),person_focus_id.in.(${personIds.join(',')})`)
+    .gte('date_time', startWindow.toISOString())
+    .lte('date_time', endWindow.toISOString());
+
+  if (excludeMeetingId) {
+    meetingsQuery = meetingsQuery.neq('id', excludeMeetingId);
+  }
+
+  const { data: directMeetings } = await meetingsQuery;
+
+  // Also get participant meetings
+  const { data: participantMeetings } = await supabase
+    .from('meeting_participants')
+    .select('meeting:meetings(id, date_time, duration_minutes)')
+    .in('person_id', personIds);
+
+  // Build list of busy periods
+  const busyPeriods: { start: Date; end: Date }[] = [];
+
+  for (const meeting of directMeetings || []) {
+    if (excludeMeetingId && meeting.id === excludeMeetingId) continue;
+    const start = new Date(meeting.date_time);
+    const end = new Date(start.getTime() + (meeting.duration_minutes || 60) * 60 * 1000);
+    busyPeriods.push({ start, end });
+  }
+
+  for (const participation of participantMeetings || []) {
+    const meeting = participation.meeting as { id: string; date_time: string; duration_minutes: number } | null;
+    if (!meeting) continue;
+    if (excludeMeetingId && meeting.id === excludeMeetingId) continue;
+    const start = new Date(meeting.date_time);
+    const end = new Date(start.getTime() + (meeting.duration_minutes || 60) * 60 * 1000);
+    busyPeriods.push({ start, end });
+  }
+
+  // Generate candidate time slots (business hours: 8am-6pm)
+  const suggestions: SuggestedTimeSlot[] = [];
+  const candidateDays: Date[] = [];
+
+  // Start from today or preferred date, whichever is later
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let startDay = new Date(Math.max(today.getTime(), preferredDate.getTime()));
+  startDay.setHours(0, 0, 0, 0);
+
+  // Generate next 7 business days
+  for (let i = 0; i < 14 && candidateDays.length < 7; i++) {
+    const day = new Date(startDay);
+    day.setDate(day.getDate() + i);
+    // Skip weekends
+    if (day.getDay() !== 0 && day.getDay() !== 6) {
+      candidateDays.push(day);
+    }
+  }
+
+  // Time slots to try (business hours)
+  const timeSlots = [
+    { hour: 9, minute: 0 },
+    { hour: 10, minute: 0 },
+    { hour: 11, minute: 0 },
+    { hour: 13, minute: 0 }, // After lunch
+    { hour: 14, minute: 0 },
+    { hour: 15, minute: 0 },
+    { hour: 16, minute: 0 },
+  ];
+
+  for (const day of candidateDays) {
+    for (const slot of timeSlots) {
+      if (suggestions.length >= 5) break;
+
+      const slotStart = new Date(day);
+      slotStart.setHours(slot.hour, slot.minute, 0, 0);
+      const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60 * 1000);
+
+      // Skip if in the past
+      if (slotStart <= new Date()) continue;
+
+      // Check if this slot conflicts with any busy period
+      const hasConflict = busyPeriods.some(
+        busy => slotStart < busy.end && slotEnd > busy.start
+      );
+
+      if (!hasConflict) {
+        // Format label
+        const dayLabel = slotStart.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeLabel = slotStart.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        
+        suggestions.push({
+          start: slotStart,
+          end: slotEnd,
+          label: `${dayLabel} at ${timeLabel}`,
+        });
+      }
+    }
+    if (suggestions.length >= 5) break;
+  }
+
+  return suggestions;
+}
+
 /**
  * Formats conflict messages for display
  */
