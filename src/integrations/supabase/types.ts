@@ -1262,6 +1262,10 @@ export type Database = {
         Args: { person_id: string; supervisor_user_id: string }
         Returns: boolean
       }
+      user_participates_in_meeting: {
+        Args: { check_meeting_id: string; check_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       action_status: "open" | "in_progress" | "done" | "cancelled"
