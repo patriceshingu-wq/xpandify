@@ -6,13 +6,15 @@ import { usePeople } from '@/hooks/usePeople';
 import { useMinistries } from '@/hooks/useMinistries';
 import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplates';
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
+import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, FileText } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, FileText, AlertTriangle } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 
 type MeetingType = Database['public']['Enums']['meeting_type'];
@@ -50,6 +52,8 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   });
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [conflicts, setConflicts] = useState<MeetingConflict[]>([]);
+  const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
 
   // Filter templates by meeting type
   const availableTemplates = templates?.filter(t => t.meeting_type === formData.meeting_type) || [];
@@ -72,6 +76,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
         recurrence_pattern: (meeting as any).recurrence_pattern || '',
       });
       setSelectedTemplateId('');
+      setConflicts([]);
     } else {
       const now = new Date();
       now.setHours(now.getHours() + 1, 0, 0, 0);
@@ -88,8 +93,40 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
         recurrence_pattern: '',
       });
       setSelectedTemplateId('');
+      setConflicts([]);
     }
   }, [meeting, open, person]);
+
+  // Check for conflicts when date/time, duration, or participants change
+  useEffect(() => {
+    const checkConflicts = async () => {
+      if (!formData.date_time || !formData.organizer_id) return;
+
+      const personIds = [formData.organizer_id];
+      if (formData.person_focus_id) {
+        personIds.push(formData.person_focus_id);
+      }
+
+      setIsCheckingConflicts(true);
+      try {
+        const foundConflicts = await checkMeetingConflicts({
+          dateTime: new Date(formData.date_time),
+          durationMinutes: formData.duration_minutes,
+          personIds,
+          excludeMeetingId: meeting?.id,
+        });
+        setConflicts(foundConflicts);
+      } catch (error) {
+        console.error('Error checking conflicts:', error);
+      } finally {
+        setIsCheckingConflicts(false);
+      }
+    };
+
+    // Debounce the check
+    const timeoutId = setTimeout(checkConflicts, 300);
+    return () => clearTimeout(timeoutId);
+  }, [formData.date_time, formData.duration_minutes, formData.organizer_id, formData.person_focus_id, meeting?.id]);
 
   // Auto-fill title when selecting a person focus for 1:1
   useEffect(() => {
@@ -107,7 +144,13 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Warn if conflicts exist
+    if (conflicts.length > 0) {
+      if (!window.confirm(`There are scheduling conflicts. ${formatConflictMessage(conflicts)}\n\nDo you want to proceed anyway?`)) {
+        return;
+      }
+    }
     const payload = {
       meeting_type: formData.meeting_type,
       title_en: formData.title_en,
@@ -286,6 +329,12 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
                 onChange={(e) => setFormData({ ...formData, date_time: e.target.value })}
                 required
               />
+              {isCheckingConflicts && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Checking availability...
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Duration (minutes)</Label>
@@ -307,6 +356,16 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
               </Select>
             </div>
           </div>
+
+          {/* Conflict Warning */}
+          {conflicts.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                {formatConflictMessage(conflicts)}
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Organizer and Ministry */}
           <div className="grid grid-cols-2 gap-4">
