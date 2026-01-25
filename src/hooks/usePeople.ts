@@ -28,12 +28,13 @@ export function usePeople(filters?: PersonFilters) {
   return useQuery({
     queryKey: ['people', filters],
     queryFn: async () => {
+      // NOTE: We intentionally do NOT use a PostgREST embedded join for supervisor here.
+      // The database does not currently expose a self-referencing FK relationship
+      // that PostgREST can use (requests were returning 400 with schema cache errors).
+      // Instead, we fetch people normally and resolve supervisor info client-side.
       let query = supabase
         .from('people')
-        .select(`
-          *,
-          supervisor:people!people_supervisor_id_fkey(id, first_name, last_name)
-        `)
+        .select('*')
         .order('last_name', { ascending: true });
 
       if (filters?.search) {
@@ -51,12 +52,25 @@ export function usePeople(filters?: PersonFilters) {
       const { data, error } = await query;
 
       if (error) throw error;
-      
-      // Transform the data to match our Person interface
-      return (data || []).map(item => ({
-        ...item,
-        supervisor: Array.isArray(item.supervisor) ? item.supervisor[0] || null : item.supervisor
-      })) as Person[];
+
+      const people = (data || []) as PersonRow[];
+      const byId: Record<string, PersonRow> = {};
+      for (const p of people) byId[p.id] = p;
+
+      // Transform the data to match our Person interface, resolving supervisor locally.
+      return people.map((item) => {
+        const supervisorRow = item.supervisor_id ? byId[item.supervisor_id] : undefined;
+        return {
+          ...(item as any),
+          supervisor: supervisorRow
+            ? {
+                id: supervisorRow.id,
+                first_name: supervisorRow.first_name,
+                last_name: supervisorRow.last_name,
+              }
+            : null,
+        } as Person;
+      });
     },
   });
 }
@@ -69,19 +83,34 @@ export function usePerson(id: string | undefined) {
 
       const { data, error } = await supabase
         .from('people')
-        .select(`
-          *,
-          supervisor:people!people_supervisor_id_fkey(id, first_name, last_name)
-        `)
+        .select('*')
         .eq('id', id)
         .maybeSingle();
 
       if (error) throw error;
       if (!data) return null;
-      
+
+      let supervisor: Person['supervisor'] = null;
+      if (data.supervisor_id) {
+        const { data: supervisorRow, error: supervisorError } = await supabase
+          .from('people')
+          .select('id, first_name, last_name')
+          .eq('id', data.supervisor_id)
+          .maybeSingle();
+
+        if (supervisorError) throw supervisorError;
+        if (supervisorRow) {
+          supervisor = {
+            id: supervisorRow.id,
+            first_name: supervisorRow.first_name,
+            last_name: supervisorRow.last_name,
+          };
+        }
+      }
+
       return {
-        ...data,
-        supervisor: Array.isArray(data.supervisor) ? data.supervisor[0] || null : data.supervisor
+        ...(data as any),
+        supervisor,
       } as Person;
     },
     enabled: !!id,
