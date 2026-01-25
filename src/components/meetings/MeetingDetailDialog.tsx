@@ -15,7 +15,7 @@ import { Calendar, Plus, User, Target, BookOpen, GripVertical, Trash2, Loader2, 
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMeeting, useMeetingAgendaItems, useCreateAgendaItem, useUpdateAgendaItem, Meeting, MeetingAgendaItem } from '@/hooks/useMeetings';
+import { useMeeting, useMeetingAgendaItems, useCreateAgendaItem, useUpdateAgendaItem, useDeleteAgendaItem, Meeting, MeetingAgendaItem } from '@/hooks/useMeetings';
 import { useMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
@@ -42,6 +42,7 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
   
   const createAgendaItem = useCreateAgendaItem();
   const updateAgendaItem = useUpdateAgendaItem();
+  const deleteAgendaItem = useDeleteAgendaItem();
 
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemTopic, setNewItemTopic] = useState('');
@@ -234,6 +235,8 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
                             onToggleActionRequired={handleToggleActionRequired}
                             onUpdateActionStatus={handleUpdateActionStatus}
                             onUpdateActionOwner={handleUpdateActionOwner}
+                            onDelete={(itemToDelete) => deleteAgendaItem.mutate({ id: itemToDelete.id, meeting_id: itemToDelete.meeting_id })}
+                            isDeleting={deleteAgendaItem.isPending}
                             getLocalizedField={getLocalizedField}
                           />
                         ))}
@@ -339,6 +342,8 @@ interface AgendaItemCardProps {
   onToggleActionRequired: (item: MeetingAgendaItem, checked: boolean) => void;
   onUpdateActionStatus: (item: MeetingAgendaItem, status: string) => void;
   onUpdateActionOwner: (item: MeetingAgendaItem, ownerId: string) => void;
+  onDelete: (item: MeetingAgendaItem) => void;
+  isDeleting: boolean;
   getLocalizedField: (obj: any, field: string) => string;
 }
 
@@ -350,6 +355,8 @@ function AgendaItemCard({
   onToggleActionRequired,
   onUpdateActionStatus,
   onUpdateActionOwner,
+  onDelete,
+  isDeleting,
   getLocalizedField,
 }: AgendaItemCardProps) {
   const [notes, setNotes] = useState(item.discussion_notes || '');
@@ -378,6 +385,21 @@ function AgendaItemCard({
               <div className="flex items-center gap-2">
                 <p className="font-medium">{getLocalizedField(item, 'topic')}</p>
               </div>
+              {canEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => onDelete(item)}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
             </div>
 
             {/* Linked Goal Progress */}

@@ -276,3 +276,35 @@ export function useUpdateAgendaItem() {
     },
   });
 }
+
+export function useDeleteAgendaItem() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { t } = useLanguage();
+
+  return useMutation({
+    mutationFn: async ({ id, meeting_id }: { id: string; meeting_id: string }) => {
+      const { error } = await supabase
+        .from('meeting_agenda_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return { meeting_id };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['meeting-agenda', data.meeting_id] });
+      toast({
+        title: t('common.success'),
+        description: 'Agenda item deleted',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
