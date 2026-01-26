@@ -55,45 +55,49 @@ export function TeamMemberDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden p-0 w-[95vw] sm:w-full">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-6">
-          <div className="flex items-start gap-4">
-            <Avatar className="h-20 w-20 border-4 border-background shadow-lg">
-              <AvatarFallback className="bg-primary text-primary-foreground font-bold text-2xl">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <DialogHeader className="text-left space-y-1">
-                <div className="flex items-center gap-2">
-                  <DialogTitle className="text-2xl font-serif">{displayName}</DialogTitle>
-                  <Badge variant="secondary">{member.member.person_type || 'Staff'}</Badge>
-                </div>
-                <DialogDescription className="flex flex-wrap items-center gap-4 text-sm">
-                  {member.member.email && (
-                    <a href={`mailto:${member.member.email}`} className="flex items-center gap-1 hover:text-primary">
-                      <Mail className="h-3.5 w-3.5" />
-                      {member.member.email}
-                    </a>
-                  )}
-                  {member.member.phone && (
-                    <a href={`tel:${member.member.phone}`} className="flex items-center gap-1 hover:text-primary">
-                      <Phone className="h-3.5 w-3.5" />
-                      {member.member.phone}
-                    </a>
-                  )}
-                  {member.member.campus && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {member.member.campus}
-                    </span>
-                  )}
-                </DialogDescription>
-              </DialogHeader>
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 sm:p-6">
+          <div className="flex flex-col gap-4">
+            {/* Avatar and Info Row */}
+            <div className="flex items-start gap-3 sm:gap-4">
+              <Avatar className="h-14 w-14 sm:h-20 sm:w-20 border-4 border-background shadow-lg shrink-0">
+                <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg sm:text-2xl">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <DialogHeader className="text-left space-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <DialogTitle className="text-lg sm:text-2xl font-serif truncate">{displayName}</DialogTitle>
+                    <Badge variant="secondary" className="w-fit">{member.member.person_type || 'Staff'}</Badge>
+                  </div>
+                  <DialogDescription className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-sm">
+                    {member.member.email && (
+                      <a href={`mailto:${member.member.email}`} className="flex items-center gap-1.5 hover:text-primary truncate">
+                        <Mail className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{member.member.email}</span>
+                      </a>
+                    )}
+                    {member.member.phone && (
+                      <a href={`tel:${member.member.phone}`} className="flex items-center gap-1.5 hover:text-primary">
+                        <Phone className="h-4 w-4 shrink-0" />
+                        {member.member.phone}
+                      </a>
+                    )}
+                    {member.member.campus && (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4 shrink-0" />
+                        {member.member.campus}
+                      </span>
+                    )}
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
             </div>
-            <Button onClick={onScheduleMeeting} className="shrink-0">
-              <Calendar className="h-4 w-4 mr-2" />
+            {/* Action Button - Full width on mobile */}
+            <Button onClick={onScheduleMeeting} className="w-full sm:w-auto sm:self-end touch-target gap-2">
+              <Calendar className="h-4 w-4" />
               Schedule 1:1
             </Button>
           </div>
@@ -101,54 +105,54 @@ export function TeamMemberDetailDialog({
 
         {/* Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <div className="px-6 border-b">
-            <TabsList className="h-12 w-full justify-start gap-4 bg-transparent p-0">
-              <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+          <div className="px-3 sm:px-6 border-b overflow-x-auto">
+            <TabsList className="h-12 w-full grid grid-cols-4 sm:flex sm:justify-start sm:gap-4 bg-transparent p-0">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 sm:px-3">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                Performance
+              <TabsTrigger value="performance" className="text-xs sm:text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 sm:px-3">
+                Perform
               </TabsTrigger>
-              <TabsTrigger value="development" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-                Development
+              <TabsTrigger value="development" className="text-xs sm:text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 sm:px-3">
+                Develop
               </TabsTrigger>
-              <TabsTrigger value="profile" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+              <TabsTrigger value="profile" className="text-xs sm:text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 sm:px-3">
                 Profile
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <ScrollArea className="h-[400px]">
-            <div className="p-6">
-              <TabsContent value="overview" className="mt-0 space-y-6">
+          <ScrollArea className="h-[350px] sm:h-[400px]">
+            <div className="p-4 sm:p-6">
+              <TabsContent value="overview" className="mt-0 space-y-4 sm:space-y-6">
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <Card>
-                    <CardContent className="p-4 text-center">
-                      <Target className="h-8 w-8 mx-auto mb-2 text-primary/70" />
-                      <p className="text-2xl font-bold">{goalProgress}%</p>
-                      <p className="text-xs text-muted-foreground">Goal Completion</p>
+                    <CardContent className="p-3 sm:p-4 text-center">
+                      <Target className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-primary/70" />
+                      <p className="text-xl sm:text-2xl font-bold">{goalProgress}%</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Goals</p>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="p-4 text-center">
-                      <CheckSquare className="h-8 w-8 mx-auto mb-2 text-warning/70" />
-                      <p className="text-2xl font-bold">{member.actionItems.open}</p>
-                      <p className="text-xs text-muted-foreground">Open Actions</p>
+                    <CardContent className="p-3 sm:p-4 text-center">
+                      <CheckSquare className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-warning/70" />
+                      <p className="text-xl sm:text-2xl font-bold">{member.actionItems.open}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Actions</p>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="p-4 text-center">
-                      <GraduationCap className="h-8 w-8 mx-auto mb-2 text-info/70" />
-                      <p className="text-2xl font-bold">{courseProgress}%</p>
-                      <p className="text-xs text-muted-foreground">Courses Complete</p>
+                    <CardContent className="p-3 sm:p-4 text-center">
+                      <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-info/70" />
+                      <p className="text-xl sm:text-2xl font-bold">{courseProgress}%</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Courses</p>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="p-4 text-center">
-                      <MessageSquare className="h-8 w-8 mx-auto mb-2 text-success/70" />
-                      <p className="text-2xl font-bold">{member.feedback.received}</p>
-                      <p className="text-xs text-muted-foreground">Feedback Items</p>
+                    <CardContent className="p-3 sm:p-4 text-center">
+                      <MessageSquare className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-success/70" />
+                      <p className="text-xl sm:text-2xl font-bold">{member.feedback.received}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Feedback</p>
                     </CardContent>
                   </Card>
                 </div>
