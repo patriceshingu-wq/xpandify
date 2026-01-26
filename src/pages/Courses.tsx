@@ -128,9 +128,9 @@ export default function Courses() {
                 className="cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
                 onClick={() => handleEdit(course)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                <CardContent className="p-4 sm:p-5 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {course.code && (
                         <Badge variant="outline" className="font-mono text-xs">
                           {course.code}
@@ -144,7 +144,7 @@ export default function Courses() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive"
+                        className="h-8 w-8 text-destructive touch-target shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDeletingCourse(course);
@@ -154,15 +154,15 @@ export default function Courses() {
                       </Button>
                     )}
                   </div>
-                  <h3 className="font-medium text-foreground mb-2">
+                  <h3 className="font-medium text-foreground text-base leading-snug">
                     {getLocalizedField(course, 'title')}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                     {getLocalizedField(course, 'description') || t('courses.noDescription')}
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" />
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
                       <span>{course.estimated_duration_hours}h</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -170,7 +170,7 @@ export default function Courses() {
                       <span className="capitalize">{course.delivery_type?.replace('_', ' ')}</span>
                     </div>
                   </div>
-                  <div className="mt-3">
+                  <div>
                     <Badge variant="secondary" className="capitalize">
                       {course.category?.replace('_', ' ')}
                     </Badge>

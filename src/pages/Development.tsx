@@ -217,32 +217,34 @@ export default function Development() {
                       )}
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-0">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
+                      <User className="h-4 w-4 shrink-0" />
                       <span>
                         {pdp.person?.first_name} {pdp.person?.last_name}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="outline" className={statusColors[pdp.status || 'active']}>
                         {getStatusLabel(pdp.status || 'active')}
                       </Badge>
                     </div>
 
                     {pdp.start_date && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        <span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                        <span className="leading-relaxed">
                           {new Date(pdp.start_date).toLocaleDateString()}
-                          {pdp.target_date && ` → ${new Date(pdp.target_date).toLocaleDateString()}`}
+                          {pdp.target_date && (
+                            <> – {new Date(pdp.target_date).toLocaleDateString()}</>
+                          )}
                         </span>
                       </div>
                     )}
 
                     {pdp.summary_en && (
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                         {getLocalizedField(pdp, 'summary')}
                       </p>
                     )}
@@ -316,15 +318,15 @@ export default function Development() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 pt-0">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
+                      <User className="h-4 w-4 shrink-0" />
                       <span>
                         {assignment.person?.first_name} {assignment.person?.last_name}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <StatusBadge status={assignment.status as 'not_started' | 'in_progress' | 'completed' | 'dropped'} />
                       {assignment.course?.estimated_duration_hours && (
                         <Badge variant="outline" className="text-xs">
@@ -335,15 +337,15 @@ export default function Development() {
                     </div>
 
                     {assignment.assigned_date && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
                         <span>Assigned: {new Date(assignment.assigned_date).toLocaleDateString()}</span>
                       </div>
                     )}
 
                     {assignment.completion_date && (
-                      <div className="flex items-center gap-2 text-xs text-success">
-                        <CheckCircle2 className="h-3 w-3" />
+                      <div className="flex items-center gap-2 text-sm text-success">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                         <span>Completed: {new Date(assignment.completion_date).toLocaleDateString()}</span>
                       </div>
                     )}

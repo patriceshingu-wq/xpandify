@@ -121,17 +121,18 @@ export default function Reviews() {
                 className="cursor-pointer transition-all hover:shadow-md"
                 onClick={() => handleEdit(review)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                    <Avatar className="h-12 w-12 shrink-0">
                       <AvatarFallback className="bg-accent/10 text-accent">
                         {review.person ? getInitials(review.person.first_name, review.person.last_name) : '?'}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <h3 className="font-medium text-foreground">
+                    <div className="flex-1 min-w-0 space-y-3">
+                      {/* Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                        <div className="space-y-1">
+                          <h3 className="font-medium text-foreground text-base">
                             {review.person
                               ? `${review.person.preferred_name || review.person.first_name} ${review.person.last_name}`
                               : t('reviews.unknownPerson')}
@@ -155,61 +156,66 @@ export default function Reviews() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-6 text-sm mb-3">
+                      {/* Rating & Date range */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">{t('reviews.overallRating')}:</span>
                           {renderStars(review.overall_rating)}
                         </div>
                         {review.start_period_date && review.end_period_date && (
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Calendar className="h-3.5 w-3.5" />
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar className="h-3.5 w-3.5 shrink-0" />
                             <span>
-                              {format(new Date(review.start_period_date), 'MMM yyyy')} -{' '}
-                              {format(new Date(review.end_period_date), 'MMM yyyy')}
+                              {format(new Date(review.start_period_date), 'MMM yyyy')} – {format(new Date(review.end_period_date), 'MMM yyyy')}
                             </span>
                           </div>
                         )}
                       </div>
 
+                      {/* Summary */}
                       {(review.summary_en || review.summary_fr) && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                           {getLocalizedField(review, 'summary')}
                         </p>
                       )}
 
-                      <div className="flex items-center gap-2 mt-3">
+                      {/* Footer actions */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 pt-1">
                         <p className="text-xs text-muted-foreground">
                           {t('reviews.reviewedBy')} {review.reviewer
                             ? `${review.reviewer.preferred_name || review.reviewer.first_name} ${review.reviewer.last_name}`
                             : t('reviews.unknownPerson')}
                         </p>
                         <div className="flex-1" />
-                        {!review.finalized && (review.reviewer?.id === person?.id || isAdminOrSuper) && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleFinalize(review);
-                            }}
-                          >
-                            <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                            {t('reviews.finalize')}
-                          </Button>
-                        )}
-                        {isAdminOrSuper && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeletingReview(review);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {!review.finalized && (review.reviewer?.id === person?.id || isAdminOrSuper) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="touch-target"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFinalize(review);
+                              }}
+                            >
+                              <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                              {t('reviews.finalize')}
+                            </Button>
+                          )}
+                          {isAdminOrSuper && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive touch-target"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeletingReview(review);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

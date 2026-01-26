@@ -154,44 +154,44 @@ export default function Goals() {
                   className="cursor-pointer transition-all hover:shadow-md"
                   onClick={() => handleEdit(goal)}
                 >
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                <CardContent className="p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
                             {getLevelIcon(goal.goal_level)}
                             {t(`goals.${goal.goal_level}`)}
                           </span>
                           <StatusBadge status={goal.status} />
                         </div>
-                        <h3 className="font-medium text-lg text-foreground mb-1">
+                        <h3 className="font-medium text-base sm:text-lg text-foreground leading-snug">
                           {getLocalizedField(goal, 'title')}
                         </h3>
                         {getLocalizedField(goal, 'description') && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                             {getLocalizedField(goal, 'description')}
                           </p>
                         )}
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                           {goal.owner_person && (
-                            <span className="flex items-center gap-1">
-                              <User className="h-3.5 w-3.5" />
+                            <span className="flex items-center gap-1.5">
+                              <User className="h-3.5 w-3.5 shrink-0" />
                               {goal.owner_person.first_name} {goal.owner_person.last_name}
                             </span>
                           )}
                           {goal.due_date && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5" />
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="h-3.5 w-3.5 shrink-0" />
                               {new Date(goal.due_date).toLocaleDateString()}
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="text-right min-w-[100px]">
-                        <div className="text-2xl font-bold text-foreground mb-1">
+                      <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:min-w-[100px]">
+                        <div className="text-xl sm:text-2xl font-bold text-foreground">
                           {goal.progress_percent}%
                         </div>
-                        <Progress value={goal.progress_percent} className="h-2" />
+                        <Progress value={goal.progress_percent} className="h-2 w-24 sm:w-full" />
                       </div>
                     </div>
                   </CardContent>
