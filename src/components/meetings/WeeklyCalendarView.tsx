@@ -229,40 +229,40 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
 
         {/* Calendar Grid */}
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex overflow-x-auto">
+          <div className="flex overflow-x-auto overscroll-x-contain snap-x snap-mandatory scrollbar-hide">
             {/* Time Column */}
-            <div className="w-12 md:w-16 shrink-0 border-r bg-muted/20">
-              <div className="h-12 border-b" /> {/* Spacer for day headers */}
+            <div className="w-10 md:w-14 shrink-0 border-r bg-muted/20 sticky left-0 z-10">
+              <div className="h-12 border-b bg-muted/20" /> {/* Spacer for day headers */}
               {HOURS.map((hour) => (
                 <div
                   key={hour}
-                  className="text-[10px] md:text-xs text-muted-foreground text-right pr-1 md:pr-2 pt-1"
+                  className="text-[9px] md:text-xs text-muted-foreground text-right pr-0.5 md:pr-2 pt-1 bg-muted/20 border-b border-border/30"
                   style={{ height: `${HOUR_HEIGHT}px` }}
                 >
-                  {format(setHours(new Date(), hour), 'ha')}
+                  <span className="hidden sm:inline">{format(setHours(new Date(), hour), 'h a')}</span>
+                  <span className="sm:hidden">{format(setHours(new Date(), hour), 'ha')}</span>
                 </div>
               ))}
             </div>
 
             {/* Days Columns */}
-            <div className="flex-1 overflow-x-auto">
-              <div className="grid grid-cols-7" style={{ minWidth: '560px' }}>
+            <div className="flex">
                 {weekDays.map((day) => {
                   const dayKey = format(day, 'yyyy-MM-dd');
                   const dayMeetings = meetingsByDay[dayKey] || [];
                   const isToday = isSameDay(day, new Date());
 
                   return (
-                    <div key={dayKey} className="min-w-[80px]">
+                    <div key={dayKey} className="w-[120px] sm:w-[140px] md:w-[160px] shrink-0 snap-start">
                       {/* Day Header */}
                       <div
                         className={cn(
-                          'h-12 border-b border-r p-1 md:p-2 text-center',
+                          'h-12 border-b border-r p-2 text-center bg-background',
                           isToday && 'bg-primary/10'
                         )}
                       >
-                        <p className="text-[10px] md:text-xs text-muted-foreground">{format(day, 'EEE')}</p>
-                        <p className={cn('text-xs md:text-sm font-medium', isToday && 'text-primary')}>
+                        <p className="text-xs font-medium text-muted-foreground">{format(day, 'EEE')}</p>
+                        <p className={cn('text-sm font-semibold', isToday && 'text-primary')}>
                           {format(day, 'd')}
                         </p>
                       </div>
@@ -289,7 +289,6 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
                     </div>
                   );
                 })}
-              </div>
             </div>
           </div>
 
