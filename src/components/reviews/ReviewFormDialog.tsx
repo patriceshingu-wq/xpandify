@@ -126,7 +126,7 @@ export function ReviewFormDialog({ open, onOpenChange, review }: ReviewFormDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ClipboardCheck className="h-5 w-5" />
@@ -139,18 +139,18 @@ export function ReviewFormDialog({ open, onOpenChange, review }: ReviewFormDialo
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-hidden flex flex-col">
           <Tabs defaultValue="review" className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-3 mb-4">
-              <TabsTrigger value="review" className="gap-2">
-                <Star className="h-4 w-4" />
-                Review
+            <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
+              <TabsTrigger value="review" className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-2 px-1 sm:px-3 text-xs sm:text-sm">
+                <Star className="h-4 w-4 shrink-0" />
+                <span>Review</span>
               </TabsTrigger>
-              <TabsTrigger value="meetings" className="gap-2" disabled={!showHistoryPanel}>
-                <Calendar className="h-4 w-4" />
-                Meeting History
+              <TabsTrigger value="meetings" className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-2 px-1 sm:px-3 text-xs sm:text-sm" disabled={!showHistoryPanel}>
+                <Calendar className="h-4 w-4 shrink-0" />
+                <span className="leading-tight">History</span>
               </TabsTrigger>
-              <TabsTrigger value="data" className="gap-2" disabled={!watchedPersonId}>
-                <ClipboardCheck className="h-4 w-4" />
-                Goals & Development
+              <TabsTrigger value="data" className="flex flex-col sm:flex-row gap-1 sm:gap-2 py-2 px-1 sm:px-3 text-xs sm:text-sm" disabled={!watchedPersonId}>
+                <ClipboardCheck className="h-4 w-4 shrink-0" />
+                <span className="leading-tight">Goals</span>
               </TabsTrigger>
             </TabsList>
 
