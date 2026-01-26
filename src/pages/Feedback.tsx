@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,9 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmptyState } from '@/components/ui/empty-state';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { FeedbackFormDialog } from '@/components/feedback/FeedbackFormDialog';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { FeedbackCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import { Plus, MessageSquare, Heart, Lightbulb, AlertCircle, Trash2, Eye, EyeOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useQueryClient } from '@tanstack/react-query';
 
 const typeIcons: Record<string, React.ReactNode> = {
   encouragement: <Heart className="h-4 w-4 text-success" />,
@@ -30,6 +33,7 @@ const typeColors: Record<string, string> = {
 export default function FeedbackPage() {
   const { t, getLocalizedField } = useLanguage();
   const { isAdminOrSuper, person } = useAuth();
+  const queryClient = useQueryClient();
   const [feedbackType, setFeedbackType] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deletingFeedback, setDeletingFeedback] = useState<Feedback | null>(null);
@@ -39,6 +43,10 @@ export default function FeedbackPage() {
   });
 
   const deleteFeedback = useDeleteFeedback();
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['feedback'] });
+  }, [queryClient]);
 
   const handleDelete = async () => {
     if (deletingFeedback) {
@@ -53,7 +61,8 @@ export default function FeedbackPage() {
 
   return (
     <MainLayout title={t('feedback.title')} subtitle={t('feedback.subtitle')}>
-      <div className="space-y-6 animate-fade-in">
+      <PullToRefresh onRefresh={handleRefresh} className="min-h-[calc(100vh-12rem)]">
+        <div className="space-y-6 animate-fade-in">
         <PageHeader
           title={t('feedback.title')}
           subtitle={t('feedback.subtitle')}
@@ -86,9 +95,7 @@ export default function FeedbackPage() {
 
         {/* Feedback List */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="spinner" />
-          </div>
+          <ListSkeleton count={3} ItemComponent={FeedbackCardSkeleton} />
         ) : feedback && feedback.length > 0 ? (
           <div className="space-y-4">
             {feedback.map((item) => (
@@ -163,7 +170,8 @@ export default function FeedbackPage() {
             }}
           />
         )}
-      </div>
+        </div>
+      </PullToRefresh>
 
       <FeedbackFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
 

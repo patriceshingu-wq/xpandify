@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +19,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StatCard } from '@/components/ui/stat-card';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { SwipeableTabs } from '@/components/ui/swipeable-tabs';
+import { TeamCardSkeleton, ListSkeleton, CardSkeleton } from '@/components/ui/mobile-skeletons';
 import {
   Users,
   UsersRound,
@@ -38,6 +41,7 @@ import { TeamMemberDetailDialog } from '@/components/team/TeamMemberDetailDialog
 import { QuickScheduleDialog } from '@/components/dashboard/QuickScheduleDialog';
 import { TeammateCard } from '@/components/team/TeammateCard';
 import { SupervisorCard } from '@/components/team/SupervisorCard';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Team() {
   const { t } = useLanguage();
@@ -49,11 +53,22 @@ export default function Team() {
   const createMeeting = useCreateMeeting();
   const createAgendaItem = useCreateAgendaItem();
   const bulkAddParticipants = useBulkAddMeetingParticipants();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'supervisor' | 'direct-reports' | 'teammates' | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMemberStats | null>(null);
   const [scheduleForMember, setScheduleForMember] = useState<TeamMemberStats | null>(null);
   const [scheduleForSupervisor, setScheduleForSupervisor] = useState(false);
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+    await queryClient.invalidateQueries({ queryKey: ['teammates'] });
+    await queryClient.invalidateQueries({ queryKey: ['supervisor'] });
+  }, [queryClient]);
+
+  // Tab values for swipe navigation
+  const tabValues = ['supervisor', 'direct-reports', 'teammates'] as const;
 
   // Set default tab based on available data
   useEffect(() => {
@@ -115,49 +130,53 @@ export default function Team() {
 
   return (
     <MainLayout title="My Team" subtitle="Manage and support your direct reports">
-      <div className="space-y-4 md:space-y-6 animate-fade-in">
-        <PageHeader
-          title="My Team"
-          subtitle="View profiles and track performance"
-        />
+      <PullToRefresh onRefresh={handleRefresh} className="min-h-[calc(100vh-12rem)]">
+        <div className="space-y-4 md:space-y-6 animate-fade-in">
+          <PageHeader
+            title="My Team"
+            subtitle="View profiles and track performance"
+          />
 
-        {/* Tab Navigation - Full width grid on mobile */}
-        <Tabs value={activeTab || 'supervisor'} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
-          <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
-            <TabsTrigger value="supervisor" className="gap-1.5 touch-target">
-              <Crown className="h-4 w-4 shrink-0" />
-              <span className="text-sm">Supervisor</span>
-            </TabsTrigger>
-            <TabsTrigger value="direct-reports" className="gap-1.5 touch-target">
-              <Users className="h-4 w-4 shrink-0" />
-              <span className="text-sm">Reports</span>
-              {hasDirectReports && (
-                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teamMembers.length}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="teammates" className="gap-1.5 touch-target">
-              <UsersRound className="h-4 w-4 shrink-0" />
-              <span className="text-sm">Peers</span>
-              {hasTeammates && (
-                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teammates.length}</Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
+          {/* Tab Navigation - Full width grid on mobile */}
+          <Tabs value={activeTab || 'supervisor'} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
+            <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
+              <TabsTrigger value="supervisor" className="gap-1.5 touch-target">
+                <Crown className="h-4 w-4 shrink-0" />
+                <span className="text-sm">Supervisor</span>
+              </TabsTrigger>
+              <TabsTrigger value="direct-reports" className="gap-1.5 touch-target">
+                <Users className="h-4 w-4 shrink-0" />
+                <span className="text-sm">Reports</span>
+                {hasDirectReports && (
+                  <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teamMembers.length}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="teammates" className="gap-1.5 touch-target">
+                <UsersRound className="h-4 w-4 shrink-0" />
+                <span className="text-sm">Peers</span>
+                {hasTeammates && (
+                  <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teammates.length}</Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Supervisor Tab */}
-          <TabsContent value="supervisor" className="mt-6 space-y-6">
-            {isLoadingSupervisor ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="spinner" />
-              </div>
-            ) : supervisor ? (
-              <SupervisorCard supervisor={supervisor} onScheduleMeeting={() => setScheduleForSupervisor(true)} />
-            ) : (
-              <EmptyState
-                icon={<Crown className="h-16 w-16" />}
-                title="No Supervisor Assigned"
-                description="You don't have a supervisor assigned in the system yet"
-              />
+            <SwipeableTabs
+              value={activeTab || 'supervisor'}
+              onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}
+              tabs={[...tabValues]}
+            >
+              {/* Supervisor Tab */}
+              <TabsContent value="supervisor" className="mt-6 space-y-6">
+                {isLoadingSupervisor ? (
+                  <CardSkeleton />
+                ) : supervisor ? (
+                  <SupervisorCard supervisor={supervisor} onScheduleMeeting={() => setScheduleForSupervisor(true)} />
+                ) : (
+                  <EmptyState
+                    icon={<Crown className="h-16 w-16" />}
+                    title="No Supervisor Assigned"
+                    description="You don't have a supervisor assigned in the system yet"
+                  />
             )}
           </TabsContent>
 
@@ -212,9 +231,7 @@ export default function Team() {
             </Card>
 
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="spinner" />
-              </div>
+              <ListSkeleton count={3} ItemComponent={TeamCardSkeleton} />
             ) : filteredMembers.length > 0 ? (
               <div className="grid gap-3 md:gap-4">
                 {filteredMembers.map((member) => {
@@ -342,9 +359,7 @@ export default function Team() {
             </Card>
 
             {isLoadingTeammates ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="spinner" />
-              </div>
+              <ListSkeleton count={4} ItemComponent={CardSkeleton} className="grid gap-4 md:grid-cols-2" />
             ) : filteredTeammates.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2">
                 {filteredTeammates.map((teammate) => (
@@ -359,8 +374,10 @@ export default function Team() {
               />
             )}
           </TabsContent>
-        </Tabs>
-      </div>
+            </SwipeableTabs>
+          </Tabs>
+        </div>
+      </PullToRefresh>
 
       {/* Member Detail Dialog */}
       <TeamMemberDetailDialog

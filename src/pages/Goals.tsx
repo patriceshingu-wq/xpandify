@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGoals, Goal } from '@/hooks/useGoals';
@@ -10,14 +10,18 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { GoalCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import { Plus, Target, Calendar, User, Building, List, GitBranch } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
 import { GoalCascadeView } from '@/components/goals/GoalCascadeView';
+import { useQueryClient } from '@tanstack/react-query';
 
 const currentYear = new Date().getFullYear();
 
 export default function Goals() {
   const { t, getLocalizedField } = useLanguage();
+  const queryClient = useQueryClient();
   const [year, setYear] = useState(currentYear);
   const [level, setLevel] = useState('all');
   const [status, setStatus] = useState('all');
@@ -30,6 +34,10 @@ export default function Goals() {
     goal_level: level,
     status: status,
   });
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['goals'] });
+  }, [queryClient]);
 
   const handleEdit = (goal: Goal) => {
     setEditingGoal(goal);
@@ -69,7 +77,8 @@ export default function Goals() {
 
   return (
     <MainLayout title={t('goals.title')} subtitle={t('goals.subtitle')}>
-      <div className="space-y-6 animate-fade-in">
+      <PullToRefresh onRefresh={handleRefresh} className="min-h-[calc(100vh-12rem)]">
+        <div className="space-y-6 animate-fade-in">
         <PageHeader
           title={t('goals.title')}
           subtitle={t('goals.subtitle')}
@@ -140,9 +149,7 @@ export default function Goals() {
 
         {/* Goals Display */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="spinner" />
-          </div>
+          <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />
         ) : goals && goals.length > 0 ? (
           viewMode === 'cascade' ? (
             <GoalCascadeView goals={goals} onGoalClick={handleEdit} />
@@ -210,7 +217,8 @@ export default function Goals() {
             }}
           />
         )}
-      </div>
+        </div>
+      </PullToRefresh>
 
       <GoalFormDialog
         open={isFormOpen}
