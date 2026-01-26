@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMeetings, Meeting } from '@/hooks/useMeetings';
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { MeetingCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import { Plus, Calendar, CalendarDays, CalendarRange, User, Eye, List } from 'lucide-react';
 import { MeetingFormDialog } from '@/components/meetings/MeetingFormDialog';
 import { MeetingDetailDialog } from '@/components/meetings/MeetingDetailDialog';
@@ -16,10 +18,12 @@ import { WeeklyCalendarView } from '@/components/meetings/WeeklyCalendarView';
 import { MonthlyCalendarView } from '@/components/meetings/MonthlyCalendarView';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Meetings() {
   const { t, getLocalizedField } = useLanguage();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [meetingType, setMeetingType] = useState('all');
   const [showUpcoming, setShowUpcoming] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -33,6 +37,10 @@ export default function Meetings() {
     meeting_type: meetingType,
     upcoming: viewMode === 'list' ? showUpcoming : false,
   });
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['meetings'] });
+  }, [queryClient]);
 
   const handleEdit = (meeting: Meeting) => {
     setEditingMeeting(meeting);
