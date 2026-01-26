@@ -223,98 +223,97 @@ export default function Team() {
                   const goalProgress = getGoalProgress(member);
                   const meetingStatus = getMeetingStatus(member);
 
-                  return (
-                    <Card 
-                      key={member.member.id} 
-                      className="hover:shadow-md transition-shadow active:scale-[0.99]"
-                      onClick={() => setSelectedMember(member)}
-                    >
-                      <CardContent className="p-4 md:p-6">
-                        {/* Mobile-first layout */}
-                        <div className="flex items-start gap-3 md:gap-4">
-                          <Avatar className="h-12 w-12 md:h-14 md:w-14 flex-shrink-0">
-                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-base md:text-lg">
-                              {initials}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <h3 className="font-semibold text-base md:text-lg truncate">
-                                  {displayName}
-                                </h3>
-                                <Badge variant="secondary" className="text-xs mt-0.5">
-                                  {member.member.person_type || 'Staff'}
-                                </Badge>
+                    return (
+                      <Card 
+                        key={member.member.id} 
+                        className="hover:shadow-md transition-shadow active:scale-[0.99]"
+                        onClick={() => setSelectedMember(member)}
+                      >
+                        <CardContent className="p-4 md:p-5">
+                          <div className="flex flex-col gap-4">
+                            {/* Header Row - Avatar & Name */}
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-12 w-12 shrink-0">
+                                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-base">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <h3 className="font-semibold text-base leading-snug">
+                                      {displayName}
+                                    </h3>
+                                    <Badge variant="secondary" className="text-xs mt-1">
+                                      {member.member.person_type || 'Staff'}
+                                    </Badge>
+                                  </div>
+                                  <Badge 
+                                    variant={meetingStatus.color as any} 
+                                    className="text-xs shrink-0"
+                                  >
+                                    {meetingStatus.label}
+                                  </Badge>
+                                </div>
                               </div>
-                              {/* Meeting status badge - visible on mobile */}
-                              <Badge 
-                                variant={meetingStatus.color as any} 
-                                className="text-xs shrink-0 md:hidden"
-                              >
-                                {meetingStatus.label}
-                              </Badge>
                             </div>
                             
-                            {/* Stats grid - 2x2 on mobile */}
-                            <div className="grid grid-cols-4 gap-2 mt-3 text-center">
-                              <div>
-                                <div className="text-[10px] md:text-xs text-muted-foreground">Next 1:1</div>
+                            {/* Stats row - Stack on mobile */}
+                            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="text-muted-foreground">Next 1:1:</span>
                                 {member.meetings.nextMeetingDate ? (
-                                  <p className="text-xs md:text-sm font-medium truncate">
+                                  <span className="font-medium">
                                     {formatDistanceToNow(new Date(member.meetings.nextMeetingDate), { addSuffix: false })}
-                                  </p>
+                                  </span>
                                 ) : (
-                                  <p className="text-xs font-medium text-warning">None</p>
+                                  <span className="font-medium text-warning">None</span>
                                 )}
                               </div>
-                              <div>
-                                <div className="text-[10px] md:text-xs text-muted-foreground">Goals</div>
-                                <p className="text-xs md:text-sm font-medium">
-                                  {member.goals.completed}/{member.goals.total}
-                                </p>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Target className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="text-muted-foreground">Goals:</span>
+                                <span className="font-medium">{member.goals.completed}/{member.goals.total}</span>
                               </div>
-                              <div>
-                                <div className="text-[10px] md:text-xs text-muted-foreground">Actions</div>
-                                <p className={`text-xs md:text-sm font-medium ${member.actionItems.open > 3 ? 'text-warning' : ''}`}>
+                              <div className="flex items-center gap-2 text-sm">
+                                <CheckSquare className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="text-muted-foreground">Actions:</span>
+                                <span className={`font-medium ${member.actionItems.open > 3 ? 'text-warning' : ''}`}>
                                   {member.actionItems.open}
-                                </p>
+                                </span>
                               </div>
-                              <div>
-                                <div className="text-[10px] md:text-xs text-muted-foreground">Courses</div>
-                                <p className="text-xs md:text-sm font-medium">
-                                  {member.courses.completed}/{member.courses.assigned}
-                                </p>
+                              <div className="flex items-center gap-2 text-sm">
+                                <GraduationCap className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="text-muted-foreground">Courses:</span>
+                                <span className="font-medium">{member.courses.completed}/{member.courses.assigned}</span>
                               </div>
                             </div>
+                            
+                            {/* Action buttons - full width on mobile */}
+                            <div className="flex gap-2 pt-1">
+                              <Button
+                                variant="outline"
+                                onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
+                                className="flex-1 sm:flex-none gap-2 touch-target"
+                              >
+                                Profile
+                                <ArrowRight className="h-4 w-4" />
+                              </Button>
+                              {!member.meetings.nextMeetingDate && (
+                                <Button
+                                  onClick={(e) => { e.stopPropagation(); setScheduleForMember(member); }}
+                                  className="flex-1 sm:flex-none gap-2 touch-target"
+                                >
+                                  <Calendar className="h-4 w-4" />
+                                  Schedule 1:1
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        
-                        {/* Action buttons - full width on mobile */}
-                        <div className="flex gap-2 mt-3 md:mt-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
-                            className="flex-1 md:flex-none gap-1 touch-target text-xs md:text-sm"
-                          >
-                            Profile
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </Button>
-                          {!member.meetings.nextMeetingDate && (
-                            <Button
-                              size="sm"
-                              onClick={(e) => { e.stopPropagation(); setScheduleForMember(member); }}
-                              className="flex-1 md:flex-none gap-1 touch-target text-xs md:text-sm"
-                            >
-                              <Calendar className="h-3.5 w-3.5" />
-                              Schedule
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
+                        </CardContent>
+                      </Card>
+                    );
                 })}
               </div>
             ) : (
