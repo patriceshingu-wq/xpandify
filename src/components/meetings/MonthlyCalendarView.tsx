@@ -80,26 +80,31 @@ export function MonthlyCalendarView({ meetings, onMeetingClick, onDayClick }: Mo
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         {/* Header Navigation */}
-        <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={goToNextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={goToToday}>
-              Today
-            </Button>
+        <div className="flex flex-col gap-3 p-3 md:p-4 border-b bg-muted/30">
+          {/* Top row: Navigation and Month */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9" onClick={goToPreviousMonth}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9" onClick={goToNextMonth}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 md:h-9 text-xs md:text-sm" onClick={goToToday}>
+                Today
+              </Button>
+            </div>
+            <h3 className="font-semibold text-sm md:text-lg">
+              {format(currentMonth, 'MMMM yyyy')}
+            </h3>
           </div>
-          <h3 className="font-semibold text-lg">
-            {format(currentMonth, 'MMMM yyyy')}
-          </h3>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-accent/20 text-accent">1:1</Badge>
-            <Badge variant="outline" className="bg-info/20 text-info">Team</Badge>
-            <Badge variant="outline" className="bg-success/20 text-success">Ministry</Badge>
-            <Badge variant="outline" className="bg-destructive/20 text-destructive">Board</Badge>
+          
+          {/* Bottom row: Legend */}
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Badge variant="outline" className="bg-accent/20 text-accent text-xs">1:1</Badge>
+            <Badge variant="outline" className="bg-info/20 text-info text-xs">Team</Badge>
+            <Badge variant="outline" className="bg-success/20 text-success text-xs">Ministry</Badge>
+            <Badge variant="outline" className="bg-destructive/20 text-destructive text-xs">Board</Badge>
           </div>
         </div>
 

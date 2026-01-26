@@ -195,26 +195,36 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         {/* Header Navigation */}
-        <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={goToPreviousWeek}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={goToNextWeek}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={goToToday}>
-              Today
-            </Button>
+        <div className="flex flex-col gap-3 p-3 md:p-4 border-b bg-muted/30">
+          {/* Top row: Navigation and Date Range */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9" onClick={goToPreviousWeek}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 md:h-9 md:w-9" onClick={goToNextWeek}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 md:h-9 text-xs md:text-sm" onClick={goToToday}>
+                Today
+              </Button>
+            </div>
+            <h3 className="font-semibold text-sm md:text-lg text-right">
+              <span className="hidden sm:inline">
+                {format(currentWeekStart, 'MMMM d')} - {format(addDays(currentWeekStart, 6), 'MMMM d, yyyy')}
+              </span>
+              <span className="sm:hidden">
+                {format(currentWeekStart, 'MMM d')} - {format(addDays(currentWeekStart, 6), 'MMM d')}
+              </span>
+            </h3>
           </div>
-          <h3 className="font-semibold text-lg">
-            {format(currentWeekStart, 'MMMM d')} - {format(addDays(currentWeekStart, 6), 'MMMM d, yyyy')}
-          </h3>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-l-4 border-l-accent">1:1</Badge>
-            <Badge variant="outline" className="border-l-4 border-l-info">Team</Badge>
-            <Badge variant="outline" className="border-l-4 border-l-success">Ministry</Badge>
-            <Badge variant="outline" className="border-l-4 border-l-destructive">Board</Badge>
+          
+          {/* Bottom row: Legend */}
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Badge variant="outline" className="border-l-4 border-l-accent text-xs">1:1</Badge>
+            <Badge variant="outline" className="border-l-4 border-l-info text-xs">Team</Badge>
+            <Badge variant="outline" className="border-l-4 border-l-success text-xs">Ministry</Badge>
+            <Badge variant="outline" className="border-l-4 border-l-destructive text-xs">Board</Badge>
           </div>
         </div>
 
