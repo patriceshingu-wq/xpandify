@@ -271,11 +271,11 @@ export default function Analytics() {
         </div>
       ) : (
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="people">People</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="training">Training</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 sm:w-auto sm:inline-flex">
+            <TabsTrigger value="overview" className="touch-target">Overview</TabsTrigger>
+            <TabsTrigger value="people" className="touch-target">People</TabsTrigger>
+            <TabsTrigger value="goals" className="touch-target">Goals</TabsTrigger>
+            <TabsTrigger value="training" className="touch-target">Training</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

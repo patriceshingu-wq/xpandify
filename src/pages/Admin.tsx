@@ -88,25 +88,25 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Tabs - Scrollable on mobile */}
+        {/* Tabs - Full width grid on mobile */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full md:w-auto overflow-x-auto flex-nowrap">
-            <TabsTrigger value="users" className="gap-1.5 touch-target flex-shrink-0">
+          <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
+            <TabsTrigger value="users" className="gap-1.5 touch-target">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.userManagement')}</span>
               <span className="sm:hidden">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="roles" className="gap-1.5 touch-target flex-shrink-0">
+            <TabsTrigger value="roles" className="gap-1.5 touch-target">
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.roleManagement')}</span>
               <span className="sm:hidden">Roles</span>
             </TabsTrigger>
-            <TabsTrigger value="templates" className="gap-1.5 touch-target flex-shrink-0">
+            <TabsTrigger value="templates" className="gap-1.5 touch-target">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Meeting Templates</span>
               <span className="sm:hidden">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-1.5 touch-target flex-shrink-0">
+            <TabsTrigger value="settings" className="gap-1.5 touch-target">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.systemSettings')}</span>
               <span className="sm:hidden">Settings</span>

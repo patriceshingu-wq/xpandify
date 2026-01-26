@@ -106,22 +106,22 @@ export default function Settings() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-lg grid-cols-4">
-          <TabsTrigger value="basic" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-4 sm:w-auto sm:inline-flex">
+          <TabsTrigger value="basic" className="flex items-center gap-1.5 touch-target">
             <Building2 className="h-4 w-4" />
-            Basic
+            <span className="hidden sm:inline">Basic</span>
           </TabsTrigger>
-          <TabsTrigger value="campuses" className="flex items-center gap-2">
+          <TabsTrigger value="campuses" className="flex items-center gap-1.5 touch-target">
             <MapPin className="h-4 w-4" />
-            Campuses
+            <span className="hidden sm:inline">Campuses</span>
           </TabsTrigger>
-          <TabsTrigger value="email" className="flex items-center gap-2">
+          <TabsTrigger value="email" className="flex items-center gap-1.5 touch-target">
             <Mail className="h-4 w-4" />
-            Email
+            <span className="hidden sm:inline">Email</span>
           </TabsTrigger>
-          <TabsTrigger value="branding" className="flex items-center gap-2">
+          <TabsTrigger value="branding" className="flex items-center gap-1.5 touch-target">
             <Palette className="h-4 w-4" />
-            Branding
+            <span className="hidden sm:inline">Branding</span>
           </TabsTrigger>
         </TabsList>
 
