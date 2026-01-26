@@ -15,7 +15,6 @@ import { format, startOfWeek, addDays, isSameDay, addWeeks, subWeeks, setHours, 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
 import { Meeting, useUpdateMeeting } from '@/hooks/useMeetings';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -230,40 +229,40 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
 
         {/* Calendar Grid */}
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex">
+          <div className="flex overflow-x-auto">
             {/* Time Column */}
-            <div className="w-16 shrink-0 border-r bg-muted/20">
+            <div className="w-12 md:w-16 shrink-0 border-r bg-muted/20">
               <div className="h-12 border-b" /> {/* Spacer for day headers */}
               {HOURS.map((hour) => (
                 <div
                   key={hour}
-                  className="text-xs text-muted-foreground text-right pr-2 pt-1"
+                  className="text-[10px] md:text-xs text-muted-foreground text-right pr-1 md:pr-2 pt-1"
                   style={{ height: `${HOUR_HEIGHT}px` }}
                 >
-                  {format(setHours(new Date(), hour), 'h a')}
+                  {format(setHours(new Date(), hour), 'ha')}
                 </div>
               ))}
             </div>
 
             {/* Days Columns */}
-            <ScrollArea className="flex-1">
-              <div className="flex min-w-[700px]">
+            <div className="flex-1 overflow-x-auto">
+              <div className="grid grid-cols-7" style={{ minWidth: '560px' }}>
                 {weekDays.map((day) => {
                   const dayKey = format(day, 'yyyy-MM-dd');
                   const dayMeetings = meetingsByDay[dayKey] || [];
                   const isToday = isSameDay(day, new Date());
 
                   return (
-                    <div key={dayKey} className="flex-1 min-w-[100px]">
+                    <div key={dayKey} className="min-w-[80px]">
                       {/* Day Header */}
                       <div
                         className={cn(
-                          'h-12 border-b border-r p-2 text-center',
+                          'h-12 border-b border-r p-1 md:p-2 text-center',
                           isToday && 'bg-primary/10'
                         )}
                       >
-                        <p className="text-xs text-muted-foreground">{format(day, 'EEE')}</p>
-                        <p className={cn('text-sm font-medium', isToday && 'text-primary')}>
+                        <p className="text-[10px] md:text-xs text-muted-foreground">{format(day, 'EEE')}</p>
+                        <p className={cn('text-xs md:text-sm font-medium', isToday && 'text-primary')}>
                           {format(day, 'd')}
                         </p>
                       </div>
@@ -291,7 +290,7 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
                   );
                 })}
               </div>
-            </ScrollArea>
+            </div>
           </div>
 
           {/* Drag Overlay */}
