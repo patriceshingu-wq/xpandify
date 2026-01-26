@@ -93,17 +93,18 @@ export default function FeedbackPage() {
           <div className="space-y-4">
             {feedback.map((item) => (
               <Card key={item.id} className="transition-all hover:shadow-md">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-10 w-10">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                    <Avatar className="h-10 w-10 shrink-0">
                       <AvatarFallback className="bg-accent/10 text-accent">
                         {item.person ? getInitials(item.person.first_name, item.person.last_name) : '?'}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <h3 className="font-medium text-foreground">
+                    <div className="flex-1 min-w-0 space-y-3">
+                      {/* Header row */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                        <div className="space-y-1">
+                          <h3 className="font-medium text-foreground text-base">
                             {item.person
                               ? `${item.person.preferred_name || item.person.first_name} ${item.person.last_name}`
                               : t('feedback.unknownPerson')}
@@ -116,7 +117,7 @@ export default function FeedbackPage() {
                             {format(new Date(item.created_at), 'MMM d, yyyy')}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="outline" className={typeColors[item.feedback_type || 'encouragement']}>
                             {typeIcons[item.feedback_type || 'encouragement']}
                             <span className="ml-1 capitalize">{item.feedback_type}</span>
@@ -130,7 +131,7 @@ export default function FeedbackPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive"
+                              className="h-8 w-8 text-destructive touch-target"
                               onClick={() => setDeletingFeedback(item)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -138,10 +139,11 @@ export default function FeedbackPage() {
                           )}
                         </div>
                       </div>
+                      {/* Content */}
                       {(item.title_en || item.title_fr) && (
-                        <h4 className="font-medium mb-1">{getLocalizedField(item, 'title')}</h4>
+                        <h4 className="font-medium text-foreground">{getLocalizedField(item, 'title')}</h4>
                       )}
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {getLocalizedField(item, 'content') || t('feedback.noContent')}
                       </p>
                     </div>
