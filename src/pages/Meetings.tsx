@@ -108,20 +108,20 @@ export default function Meetings() {
           <CardContent className="p-3 md:p-4">
             <div className="flex flex-col gap-3 md:gap-4">
               {/* View Toggle - First on mobile for easy thumb access */}
-              <div className="flex justify-center md:hidden">
+              <div className="md:hidden">
                 <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'week' | 'month')}>
-                  <TabsList className="grid grid-cols-3 w-full">
-                    <TabsTrigger value="list" className="gap-1.5 touch-target">
-                      <List className="h-4 w-4" />
-                      List
+                  <TabsList className="grid w-full grid-cols-3 gap-1">
+                    <TabsTrigger value="list" className="gap-1.5 touch-target text-sm">
+                      <List className="h-4 w-4 shrink-0" />
+                      <span>List</span>
                     </TabsTrigger>
-                    <TabsTrigger value="week" className="gap-1.5 touch-target">
-                      <CalendarDays className="h-4 w-4" />
-                      Week
+                    <TabsTrigger value="week" className="gap-1.5 touch-target text-sm">
+                      <CalendarDays className="h-4 w-4 shrink-0" />
+                      <span>Week</span>
                     </TabsTrigger>
-                    <TabsTrigger value="month" className="gap-1.5 touch-target">
-                      <CalendarRange className="h-4 w-4" />
-                      Month
+                    <TabsTrigger value="month" className="gap-1.5 touch-target text-sm">
+                      <CalendarRange className="h-4 w-4 shrink-0" />
+                      <span>Month</span>
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
