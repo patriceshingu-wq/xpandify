@@ -121,30 +121,28 @@ export default function Team() {
           subtitle="View profiles and track performance"
         />
 
-        {/* Tab Navigation - Scrollable on mobile */}
+        {/* Tab Navigation - Full width grid on mobile */}
         <Tabs value={activeTab || 'supervisor'} onValueChange={(v) => setActiveTab(v as 'supervisor' | 'direct-reports' | 'teammates')}>
-          <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
-            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 gap-1 p-1">
-              <TabsTrigger value="supervisor" className="gap-2 px-3 py-2.5 touch-target whitespace-nowrap">
-                <Crown className="h-4 w-4 shrink-0" />
-                <span className="text-sm">Supervisor</span>
-              </TabsTrigger>
-              <TabsTrigger value="direct-reports" className="gap-2 px-3 py-2.5 touch-target whitespace-nowrap">
-                <Users className="h-4 w-4 shrink-0" />
-                <span className="text-sm">Reports</span>
-                {hasDirectReports && (
-                  <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teamMembers.length}</Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="teammates" className="gap-2 px-3 py-2.5 touch-target whitespace-nowrap">
-                <UsersRound className="h-4 w-4 shrink-0" />
-                <span className="text-sm">Teammates</span>
-                {hasTeammates && (
-                  <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teammates.length}</Badge>
-                )}
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
+            <TabsTrigger value="supervisor" className="gap-1.5 touch-target">
+              <Crown className="h-4 w-4 shrink-0" />
+              <span className="text-sm">Supervisor</span>
+            </TabsTrigger>
+            <TabsTrigger value="direct-reports" className="gap-1.5 touch-target">
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="text-sm">Reports</span>
+              {hasDirectReports && (
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teamMembers.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="teammates" className="gap-1.5 touch-target">
+              <UsersRound className="h-4 w-4 shrink-0" />
+              <span className="text-sm">Peers</span>
+              {hasTeammates && (
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{teammates.length}</Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
           {/* Supervisor Tab */}
           <TabsContent value="supervisor" className="mt-6 space-y-6">

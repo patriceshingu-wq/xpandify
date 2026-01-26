@@ -126,14 +126,14 @@ export default function Development() {
 
       <Tabs defaultValue="plans" className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <TabsList>
-            <TabsTrigger value="plans" className="gap-2">
+          <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
+            <TabsTrigger value="plans" className="gap-1.5 touch-target">
               <FileText className="h-4 w-4" />
-              Development Plans
+              <span className="hidden sm:inline">Development</span> Plans
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="gap-2">
+            <TabsTrigger value="assignments" className="gap-1.5 touch-target">
               <GraduationCap className="h-4 w-4" />
-              Course Assignments
+              <span className="hidden sm:inline">Course</span> Assignments
             </TabsTrigger>
           </TabsList>
 
