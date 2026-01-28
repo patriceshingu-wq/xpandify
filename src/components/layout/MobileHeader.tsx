@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface MobileHeaderProps {
   title?: string;
@@ -43,6 +44,9 @@ export function MobileHeader({ title, subtitle }: MobileHeaderProps) {
         <div className="flex items-center gap-1">
           {/* Notifications */}
           <NotificationsDropdown />
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Language Switcher */}
           <DropdownMenu>

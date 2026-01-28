@@ -9,6 +9,7 @@ import {
 import { Globe, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 interface HeaderProps {
   title?: string;
   subtitle?: string;
@@ -45,6 +46,9 @@ export function Header({ title, subtitle }: HeaderProps) {
 
           {/* Notifications */}
           <NotificationsDropdown />
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Language Switcher */}
           <DropdownMenu>
