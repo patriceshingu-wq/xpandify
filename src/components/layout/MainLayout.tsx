@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileHeader } from './MobileHeader';
@@ -12,15 +13,22 @@ interface MainLayoutProps {
   subtitle?: string;
 }
 
+// Routes that are in the BottomNav (main navigation)
+const bottomNavRoutes = ['/', '/team', '/meetings', '/goals'];
+
 export function MainLayout({ children, title, subtitle }: MainLayoutProps) {
   const isMobile = useIsMobile();
+  const location = useLocation();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+
+  // Show back button for pages not in the main BottomNav
+  const showBackButton = !bottomNavRoutes.includes(location.pathname);
 
   // Mobile Layout
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        <MobileHeader title={title} subtitle={subtitle} />
+        <MobileHeader title={title} subtitle={subtitle} showBackButton={showBackButton} />
         <main className="px-4 py-4 pb-24">
           {children}
         </main>

@@ -1,4 +1,5 @@
 import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -6,17 +7,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe } from 'lucide-react';
+import { Globe, ArrowLeft } from 'lucide-react';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface MobileHeaderProps {
   title?: string;
   subtitle?: string;
+  showBackButton?: boolean;
 }
 
-export function MobileHeader({ title, subtitle }: MobileHeaderProps) {
+export function MobileHeader({ title, subtitle, showBackButton }: MobileHeaderProps) {
   const { language, setLanguage } = useLanguage();
+  const navigate = useNavigate();
 
   const languages: { code: Language; label: string; flag: string }[] = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -26,18 +29,30 @@ export function MobileHeader({ title, subtitle }: MobileHeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border safe-area-top">
       <div className="flex items-center justify-between h-14 px-4">
-        {/* Page Title */}
-        <div className="flex-1 min-w-0">
-          {title && (
-            <h1 className="text-lg font-semibold text-foreground truncate">
-              {title}
-            </h1>
+        {/* Left Side - Back Button + Title */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {showBackButton && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 shrink-0" 
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
           )}
-          {subtitle && (
-            <p className="text-xs text-muted-foreground truncate">
-              {subtitle}
-            </p>
-          )}
+          <div className="min-w-0">
+            {title && (
+              <h1 className="text-lg font-semibold text-foreground truncate">
+                {title}
+              </h1>
+            )}
+            {subtitle && (
+              <p className="text-xs text-muted-foreground truncate">
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Right Side Actions */}
