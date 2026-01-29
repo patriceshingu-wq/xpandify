@@ -136,6 +136,32 @@ const translations: Translations = {
   'common.other': { en: 'Other', fr: 'Autre' },
   'common.more': { en: 'More', fr: 'Plus' },
   
+  // Pathways
+  'pathways.title': { en: 'Learning Pathways', fr: 'Parcours d\'apprentissage' },
+  'pathways.subtitle': { en: 'Multi-course learning tracks for discipleship', fr: 'Parcours de formation multi-cours pour le discipulat' },
+  'pathways.addPathway': { en: 'Add Pathway', fr: 'Ajouter un parcours' },
+  'pathways.noPathways': { en: 'No pathways yet', fr: 'Aucun parcours pour l\'instant' },
+  'pathways.noPathwaysDesc': { en: 'Create learning pathways to guide disciples through structured courses.', fr: 'Créez des parcours d\'apprentissage pour guider les disciples à travers des cours structurés.' },
+  'pathways.editPathway': { en: 'Edit Pathway', fr: 'Modifier le parcours' },
+  'pathways.deleteConfirm': { en: 'Delete Pathway', fr: 'Supprimer le parcours' },
+  'pathways.deleteWarning': { en: 'This will remove the pathway and all course associations.', fr: 'Cela supprimera le parcours et toutes les associations de cours.' },
+  
+  // My Learning
+  'myLearning.title': { en: 'My Learning', fr: 'Mon Apprentissage' },
+  'myLearning.subtitle': { en: 'Track your course progress and learning journey', fr: 'Suivez votre progression et votre parcours d\'apprentissage' },
+  'myLearning.inProgress': { en: 'In Progress', fr: 'En cours' },
+  'myLearning.completed': { en: 'Completed', fr: 'Terminé' },
+  'myLearning.available': { en: 'Available Courses', fr: 'Cours disponibles' },
+  'myLearning.noCourses': { en: 'No courses yet', fr: 'Aucun cours pour l\'instant' },
+  'myLearning.noCoursesDesc': { en: 'Start your learning journey by enrolling in a course.', fr: 'Commencez votre parcours d\'apprentissage en vous inscrivant à un cours.' },
+  
+  // Mentorship
+  'mentorship.title': { en: 'Mentorship', fr: 'Mentorat' },
+  'mentorship.subtitle': { en: 'Mentor-mentee relationships and check-ins', fr: 'Relations mentor-mentoré et suivis' },
+  'mentorship.addMentorship': { en: 'New Mentorship', fr: 'Nouveau mentorat' },
+  'mentorship.noMentorships': { en: 'No mentorship relationships', fr: 'Aucune relation de mentorat' },
+  'mentorship.noMentorshipsDesc': { en: 'Create mentorship connections to support growth and development.', fr: 'Créez des connexions de mentorat pour soutenir la croissance et le développement.' },
+  
   // Feedback
   'feedback.title': { en: 'Feedback', fr: 'Feedback' },
   'feedback.subtitle': { en: 'Encouragement and coaching notes', fr: 'Notes d\'encouragement et de coaching' },
