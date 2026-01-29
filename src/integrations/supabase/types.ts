@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_categories: {
+        Row: {
+          created_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          icon: string | null
+          id: string
+          name_en: string
+          name_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          icon?: string | null
+          id?: string
+          name_en: string
+          name_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          icon?: string | null
+          id?: string
+          name_en?: string
+          name_fr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       app_roles: {
         Row: {
           created_at: string | null
@@ -194,6 +227,198 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      event_goals: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          goal_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          goal_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          goal_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_goals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_goals_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_roles: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          from_country: string | null
+          id: string
+          notes: string | null
+          person_id: string
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          from_country?: string | null
+          id?: string
+          notes?: string | null
+          person_id: string
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          from_country?: string | null
+          id?: string
+          notes?: string | null
+          person_id?: string
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_roles_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_roles_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          activity_category_id: string | null
+          completion_percentage: number | null
+          created_at: string | null
+          date: string
+          description_en: string | null
+          description_fr: string | null
+          end_time: string | null
+          id: string
+          is_all_day: boolean | null
+          language: Database["public"]["Enums"]["program_language"] | null
+          location: string | null
+          ministry_id: string | null
+          notes_internal: string | null
+          program_id: string | null
+          quarter_id: string | null
+          related_course_id: string | null
+          start_time: string | null
+          status: Database["public"]["Enums"]["event_status"] | null
+          title_en: string
+          title_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_category_id?: string | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          date: string
+          description_en?: string | null
+          description_fr?: string | null
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean | null
+          language?: Database["public"]["Enums"]["program_language"] | null
+          location?: string | null
+          ministry_id?: string | null
+          notes_internal?: string | null
+          program_id?: string | null
+          quarter_id?: string | null
+          related_course_id?: string | null
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          title_en: string
+          title_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_category_id?: string | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          date?: string
+          description_en?: string | null
+          description_fr?: string | null
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean | null
+          language?: Database["public"]["Enums"]["program_language"] | null
+          location?: string | null
+          ministry_id?: string | null
+          notes_internal?: string | null
+          program_id?: string | null
+          quarter_id?: string | null
+          related_course_id?: string | null
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          title_en?: string
+          title_fr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_activity_category_id_fkey"
+            columns: ["activity_category_id"]
+            isOneToOne: false
+            referencedRelation: "activity_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_ministry_id_fkey"
+            columns: ["ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_quarter_id_fkey"
+            columns: ["quarter_id"]
+            isOneToOne: false
+            referencedRelation: "quarters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_related_course_id_fkey"
+            columns: ["related_course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback: {
         Row: {
@@ -1208,6 +1433,75 @@ export type Database = {
         }
         Relationships: []
       }
+      programs: {
+        Row: {
+          code: string
+          created_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          id: string
+          name_en: string
+          name_fr: string | null
+          primary_language:
+            | Database["public"]["Enums"]["program_language"]
+            | null
+          primary_ministry_id: string | null
+          quarter_id: string | null
+          theme_en: string | null
+          theme_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          name_en: string
+          name_fr?: string | null
+          primary_language?:
+            | Database["public"]["Enums"]["program_language"]
+            | null
+          primary_ministry_id?: string | null
+          quarter_id?: string | null
+          theme_en?: string | null
+          theme_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          name_en?: string
+          name_fr?: string | null
+          primary_language?:
+            | Database["public"]["Enums"]["program_language"]
+            | null
+          primary_ministry_id?: string | null
+          quarter_id?: string | null
+          theme_en?: string | null
+          theme_fr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programs_primary_ministry_id_fkey"
+            columns: ["primary_ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "programs_quarter_id_fkey"
+            columns: ["quarter_id"]
+            isOneToOne: false
+            referencedRelation: "quarters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pulse_responses: {
         Row: {
           comment: string | null
@@ -1277,6 +1571,48 @@ export type Database = {
           target_group?: Database["public"]["Enums"]["pulse_target"] | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      quarters: {
+        Row: {
+          created_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          end_date: string
+          id: string
+          quarter_number: number
+          start_date: string
+          theme_en: string
+          theme_fr: string | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          end_date: string
+          id?: string
+          quarter_number: number
+          start_date: string
+          theme_en: string
+          theme_fr?: string | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          end_date?: string
+          id?: string
+          quarter_number?: number
+          start_date?: string
+          theme_en?: string
+          theme_fr?: string | null
+          updated_at?: string | null
+          year?: number
         }
         Relationships: []
       }
@@ -1404,6 +1740,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_super: { Args: { check_user_id: string }; Returns: boolean }
+      is_ministry_leader: {
+        Args: { check_ministry_id: string; check_user_id: string }
+        Returns: boolean
+      }
       supervises_person: {
         Args: { person_id: string; supervisor_user_id: string }
         Returns: boolean
@@ -1438,6 +1778,7 @@ export type Database = {
         | "leadership"
         | "other"
       delivery_type: "in_person" | "online" | "hybrid" | "reading_plan"
+      event_status: "Planned" | "Confirmed" | "Completed" | "Canceled"
       feedback_type: "encouragement" | "coaching" | "concern"
       gender_type: "male" | "female" | "other" | "prefer_not_to_say"
       goal_category:
@@ -1461,6 +1802,7 @@ export type Database = {
       pdp_status: "active" | "completed" | "on_hold"
       person_status: "active" | "inactive" | "on_leave"
       person_type: "staff" | "volunteer" | "congregant"
+      program_language: "EN" | "FR" | "Bilingual"
       pulse_target: "all_staff" | "all_volunteers" | "custom"
       role_category:
         | "pastoral"
@@ -1624,6 +1966,7 @@ export const Constants = {
         "other",
       ],
       delivery_type: ["in_person", "online", "hybrid", "reading_plan"],
+      event_status: ["Planned", "Confirmed", "Completed", "Canceled"],
       feedback_type: ["encouragement", "coaching", "concern"],
       gender_type: ["male", "female", "other", "prefer_not_to_say"],
       goal_category: [
@@ -1649,6 +1992,7 @@ export const Constants = {
       pdp_status: ["active", "completed", "on_hold"],
       person_status: ["active", "inactive", "on_leave"],
       person_type: ["staff", "volunteer", "congregant"],
+      program_language: ["EN", "FR", "Bilingual"],
       pulse_target: ["all_staff", "all_volunteers", "custom"],
       role_category: [
         "pastoral",
