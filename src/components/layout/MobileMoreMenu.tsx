@@ -16,6 +16,9 @@ import {
   PieChart,
   User,
   X,
+  CalendarDays,
+  Calendar,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -36,6 +39,12 @@ interface NavItem {
 const moreNavItems: NavItem[] = [
   { icon: UsersRound, labelKey: 'nav.team', path: '/team', roles: ['super_admin', 'admin', 'pastor_supervisor'] },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
+];
+
+const calendarNavItems: NavItem[] = [
+  { icon: CalendarDays, labelKey: 'nav.eventsCalendar', path: '/calendar/events' },
+  { icon: Calendar, labelKey: 'nav.quarters', path: '/calendar/quarters' },
+  { icon: Layers, labelKey: 'nav.programs', path: '/calendar/programs' },
 ];
 
 const developmentNavItems: NavItem[] = [
@@ -133,6 +142,16 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
               More
             </p>
             {moreNavItems.map(renderNavItem)}
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* Calendar & Events */}
+          <div className="space-y-1 mb-6">
+            <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {t('nav.calendar') || 'Calendar'}
+            </p>
+            {calendarNavItems.map(renderNavItem)}
           </div>
 
           <Separator className="my-4" />
