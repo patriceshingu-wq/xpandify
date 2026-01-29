@@ -31,6 +31,7 @@ const translations: Translations = {
   'nav.admin': { en: 'Admin', fr: 'Administration' },
   'nav.settings': { en: 'Settings', fr: 'Paramètres' },
   'nav.logout': { en: 'Logout', fr: 'Déconnexion' },
+  'nav.calendar': { en: 'Calendar', fr: 'Calendrier' },
   'nav.eventsCalendar': { en: 'Events', fr: 'Événements' },
   'nav.quarters': { en: 'Quarters', fr: 'Trimestres' },
   'nav.programs': { en: 'Programs', fr: 'Programmes' },
