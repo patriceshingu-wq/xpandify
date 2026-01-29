@@ -15,7 +15,6 @@ import {
   LogOut,
   PieChart,
   User,
-  X,
   CalendarDays,
   Calendar,
   Layers,
@@ -105,17 +104,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl px-0 flex flex-col">
         <SheetHeader className="px-6 pb-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-xl font-semibold">Menu</SheetTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="touch-target rounded-full hover:bg-muted"
-            >
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
+          <SheetTitle className="text-xl font-semibold">Menu</SheetTitle>
         </SheetHeader>
 
         <div className="overflow-y-auto flex-1 px-4 pb-safe overscroll-contain">
