@@ -23,6 +23,8 @@ import {
   PieChart,
   Flag,
   CalendarRange,
+  Route,
+  Users2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -53,6 +55,9 @@ const calendarNavItems: NavItem[] = [
 const developmentNavItems: NavItem[] = [
   { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
   { icon: GraduationCap, labelKey: 'nav.courses', path: '/courses' },
+  { icon: Route, labelKey: 'nav.pathways', path: '/pathways' },
+  { icon: GraduationCap, labelKey: 'nav.myLearning', path: '/my-learning' },
+  { icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' },
   { icon: MessageSquare, labelKey: 'nav.feedback', path: '/feedback' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
   { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },

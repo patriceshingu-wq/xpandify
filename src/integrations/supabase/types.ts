@@ -68,6 +68,122 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_results: {
+        Row: {
+          answers: Json | null
+          assessment_id: string
+          attempt_number: number | null
+          created_at: string | null
+          feedback_en: string | null
+          feedback_fr: string | null
+          id: string
+          passed: boolean | null
+          person_id: string
+          score: number | null
+          submitted_at: string | null
+        }
+        Insert: {
+          answers?: Json | null
+          assessment_id: string
+          attempt_number?: number | null
+          created_at?: string | null
+          feedback_en?: string | null
+          feedback_fr?: string | null
+          id?: string
+          passed?: boolean | null
+          person_id: string
+          score?: number | null
+          submitted_at?: string | null
+        }
+        Update: {
+          answers?: Json | null
+          assessment_id?: string
+          attempt_number?: number | null
+          created_at?: string | null
+          feedback_en?: string | null
+          feedback_fr?: string | null
+          id?: string
+          passed?: boolean | null
+          person_id?: string
+          score?: number | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_results_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_results_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          assessment_type: string
+          course_id: string
+          created_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          id: string
+          is_active: boolean | null
+          max_attempts: number | null
+          order_index: number | null
+          passing_score: number | null
+          time_limit_minutes: number | null
+          title_en: string
+          title_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assessment_type?: string
+          course_id: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_attempts?: number | null
+          order_index?: number | null
+          passing_score?: number | null
+          time_limit_minutes?: number | null
+          title_en: string
+          title_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assessment_type?: string
+          course_id?: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_attempts?: number | null
+          order_index?: number | null
+          passing_score?: number | null
+          time_limit_minutes?: number | null
+          title_en?: string
+          title_fr?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campuses: {
         Row: {
           address_line1: string | null
@@ -176,6 +292,70 @@ export type Database = {
           },
           {
             foreignKeyName: "course_assignments_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number | null
+          course_id: string
+          created_at: string | null
+          id: string
+          last_activity_at: string | null
+          notes: string | null
+          pathway_id: string | null
+          person_id: string
+          started_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id: string
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string | null
+          notes?: string | null
+          pathway_id?: string | null
+          person_id: string
+          started_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string | null
+          notes?: string | null
+          pathway_id?: string | null
+          person_id?: string
+          started_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "pathways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_person_id_fkey"
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
@@ -855,6 +1035,120 @@ export type Database = {
           },
         ]
       }
+      mentorship: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          focus_area: string | null
+          id: string
+          meeting_frequency: string | null
+          mentee_id: string
+          mentor_id: string
+          notes: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          focus_area?: string | null
+          id?: string
+          meeting_frequency?: string | null
+          mentee_id: string
+          mentor_id: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          focus_area?: string | null
+          id?: string
+          meeting_frequency?: string | null
+          mentee_id?: string
+          mentor_id?: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentorship_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_check_ins: {
+        Row: {
+          action_items: Json | null
+          check_in_date: string
+          created_at: string | null
+          created_by_id: string | null
+          discussion_notes: string | null
+          id: string
+          mentee_mood: string | null
+          mentorship_id: string
+          next_steps: string | null
+          prayer_points: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_items?: Json | null
+          check_in_date?: string
+          created_at?: string | null
+          created_by_id?: string | null
+          discussion_notes?: string | null
+          id?: string
+          mentee_mood?: string | null
+          mentorship_id: string
+          next_steps?: string | null
+          prayer_points?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_items?: Json | null
+          check_in_date?: string
+          created_at?: string | null
+          created_by_id?: string | null
+          discussion_notes?: string | null
+          id?: string
+          mentee_mood?: string | null
+          mentorship_id?: string
+          next_steps?: string | null
+          prayer_points?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_check_ins_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentorship_check_ins_mentorship_id_fkey"
+            columns: ["mentorship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ministries: {
         Row: {
           created_at: string | null
@@ -1053,6 +1347,90 @@ export type Database = {
           state_province?: string | null
           updated_at?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      pathway_courses: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          order_index: number | null
+          pathway_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          pathway_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          pathway_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathway_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pathway_courses_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "pathways"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pathways: {
+        Row: {
+          code: string
+          created_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          difficulty_level: string | null
+          estimated_duration_weeks: number | null
+          id: string
+          is_active: boolean | null
+          name_en: string
+          name_fr: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          difficulty_level?: string | null
+          estimated_duration_weeks?: number | null
+          id?: string
+          is_active?: boolean | null
+          name_en: string
+          name_fr?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          difficulty_level?: string | null
+          estimated_duration_weeks?: number | null
+          id?: string
+          is_active?: boolean | null
+          name_en?: string
+          name_fr?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
