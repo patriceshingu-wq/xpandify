@@ -32,6 +32,11 @@ import EventsCalendarPage from "./pages/calendar/EventsCalendar";
 import EventDetailPage from "./pages/calendar/EventDetail";
 import EventEditorPage from "./pages/calendar/EventEditor";
 
+// Learning & Mentorship pages
+import Pathways from "./pages/Pathways";
+import MyLearning from "./pages/MyLearning";
+import MentorshipPage from "./pages/Mentorship";
+
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -99,6 +104,11 @@ function AppRoutes() {
       <Route path="/calendar/events/new" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
       <Route path="/calendar/events/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
       <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
+      
+      {/* Learning & Mentorship routes */}
+      <Route path="/pathways" element={<ProtectedRoute><Pathways /></ProtectedRoute>} />
+      <Route path="/my-learning" element={<ProtectedRoute><MyLearning /></ProtectedRoute>} />
+      <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
