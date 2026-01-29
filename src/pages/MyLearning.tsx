@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMyCourseProgress, useUpdateCourseProgress, useStartCourse } from '@/hooks/useCourseProgress';
 import { usePathways } from '@/hooks/usePathways';
 import { useCourses } from '@/hooks/useCourses';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,27 +85,22 @@ export default function MyLearning() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title={t('myLearning.title') || 'My Learning'}
-          subtitle={t('myLearning.subtitle') || 'Track your course progress and continue learning'}
-        />
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-24" />
-          ))}
+      <MainLayout title={t('myLearning.title') || 'My Learning'} subtitle={t('myLearning.subtitle') || 'Track your course progress and continue learning'}>
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
+          </div>
+          <Skeleton className="h-64" />
         </div>
-        <Skeleton className="h-64" />
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t('myLearning.title') || 'My Learning'}
-        subtitle={t('myLearning.subtitle') || 'Track your course progress and continue learning'}
-      />
+    <MainLayout title={t('myLearning.title') || 'My Learning'} subtitle={t('myLearning.subtitle') || 'Track your course progress and continue learning'}>
+      <div className="space-y-6">
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -266,7 +262,8 @@ export default function MyLearning() {
           </TabsContent>
         </Tabs>
       )}
-    </div>
+      </div>
+    </MainLayout>
   );
 }
 

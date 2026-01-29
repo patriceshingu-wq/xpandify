@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyMentorships, useDeleteMentorship } from '@/hooks/useMentorship';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -93,17 +94,15 @@ export default function MentorshipPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title={t('mentorship.title') || 'Mentorship'}
-          subtitle={t('mentorship.subtitle') || 'Grow through intentional relationships'}
-        />
-        <div className="grid gap-4 md:grid-cols-2">
-          {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
+      <MainLayout title={t('mentorship.title') || 'Mentorship'} subtitle={t('mentorship.subtitle') || 'Grow through intentional relationships'}>
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-48" />
+            ))}
+          </div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
@@ -176,19 +175,16 @@ export default function MentorshipPage() {
   const totalMentorships = (mentorships?.length || 0);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t('mentorship.title') || 'Mentorship'}
-        subtitle={t('mentorship.subtitle') || 'Grow through intentional relationships'}
-        actions={
-          isAdmin && (
+    <MainLayout title={t('mentorship.title') || 'Mentorship'} subtitle={t('mentorship.subtitle') || 'Grow through intentional relationships'}>
+      <div className="space-y-6">
+        {isAdmin && (
+          <div className="flex justify-end">
             <Button onClick={() => setFormOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               New Mentorship
             </Button>
-          )
-        }
-      />
+          </div>
+        )}
 
       {totalMentorships === 0 ? (
         <EmptyState
@@ -269,6 +265,7 @@ export default function MentorshipPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
