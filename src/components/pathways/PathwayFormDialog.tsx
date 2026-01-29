@@ -123,6 +123,11 @@ export function PathwayFormDialog({ open, onOpenChange, pathway }: PathwayFormDi
           <DialogTitle>
             {pathway ? 'Edit Pathway' : 'Create Pathway'}
           </DialogTitle>
+          {!pathway && (
+            <p className="text-sm text-muted-foreground">
+              After creating the pathway, click on it to add courses.
+            </p>
+          )}
         </DialogHeader>
 
         <Form {...form}>
