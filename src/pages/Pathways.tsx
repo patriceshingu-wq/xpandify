@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathways, useDeletePathway } from '@/hooks/usePathways';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,34 +68,29 @@ export default function Pathways() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title={t('pathways.title') || 'Learning Pathways'}
-          subtitle={t('pathways.subtitle') || 'Multi-course learning tracks for discipleship'}
-        />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-64" />
-          ))}
+      <MainLayout title={t('pathways.title') || 'Learning Pathways'} subtitle={t('pathways.subtitle') || 'Multi-course learning tracks for discipleship'}>
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-64" />
+            ))}
+          </div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t('pathways.title') || 'Learning Pathways'}
-        subtitle={t('pathways.subtitle') || 'Multi-course learning tracks for discipleship'}
-        actions={
-          isAdmin && (
+    <MainLayout title={t('pathways.title') || 'Learning Pathways'} subtitle={t('pathways.subtitle') || 'Multi-course learning tracks for discipleship'}>
+      <div className="space-y-6">
+        {isAdmin && (
+          <div className="flex justify-end">
             <Button onClick={() => { setEditingPathway(null); setFormOpen(true); }}>
               <Plus className="h-4 w-4 mr-2" />
               {t('pathways.addPathway') || 'Add Pathway'}
             </Button>
-          )
-        }
-      />
+          </div>
+        )}
 
       {!pathways || pathways.length === 0 ? (
         <EmptyState
@@ -223,6 +219,7 @@ export default function Pathways() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
