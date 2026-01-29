@@ -152,11 +152,19 @@ export default function Pathways() {
                       <Clock className="h-4 w-4" />
                       <span>{pathway.estimated_duration_weeks || 12} weeks</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <BarChart3 className="h-4 w-4" />
-                      <span>{totalHours}h total</span>
-                    </div>
+                    {totalHours > 0 && (
+                      <div className="flex items-center gap-1">
+                        <BarChart3 className="h-4 w-4" />
+                        <span>{totalHours}h total</span>
+                      </div>
+                    )}
                   </div>
+                  
+                  {courseCount === 0 && (
+                    <p className="text-xs text-muted-foreground italic">
+                      Click to add courses
+                    </p>
+                  )}
 
                   {isAdmin && (
                     <div className="flex gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
