@@ -8,6 +8,7 @@ import {
   UsersRound,
   Target,
   Calendar,
+  CalendarDays,
   BookOpen,
   GraduationCap,
   MessageSquare,
@@ -20,6 +21,8 @@ import {
   ChevronRight,
   Church,
   PieChart,
+  Flag,
+  CalendarRange,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -39,6 +42,12 @@ const mainNavItems: NavItem[] = [
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
   { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
+];
+
+const calendarNavItems: NavItem[] = [
+  { icon: CalendarDays, labelKey: 'nav.eventsCalendar', path: '/calendar/events' },
+  { icon: CalendarRange, labelKey: 'nav.quarters', path: '/calendar/quarters' },
+  { icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' },
 ];
 
 const developmentNavItems: NavItem[] = [
@@ -133,6 +142,16 @@ export function Sidebar() {
               </span>
             )}
             {mainNavItems.map(renderNavItem)}
+          </div>
+
+          {/* Calendar & Events */}
+          <div className="space-y-1">
+            {!isCollapsed && (
+              <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                Calendar
+              </span>
+            )}
+            {calendarNavItems.map(renderNavItem)}
           </div>
 
           {/* Development */}

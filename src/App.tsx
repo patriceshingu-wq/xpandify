@@ -24,6 +24,14 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
+// Calendar pages
+import QuartersPage from "./pages/calendar/Quarters";
+import QuarterDetailPage from "./pages/calendar/QuarterDetail";
+import ProgramsPage from "./pages/calendar/Programs";
+import EventsCalendarPage from "./pages/calendar/EventsCalendar";
+import EventDetailPage from "./pages/calendar/EventDetail";
+import EventEditorPage from "./pages/calendar/EventEditor";
+
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -82,6 +90,16 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      
+      {/* Calendar routes */}
+      <Route path="/calendar/quarters" element={<ProtectedRoute><QuartersPage /></ProtectedRoute>} />
+      <Route path="/calendar/quarters/:id" element={<ProtectedRoute><QuarterDetailPage /></ProtectedRoute>} />
+      <Route path="/calendar/programs" element={<ProtectedRoute><ProgramsPage /></ProtectedRoute>} />
+      <Route path="/calendar/events" element={<ProtectedRoute><EventsCalendarPage /></ProtectedRoute>} />
+      <Route path="/calendar/events/new" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
+      <Route path="/calendar/events/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
+      <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
