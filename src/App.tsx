@@ -106,8 +106,8 @@ function AppRoutes() {
       <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
       
       {/* Learning & Mentorship routes */}
-      <Route path="/pathways" element={<ProtectedRoute><Pathways /></ProtectedRoute>} />
-      <Route path="/my-learning" element={<ProtectedRoute><MyLearning /></ProtectedRoute>} />
+      <Route path="/pathways" element={<Navigate to="/learning" replace />} />
+      <Route path="/my-learning" element={<Navigate to="/learning" replace />} />
       <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />
