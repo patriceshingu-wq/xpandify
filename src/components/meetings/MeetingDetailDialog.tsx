@@ -29,7 +29,7 @@ import { useMeeting, useMeetingAgendaItems, useCreateAgendaItem, useUpdateAgenda
 import { useMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
-import { useDevelopmentPlans } from '@/hooks/useDevelopmentPlans';
+
 import { getSectionTypeLabel, getSectionTypeColor, AgendaSectionType } from '@/hooks/useMeetingTemplates';
 import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
