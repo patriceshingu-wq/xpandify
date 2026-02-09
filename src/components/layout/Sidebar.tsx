@@ -49,10 +49,10 @@ const calendarNavItems: NavItem[] = [
 ];
 
 const developmentNavItems: NavItem[] = [
-  { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
-  { icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' },
-  { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
-  { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },
+  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+  ...(FEATURES.mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+  ...(FEATURES.formalReviews ? [{ icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' }] : []),
+  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
 ];
 
 const adminNavItems: NavItem[] = [
