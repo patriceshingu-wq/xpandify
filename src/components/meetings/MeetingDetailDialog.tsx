@@ -33,7 +33,7 @@ import { useDevelopmentPlans } from '@/hooks/useDevelopmentPlans';
 import { getSectionTypeLabel, getSectionTypeColor, AgendaSectionType } from '@/hooks/useMeetingTemplates';
 import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
-import { LinkedGoalProgress, LinkedPDPItemProgress } from './LinkedItemProgress';
+import { LinkedGoalProgress } from './LinkedItemProgress';
 
 interface MeetingDetailDialogProps {
   open: boolean;
