@@ -48,9 +48,7 @@ const calendarNavItems: NavItem[] = [
 
 const developmentNavItems: NavItem[] = [
   { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
-  { icon: GraduationCap, labelKey: 'nav.courses', path: '/courses' },
-  { icon: Layers, labelKey: 'nav.pathways', path: '/pathways' },
-  { icon: GraduationCap, labelKey: 'nav.myLearning', path: '/my-learning' },
+  { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
   { icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' },
   { icon: MessageSquare, labelKey: 'nav.feedback', path: '/feedback' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
