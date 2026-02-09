@@ -32,9 +32,7 @@ import EventsCalendarPage from "./pages/calendar/EventsCalendar";
 import EventDetailPage from "./pages/calendar/EventDetail";
 import EventEditorPage from "./pages/calendar/EventEditor";
 
-// Learning & Mentorship pages
-import Pathways from "./pages/Pathways";
-import MyLearning from "./pages/MyLearning";
+// Mentorship
 import MentorshipPage from "./pages/Mentorship";
 
 const queryClient = new QueryClient();
