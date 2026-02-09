@@ -10,8 +10,9 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useDevelopmentPlan, useCreatePDPItem, useUpdatePDPItem, useDeletePDPItem, PDPItem } from '@/hooks/useDevelopmentPlans';
-import { Plus, CheckCircle2, Circle, Clock, XCircle, Trash2, Edit2, Loader2 } from 'lucide-react';
+import { useDevelopmentPlan } from '@/hooks/useDevelopmentPlans';
+import { useGoals, useCreateGoal, useUpdateGoal, useDeleteGoal, Goal } from '@/hooks/useGoals';
+import { Plus, CheckCircle2, Circle, Clock, XCircle, Trash2, Loader2 } from 'lucide-react';
 
 interface PDPDetailDialogProps {
   open: boolean;
@@ -36,31 +37,37 @@ const itemTypeLabels: Record<string, string> = {
 
 export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogProps) {
   const { t, getLocalizedField } = useLanguage();
-  const { data: pdp, isLoading } = useDevelopmentPlan(pdpId || undefined);
-  const createItem = useCreatePDPItem();
-  const updateItem = useUpdatePDPItem();
-  const deleteItem = useDeletePDPItem();
+  const { data: pdp, isLoading: pdpLoading } = useDevelopmentPlan(pdpId || undefined);
+  const { data: pdpGoals, isLoading: goalsLoading } = useGoals({ pdp_id: pdpId || undefined });
+  const createGoal = useCreateGoal();
+  const updateGoal = useUpdateGoal();
+  const deleteGoal = useDeleteGoal();
 
   const [showAddItem, setShowAddItem] = useState(false);
-  const [editingItem, setEditingItem] = useState<PDPItem | null>(null);
   const [newItem, setNewItem] = useState({
     title_en: '',
     title_fr: '',
-    item_type: 'other' as 'course' | 'mentoring' | 'project' | 'reading' | 'other',
-    status: 'not_started' as 'not_started' | 'in_progress' | 'completed' | 'cancelled',
+    item_type: 'other' as string,
+    status: 'not_started' as string,
     due_date: '',
   });
 
-  const handleAddItem = async () => {
-    if (!pdpId || !newItem.title_en) return;
+  const isLoading = pdpLoading || goalsLoading;
+  const items = pdpGoals || [];
 
-    await createItem.mutateAsync({
-      pdp_id: pdpId,
+  const handleAddItem = async () => {
+    if (!pdpId || !newItem.title_en || !pdp) return;
+
+    await createGoal.mutateAsync({
       title_en: newItem.title_en,
       title_fr: newItem.title_fr || null,
+      goal_level: 'individual',
+      owner_person_id: pdp.person_id,
+      pdp_id: pdpId,
       item_type: newItem.item_type,
-      status: newItem.status,
+      status: newItem.status as any,
       due_date: newItem.due_date || null,
+      year: new Date().getFullYear(),
     });
 
     setNewItem({
@@ -73,20 +80,20 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
     setShowAddItem(false);
   };
 
-  const handleUpdateItemStatus = async (item: PDPItem, newStatus: string) => {
-    await updateItem.mutateAsync({
+  const handleUpdateItemStatus = async (item: Goal, newStatus: string) => {
+    await updateGoal.mutateAsync({
       id: item.id,
-      pdp_id: pdpId!,
-      status: newStatus as 'not_started' | 'in_progress' | 'completed' | 'cancelled',
+      status: newStatus as any,
+      progress_percent: newStatus === 'completed' ? 100 : item.progress_percent,
     });
   };
 
-  const handleDeleteItem = async (item: PDPItem) => {
-    await deleteItem.mutateAsync({ id: item.id, pdp_id: pdpId! });
+  const handleDeleteItem = async (item: Goal) => {
+    await deleteGoal.mutateAsync(item.id);
   };
 
-  const completedCount = pdp?.items?.filter(i => i.status === 'completed').length || 0;
-  const totalCount = pdp?.items?.length || 0;
+  const completedCount = items.filter(i => i.status === 'completed').length;
+  const totalCount = items.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   if (isLoading) {
@@ -181,9 +188,7 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
                       <Label className="text-xs">Type</Label>
                       <Select
                         value={newItem.item_type}
-                        onValueChange={(v: 'course' | 'mentoring' | 'project' | 'reading' | 'other') =>
-                          setNewItem({ ...newItem, item_type: v })
-                        }
+                        onValueChange={(v) => setNewItem({ ...newItem, item_type: v })}
                       >
                         <SelectTrigger className="h-8">
                           <SelectValue />
@@ -201,9 +206,7 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
                       <Label className="text-xs">Status</Label>
                       <Select
                         value={newItem.status}
-                        onValueChange={(v: 'not_started' | 'in_progress' | 'completed' | 'cancelled') =>
-                          setNewItem({ ...newItem, status: v })
-                        }
+                        onValueChange={(v) => setNewItem({ ...newItem, status: v })}
                       >
                         <SelectTrigger className="h-8">
                           <SelectValue />
@@ -230,8 +233,8 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
                     <Button size="sm" variant="ghost" onClick={() => setShowAddItem(false)}>
                       {t('common.cancel')}
                     </Button>
-                    <Button size="sm" onClick={handleAddItem} disabled={!newItem.title_en || createItem.isPending}>
-                      {createItem.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                    <Button size="sm" onClick={handleAddItem} disabled={!newItem.title_en || createGoal.isPending}>
+                      {createGoal.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                       Add
                     </Button>
                   </div>
@@ -241,12 +244,12 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
 
             {/* Items List */}
             <div className="space-y-2">
-              {(!pdp.items || pdp.items.length === 0) && !showAddItem && (
+              {items.length === 0 && !showAddItem && (
                 <p className="text-sm text-muted-foreground text-center py-8">
                   No items yet. Add items to track development activities.
                 </p>
               )}
-              {pdp.items?.map((item) => (
+              {items.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
@@ -255,7 +258,7 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
                     const nextStatus = item.status === 'not_started' ? 'in_progress' :
                       item.status === 'in_progress' ? 'completed' : item.status;
                     if (nextStatus !== item.status) {
-                      handleUpdateItemStatus(item, nextStatus);
+                      handleUpdateItemStatus(item, nextStatus!);
                     }
                   }}>
                     {statusIcons[item.status || 'not_started']}
@@ -265,9 +268,11 @@ export function PDPDetailDialog({ open, onOpenChange, pdpId }: PDPDetailDialogPr
                       {getLocalizedField(item, 'title')}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {itemTypeLabels[item.item_type || 'other']}
-                      </Badge>
+                      {item.item_type && (
+                        <Badge variant="outline" className="text-xs">
+                          {itemTypeLabels[item.item_type] || item.item_type}
+                        </Badge>
+                      )}
                       {item.due_date && (
                         <span className="text-xs text-muted-foreground">
                           Due: {new Date(item.due_date).toLocaleDateString()}

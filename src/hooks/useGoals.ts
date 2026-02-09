@@ -69,6 +69,14 @@ export function useGoals(filters?: GoalFilters) {
         query = query.eq('owner_ministry_id', filters.owner_ministry_id);
       }
 
+      if (filters?.pdp_id) {
+        query = query.eq('pdp_id', filters.pdp_id);
+      }
+
+      if (filters?.exclude_pdp_items) {
+        query = query.is('pdp_id', null);
+      }
+
       const { data, error } = await query;
 
       if (error) throw error;
