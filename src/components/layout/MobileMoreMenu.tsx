@@ -10,7 +10,6 @@ import {
   MessageSquare,
   ClipboardCheck,
   BarChart3,
-  Settings,
   Shield,
   LogOut,
   PieChart,
@@ -48,9 +47,7 @@ const calendarNavItems: NavItem[] = [
 
 const developmentNavItems: NavItem[] = [
   { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
-  { icon: GraduationCap, labelKey: 'nav.courses', path: '/courses' },
-  { icon: Layers, labelKey: 'nav.pathways', path: '/pathways' },
-  { icon: GraduationCap, labelKey: 'nav.myLearning', path: '/my-learning' },
+  { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
   { icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' },
   { icon: MessageSquare, labelKey: 'nav.feedback', path: '/feedback' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
@@ -59,8 +56,7 @@ const developmentNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
   { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
-  { icon: Shield, labelKey: 'nav.admin', path: '/admin', roles: ['super_admin', 'admin'] },
-  { icon: Settings, labelKey: 'settings.title', path: '/settings', roles: ['super_admin', 'admin'] },
+  { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
 interface MobileMoreMenuProps {

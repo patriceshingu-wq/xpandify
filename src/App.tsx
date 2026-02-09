@@ -14,14 +14,14 @@ import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
 import Development from "./pages/Development";
-import Courses from "./pages/Courses";
+
 import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
 import Analytics from "./pages/Analytics";
-import Admin from "./pages/Admin";
+import Administration from "./pages/Administration";
 import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+import Learning from "./pages/Learning";
 import NotFound from "./pages/NotFound";
 
 // Calendar pages
@@ -32,9 +32,7 @@ import EventsCalendarPage from "./pages/calendar/EventsCalendar";
 import EventDetailPage from "./pages/calendar/EventDetail";
 import EventEditorPage from "./pages/calendar/EventEditor";
 
-// Learning & Mentorship pages
-import Pathways from "./pages/Pathways";
-import MyLearning from "./pages/MyLearning";
+// Mentorship
 import MentorshipPage from "./pages/Mentorship";
 
 const queryClient = new QueryClient();
@@ -87,13 +85,15 @@ function AppRoutes() {
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
+      <Route path="/courses" element={<Navigate to="/learning" replace />} />
       <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
       <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/admin" element={<Navigate to="/administration" replace />} />
+      <Route path="/administration" element={<ProtectedRoute><Administration /></ProtectedRoute>} />
+      <Route path="/settings" element={<Navigate to="/administration" replace />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       
       {/* Calendar routes */}
@@ -106,8 +106,8 @@ function AppRoutes() {
       <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
       
       {/* Learning & Mentorship routes */}
-      <Route path="/pathways" element={<ProtectedRoute><Pathways /></ProtectedRoute>} />
-      <Route path="/my-learning" element={<ProtectedRoute><MyLearning /></ProtectedRoute>} />
+      <Route path="/pathways" element={<Navigate to="/learning" replace />} />
+      <Route path="/my-learning" element={<Navigate to="/learning" replace />} />
       <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />

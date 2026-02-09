@@ -24,6 +24,7 @@ const translations: Translations = {
   'nav.meetings': { en: 'Meetings', fr: 'Réunions' },
   'nav.development': { en: 'Development', fr: 'Développement' },
   'nav.courses': { en: 'Courses', fr: 'Formations' },
+  'nav.learning': { en: 'Learning', fr: 'Apprentissage' },
   'nav.feedback': { en: 'Feedback', fr: 'Feedback' },
   'nav.reviews': { en: 'Reviews', fr: 'Évaluations' },
   'nav.surveys': { en: 'Surveys', fr: 'Sondages' },
