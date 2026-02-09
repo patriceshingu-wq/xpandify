@@ -9,13 +9,11 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import People from "./pages/People";
-import Team from "./pages/Team";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
 import Development from "./pages/Development";
 
-import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
 import Analytics from "./pages/Analytics";
@@ -79,7 +77,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+      <Route path="/team" element={<Navigate to="/people" replace />} />
       <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
@@ -87,7 +85,7 @@ function AppRoutes() {
       <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
       <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
       <Route path="/courses" element={<Navigate to="/learning" replace />} />
-      <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
+      <Route path="/feedback" element={<Navigate to="/reviews" replace />} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
       <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

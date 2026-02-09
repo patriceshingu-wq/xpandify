@@ -3,11 +3,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
-  UsersRound,
   Church,
   BookOpen,
+  UsersRound,
   GraduationCap,
-  MessageSquare,
   ClipboardCheck,
   BarChart3,
   Shield,
@@ -35,7 +34,6 @@ interface NavItem {
 }
 
 const moreNavItems: NavItem[] = [
-  { icon: UsersRound, labelKey: 'nav.team', path: '/team', roles: ['super_admin', 'admin', 'pastor_supervisor'] },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
 ];
 
@@ -49,7 +47,6 @@ const developmentNavItems: NavItem[] = [
   { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
   { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
   { icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' },
-  { icon: MessageSquare, labelKey: 'nav.feedback', path: '/feedback' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
   { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },
 ];

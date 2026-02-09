@@ -5,13 +5,11 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   Users,
-  UsersRound,
   Target,
   Calendar,
   CalendarDays,
   BookOpen,
   GraduationCap,
-  MessageSquare,
   ClipboardCheck,
   BarChart3,
   Shield,
@@ -37,7 +35,6 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
-  { icon: UsersRound, labelKey: 'nav.team', path: '/team', roles: ['super_admin', 'admin', 'pastor_supervisor'] },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
@@ -54,7 +51,6 @@ const developmentNavItems: NavItem[] = [
   { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
   { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
   { icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' },
-  { icon: MessageSquare, labelKey: 'nav.feedback', path: '/feedback' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
   { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },
 ];
