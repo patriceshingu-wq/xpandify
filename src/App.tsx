@@ -19,9 +19,9 @@ import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
 import Analytics from "./pages/Analytics";
-import Admin from "./pages/Admin";
+import Administration from "./pages/Administration";
 import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+import Learning from "./pages/Learning";
 import NotFound from "./pages/NotFound";
 
 // Calendar pages
