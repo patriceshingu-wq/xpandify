@@ -5,13 +5,11 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   Users,
-  UsersRound,
   Target,
   Calendar,
   CalendarDays,
   BookOpen,
   GraduationCap,
-  MessageSquare,
   ClipboardCheck,
   BarChart3,
   Shield,

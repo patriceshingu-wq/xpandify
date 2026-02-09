@@ -15,7 +15,6 @@ import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
 import Development from "./pages/Development";
 
-import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
 import Analytics from "./pages/Analytics";

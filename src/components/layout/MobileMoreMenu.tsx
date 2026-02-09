@@ -6,7 +6,6 @@ import {
   Church,
   BookOpen,
   GraduationCap,
-  MessageSquare,
   ClipboardCheck,
   BarChart3,
   Shield,
