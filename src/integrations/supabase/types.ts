@@ -663,9 +663,11 @@ export type Database = {
           due_date: string | null
           goal_level: Database["public"]["Enums"]["goal_level"]
           id: string
+          item_type: string | null
           owner_ministry_id: string | null
           owner_person_id: string | null
           parent_goal_id: string | null
+          pdp_id: string | null
           progress_percent: number | null
           start_date: string | null
           status: Database["public"]["Enums"]["goal_status"] | null
@@ -682,9 +684,11 @@ export type Database = {
           due_date?: string | null
           goal_level: Database["public"]["Enums"]["goal_level"]
           id?: string
+          item_type?: string | null
           owner_ministry_id?: string | null
           owner_person_id?: string | null
           parent_goal_id?: string | null
+          pdp_id?: string | null
           progress_percent?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["goal_status"] | null
@@ -701,9 +705,11 @@ export type Database = {
           due_date?: string | null
           goal_level?: Database["public"]["Enums"]["goal_level"]
           id?: string
+          item_type?: string | null
           owner_ministry_id?: string | null
           owner_person_id?: string | null
           parent_goal_id?: string | null
+          pdp_id?: string | null
           progress_percent?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["goal_status"] | null
@@ -732,6 +738,13 @@ export type Database = {
             columns: ["parent_goal_id"]
             isOneToOne: false
             referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_pdp_id_fkey"
+            columns: ["pdp_id"]
+            isOneToOne: false
+            referencedRelation: "personal_development_plans"
             referencedColumns: ["id"]
           },
         ]
