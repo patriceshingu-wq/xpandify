@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { FEATURES } from '@/config/features';
 import {
   LayoutDashboard,
   Users,
@@ -48,14 +49,14 @@ const calendarNavItems: NavItem[] = [
 ];
 
 const developmentNavItems: NavItem[] = [
-  { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
-  { icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' },
-  { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
-  { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },
+  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+  ...(FEATURES.mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+  ...(FEATURES.formalReviews ? [{ icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' }] : []),
+  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
 ];
 
 const adminNavItems: NavItem[] = [
-  { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
+  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
@@ -150,14 +151,16 @@ export function Sidebar() {
           </div>
 
           {/* Development */}
-          <div className="space-y-1">
-            {!isCollapsed && (
-              <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                Development
-              </span>
-            )}
-            {developmentNavItems.map(renderNavItem)}
-          </div>
+          {developmentNavItems.length > 0 && (
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                  Development
+                </span>
+              )}
+              {developmentNavItems.map(renderNavItem)}
+            </div>
+          )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (

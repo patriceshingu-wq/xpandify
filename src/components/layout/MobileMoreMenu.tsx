@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { FEATURES } from '@/config/features';
 import {
   Church,
   UsersRound,
@@ -43,14 +44,14 @@ const calendarNavItems: NavItem[] = [
 ];
 
 const developmentNavItems: NavItem[] = [
-  { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
-  { icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' },
-  { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },
-  { icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' },
+  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+  ...(FEATURES.mentorship ? [{ icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+  ...(FEATURES.formalReviews ? [{ icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' }] : []),
+  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
 ];
 
 const adminNavItems: NavItem[] = [
-  { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
+  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
@@ -140,12 +141,14 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           <Separator className="my-4" />
 
           {/* Development */}
-          <div className="space-y-1 mb-6">
-            <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Development
-            </p>
-            {developmentNavItems.map(renderNavItem)}
-          </div>
+          {developmentNavItems.length > 0 && (
+            <div className="space-y-1 mb-6">
+              <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Development
+              </p>
+              {developmentNavItems.map(renderNavItem)}
+            </div>
+          )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (
