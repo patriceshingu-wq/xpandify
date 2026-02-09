@@ -48,7 +48,6 @@ const calendarNavItems: NavItem[] = [
 ];
 
 const developmentNavItems: NavItem[] = [
-  { icon: BookOpen, labelKey: 'nav.development', path: '/development' },
   { icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' },
   { icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' },
   { icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' },

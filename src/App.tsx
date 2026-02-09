@@ -82,7 +82,7 @@ function AppRoutes() {
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
-      <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
+      <Route path="/development" element={<Navigate to="/goals" replace />} />
       <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
       <Route path="/courses" element={<Navigate to="/learning" replace />} />
       <Route path="/feedback" element={<Navigate to="/reviews" replace />} />
