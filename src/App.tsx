@@ -12,7 +12,7 @@ import People from "./pages/People";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
-import Development from "./pages/Development";
+
 
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
@@ -82,7 +82,7 @@ function AppRoutes() {
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
-      <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
+      <Route path="/development" element={<Navigate to="/goals" replace />} />
       <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
       <Route path="/courses" element={<Navigate to="/learning" replace />} />
       <Route path="/feedback" element={<Navigate to="/reviews" replace />} />
