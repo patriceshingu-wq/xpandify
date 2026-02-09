@@ -14,7 +14,6 @@ import {
   MessageSquare,
   ClipboardCheck,
   BarChart3,
-  Settings,
   Shield,
   LogOut,
   ChevronLeft,
@@ -23,7 +22,6 @@ import {
   PieChart,
   Flag,
   CalendarRange,
-  Route,
   Users2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

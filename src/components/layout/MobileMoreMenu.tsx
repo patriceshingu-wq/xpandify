@@ -10,7 +10,6 @@ import {
   MessageSquare,
   ClipboardCheck,
   BarChart3,
-  Settings,
   Shield,
   LogOut,
   PieChart,
