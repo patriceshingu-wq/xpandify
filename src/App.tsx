@@ -14,7 +14,7 @@ import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
 import Development from "./pages/Development";
-import Courses from "./pages/Courses"; // kept for legacy redirect
+
 import FeedbackPage from "./pages/Feedback";
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";
