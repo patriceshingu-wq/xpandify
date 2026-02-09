@@ -85,13 +85,15 @@ function AppRoutes() {
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
+      <Route path="/courses" element={<Navigate to="/learning" replace />} />
       <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
       <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/admin" element={<Navigate to="/administration" replace />} />
+      <Route path="/administration" element={<ProtectedRoute><Administration /></ProtectedRoute>} />
+      <Route path="/settings" element={<Navigate to="/administration" replace />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       
       {/* Calendar routes */}
