@@ -35,7 +35,6 @@ interface NavItem {
 }
 
 const moreNavItems: NavItem[] = [
-  { icon: UsersRound, labelKey: 'nav.team', path: '/team', roles: ['super_admin', 'admin', 'pastor_supervisor'] },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
 ];
 
