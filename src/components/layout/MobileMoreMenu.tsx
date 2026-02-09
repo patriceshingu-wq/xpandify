@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   Church,
   BookOpen,
+  UsersRound,
   GraduationCap,
   ClipboardCheck,
   BarChart3,
