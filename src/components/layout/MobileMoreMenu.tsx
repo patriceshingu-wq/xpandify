@@ -51,7 +51,7 @@ const developmentNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
-  { icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' },
+  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
