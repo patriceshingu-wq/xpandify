@@ -3,7 +3,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
-  UsersRound,
   Church,
   BookOpen,
   GraduationCap,
