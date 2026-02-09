@@ -151,14 +151,16 @@ export function Sidebar() {
           </div>
 
           {/* Development */}
-          <div className="space-y-1">
-            {!isCollapsed && (
-              <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                Development
-              </span>
-            )}
-            {developmentNavItems.map(renderNavItem)}
-          </div>
+          {developmentNavItems.length > 0 && (
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                  Development
+                </span>
+              )}
+              {developmentNavItems.map(renderNavItem)}
+            </div>
+          )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (

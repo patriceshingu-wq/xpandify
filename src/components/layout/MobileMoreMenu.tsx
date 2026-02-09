@@ -141,12 +141,14 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           <Separator className="my-4" />
 
           {/* Development */}
-          <div className="space-y-1 mb-6">
-            <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Development
-            </p>
-            {developmentNavItems.map(renderNavItem)}
-          </div>
+          {developmentNavItems.length > 0 && (
+            <div className="space-y-1 mb-6">
+              <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Development
+              </p>
+              {developmentNavItems.map(renderNavItem)}
+            </div>
+          )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (
