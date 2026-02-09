@@ -28,6 +28,8 @@ export interface GoalFilters {
   category?: string;
   owner_person_id?: string;
   owner_ministry_id?: string;
+  pdp_id?: string;
+  exclude_pdp_items?: boolean;
 }
 
 export function useGoals(filters?: GoalFilters) {
