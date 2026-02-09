@@ -12,7 +12,7 @@ import People from "./pages/People";
 import Ministries from "./pages/Ministries";
 import Goals from "./pages/Goals";
 import Meetings from "./pages/Meetings";
-import Development from "./pages/Development";
+
 
 import Reviews from "./pages/Reviews";
 import Surveys from "./pages/Surveys";

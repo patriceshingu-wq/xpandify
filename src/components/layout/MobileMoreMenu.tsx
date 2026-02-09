@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
   Church,
-  BookOpen,
   UsersRound,
   GraduationCap,
   ClipboardCheck,

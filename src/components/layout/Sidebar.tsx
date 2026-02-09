@@ -8,7 +8,7 @@ import {
   Target,
   Calendar,
   CalendarDays,
-  BookOpen,
+  
   GraduationCap,
   ClipboardCheck,
   BarChart3,
