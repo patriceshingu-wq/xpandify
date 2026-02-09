@@ -29,11 +29,11 @@ import { useMeeting, useMeetingAgendaItems, useCreateAgendaItem, useUpdateAgenda
 import { useMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
-import { useDevelopmentPlans } from '@/hooks/useDevelopmentPlans';
+
 import { getSectionTypeLabel, getSectionTypeColor, AgendaSectionType } from '@/hooks/useMeetingTemplates';
 import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
-import { LinkedGoalProgress, LinkedPDPItemProgress } from './LinkedItemProgress';
+import { LinkedGoalProgress } from './LinkedItemProgress';
 
 interface MeetingDetailDialogProps {
   open: boolean;
@@ -405,8 +405,6 @@ function AgendaItemCard({
   };
 
   const linkedGoalId = (item as any).linked_goal_id;
-  const linkedPdpItemId = (item as any).linked_pdp_item_id;
-  const linkedPdpItem = item.linked_pdp_item;
 
   return (
     <Card>
@@ -430,21 +428,10 @@ function AgendaItemCard({
               )}
             </div>
 
-            {/* Linked Goal Progress */}
+            {/* Linked Goal / PDP Item Progress */}
             {linkedGoalId && (
               <div className="mt-2">
                 <LinkedGoalProgress goalId={linkedGoalId} canEdit={canEdit} />
-              </div>
-            )}
-
-            {/* Linked PDP Item Progress */}
-            {linkedPdpItemId && linkedPdpItem?.pdp_id && (
-              <div className="mt-2">
-                <LinkedPDPItemProgress
-                  pdpItemId={linkedPdpItemId}
-                  pdpId={linkedPdpItem.pdp_id}
-                  canEdit={canEdit}
-                />
               </div>
             )}
 

@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useDevelopmentPlans, useDevelopmentPlan } from '@/hooks/useDevelopmentPlans';
+import { useDevelopmentPlans } from '@/hooks/useDevelopmentPlans';
+import { useGoals } from '@/hooks/useGoals';
 import { useCreateAgendaItem, useMeetingAgendaItems } from '@/hooks/useMeetings';
 
 interface AttachPDPDialogProps {
@@ -20,25 +21,27 @@ export function AttachPDPDialog({ open, onOpenChange, meetingId, personId }: Att
   const { t, getLocalizedField } = useLanguage();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  const { data: pdps, isLoading } = useDevelopmentPlans({ person_id: personId, status: 'active' });
+  const { data: pdps, isLoading: pdpsLoading } = useDevelopmentPlans({ person_id: personId, status: 'active' });
   const { data: existingAgendaItems } = useMeetingAgendaItems(meetingId);
   const createAgendaItem = useCreateAgendaItem();
 
-  // Get linked PDP item IDs from existing agenda items
-  const linkedPDPItemIds = existingAgendaItems
-    ?.filter(item => (item as any).linked_pdp_item_id)
-    .map(item => (item as any).linked_pdp_item_id) || [];
-
-  // We need to get PDP items for each active PDP
-  // For simplicity, we'll fetch the first active PDP with items
   const activePDP = pdps?.[0];
-  const { data: pdpDetail } = useDevelopmentPlan(activePDP?.id);
+  
+  // Use goals filtered by pdp_id instead of pdp_items
+  const { data: pdpGoals, isLoading: goalsLoading } = useGoals({ pdp_id: activePDP?.id });
 
-  const availableItems = pdpDetail?.items?.filter(item => 
-    !linkedPDPItemIds.includes(item.id) && 
-    item.status !== 'completed' && 
-    item.status !== 'cancelled'
-  ) || [];
+  const isLoading = pdpsLoading || goalsLoading;
+
+  // Get linked goal IDs from existing agenda items
+  const linkedGoalIds = existingAgendaItems
+    ?.filter(item => item.linked_goal_id)
+    .map(item => item.linked_goal_id) || [];
+
+  const availableItems = (pdpGoals || []).filter(goal => 
+    !linkedGoalIds.includes(goal.id) && 
+    goal.status !== 'completed' && 
+    goal.status !== 'cancelled'
+  );
 
   const handleToggleItem = (itemId: string) => {
     setSelectedItems(prev => 
@@ -52,17 +55,17 @@ export function AttachPDPDialog({ open, onOpenChange, meetingId, personId }: Att
     const maxOrder = existingAgendaItems?.reduce((max, item) => Math.max(max, item.order_index || 0), 0) || 0;
 
     for (let i = 0; i < selectedItems.length; i++) {
-      const itemId = selectedItems[i];
-      const pdpItem = pdpDetail?.items?.find(item => item.id === itemId);
-      if (!pdpItem) continue;
+      const goalId = selectedItems[i];
+      const goal = pdpGoals?.find(g => g.id === goalId);
+      if (!goal) continue;
 
       await createAgendaItem.mutateAsync({
         meeting_id: meetingId,
-        topic_en: `PDP: ${pdpItem.title_en}`,
-        topic_fr: pdpItem.title_fr ? `PDP: ${pdpItem.title_fr}` : null,
+        topic_en: `PDP: ${goal.title_en}`,
+        topic_fr: goal.title_fr ? `PDP: ${goal.title_fr}` : null,
         section_type: 'development_training' as any,
         order_index: maxOrder + i + 1,
-        linked_pdp_item_id: itemId,
+        linked_goal_id: goalId,
       });
     }
 
@@ -113,7 +116,7 @@ export function AttachPDPDialog({ open, onOpenChange, meetingId, personId }: Att
         ) : (
           <>
             <p className="text-sm text-muted-foreground mb-3">
-              From: {getLocalizedField(pdpDetail, 'plan_title')}
+              From: {getLocalizedField(activePDP, 'plan_title')}
             </p>
             <ScrollArea className="max-h-[400px] pr-4">
               <div className="space-y-3">
@@ -131,7 +134,9 @@ export function AttachPDPDialog({ open, onOpenChange, meetingId, personId }: Att
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium">{getLocalizedField(item, 'title')}</p>
                         <div className="flex gap-2">
-                          <Badge variant="outline">{getItemTypeLabel(item.item_type)}</Badge>
+                          {item.item_type && (
+                            <Badge variant="outline">{getItemTypeLabel(item.item_type)}</Badge>
+                          )}
                           <Badge className={getStatusColor(item.status)}>
                             {item.status?.replace('_', ' ')}
                           </Badge>

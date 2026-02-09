@@ -33,6 +33,7 @@ export default function Goals() {
     year,
     goal_level: level,
     status: status,
+    exclude_pdp_items: true,
   });
 
   const handleRefresh = useCallback(async () => {

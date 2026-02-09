@@ -5,9 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Target, BookOpen, ChevronDown, ChevronUp, Save, Loader2 } from 'lucide-react';
+import { Target, ChevronDown, ChevronUp, Save, Loader2 } from 'lucide-react';
 import { useGoal, useUpdateGoal } from '@/hooks/useGoals';
-import { useDevelopmentPlan, useUpdatePDPItem } from '@/hooks/useDevelopmentPlans';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -53,6 +52,7 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
 
   const currentProgress = localProgress ?? goal.progress_percent ?? 0;
   const currentStatus = localStatus ?? goal.status ?? 'not_started';
+  const isPDPItem = !!goal.pdp_id;
 
   const handleProgressChange = (value: number[]) => {
     setLocalProgress(value[0]);
@@ -62,7 +62,6 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
   const handleStatusChange = (value: string) => {
     setLocalStatus(value);
     setHasChanges(true);
-    // Auto-set progress for completed/cancelled
     if (value === 'completed') {
       setLocalProgress(100);
     }
@@ -81,12 +80,12 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border-primary/20 bg-primary/5">
+      <Card className={isPDPItem ? "border-accent/20 bg-accent/5" : "border-primary/20 bg-primary/5"}>
         <CardContent className="p-3">
           <CollapsibleTrigger className="w-full">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Target className="h-4 w-4 text-primary shrink-0" />
+                <Target className={`h-4 w-4 shrink-0 ${isPDPItem ? 'text-accent' : 'text-primary'}`} />
                 <span className="text-sm font-medium truncate">
                   {getLocalizedField(goal, 'title')}
                 </span>
@@ -95,29 +94,44 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
                 <Badge className={`text-xs ${statusColors[currentStatus]}`}>
                   {currentStatus.replace(/_/g, ' ')}
                 </Badge>
-                <span className="text-xs text-muted-foreground">{currentProgress}%</span>
+                {isPDPItem && goal.item_type && (
+                  <Badge variant="outline" className="text-xs">
+                    {goal.item_type}
+                  </Badge>
+                )}
+                {!isPDPItem && (
+                  <span className="text-xs text-muted-foreground">{currentProgress}%</span>
+                )}
                 {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </div>
             </div>
           </CollapsibleTrigger>
           
           <CollapsibleContent className="pt-3 space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Progress</span>
-                <span>{currentProgress}%</span>
+            {!isPDPItem && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Progress</span>
+                  <span>{currentProgress}%</span>
+                </div>
+                <Progress value={currentProgress} className="h-2" />
+                {canEdit && (
+                  <Slider
+                    value={[currentProgress]}
+                    onValueChange={handleProgressChange}
+                    max={100}
+                    step={5}
+                    className="mt-2"
+                  />
+                )}
               </div>
-              <Progress value={currentProgress} className="h-2" />
-              {canEdit && (
-                <Slider
-                  value={[currentProgress]}
-                  onValueChange={handleProgressChange}
-                  max={100}
-                  step={5}
-                  className="mt-2"
-                />
-              )}
-            </div>
+            )}
+
+            {goal.due_date && (
+              <p className="text-xs text-muted-foreground">
+                Due: {new Date(goal.due_date).toLocaleDateString()}
+              </p>
+            )}
 
             {canEdit && (
               <div className="flex items-center gap-2">
@@ -157,123 +171,5 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
   );
 }
 
-interface LinkedPDPItemProgressProps {
-  pdpItemId: string;
-  pdpId: string;
-  canEdit: boolean;
-}
-
-const pdpItemStatusOptions = [
-  { value: 'not_started', label: 'Not Started' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'dropped', label: 'Dropped' },
-];
-
-export function LinkedPDPItemProgress({ pdpItemId, pdpId, canEdit }: LinkedPDPItemProgressProps) {
-  const { getLocalizedField } = useLanguage();
-  const { data: pdp, isLoading } = useDevelopmentPlan(pdpId);
-  const updatePDPItem = useUpdatePDPItem();
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const [localStatus, setLocalStatus] = useState<string | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
-
-  const pdpItem = pdp?.items?.find(item => item.id === pdpItemId);
-
-  if (isLoading || !pdpItem) {
-    return (
-      <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
-        <BookOpen className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Loading development item...</span>
-      </div>
-    );
-  }
-
-  const currentStatus = localStatus ?? pdpItem.status ?? 'not_started';
-
-  const handleStatusChange = (value: string) => {
-    setLocalStatus(value);
-    setHasChanges(true);
-  };
-
-  const handleSave = async () => {
-    await updatePDPItem.mutateAsync({
-      id: pdpItemId,
-      pdp_id: pdpId,
-      status: currentStatus as any,
-    });
-    setHasChanges(false);
-    setLocalStatus(null);
-  };
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border-accent/20 bg-accent/5">
-        <CardContent className="p-3">
-          <CollapsibleTrigger className="w-full">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <BookOpen className="h-4 w-4 text-accent shrink-0" />
-                <span className="text-sm font-medium truncate">
-                  {getLocalizedField(pdpItem, 'title')}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Badge className={`text-xs ${statusColors[currentStatus]}`}>
-                  {currentStatus.replace(/_/g, ' ')}
-                </Badge>
-                {pdpItem.item_type && (
-                  <Badge variant="outline" className="text-xs">
-                    {pdpItem.item_type}
-                  </Badge>
-                )}
-                {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent className="pt-3 space-y-3">
-            {pdpItem.due_date && (
-              <p className="text-xs text-muted-foreground">
-                Due: {new Date(pdpItem.due_date).toLocaleDateString()}
-              </p>
-            )}
-
-            {canEdit && (
-              <div className="flex items-center gap-2">
-                <Select value={currentStatus} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="flex-1 h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pdpItemStatusOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {hasChanges && (
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={updatePDPItem.isPending}
-                    className="h-8"
-                  >
-                    {updatePDPItem.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                  </Button>
-                )}
-              </div>
-            )}
-          </CollapsibleContent>
-        </CardContent>
-      </Card>
-    </Collapsible>
-  );
-}
+// Keep backward-compatible export for any remaining references
+export { LinkedGoalProgress as LinkedPDPItemProgress };
