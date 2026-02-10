@@ -80,7 +80,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     <div
                       key={event.id}
                       className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
-                        event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
+                      getTeamColorClass(event.language)
                       }`}
                       onClick={() => navigate(`/calendar/events/${event.id}`)}
                       title={getLocalizedField(event, 'title')}
