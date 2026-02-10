@@ -108,10 +108,13 @@ function AppRoutes() {
       <Route path="/calendar/events/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
       <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
       
-      {/* Learning & Mentorship routes */}
-      <Route path="/pathways" element={<Navigate to="/learning" replace />} />
-      <Route path="/my-learning" element={<Navigate to="/learning" replace />} />
-      <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />
+      {FEATURES.courses && (
+        <>
+          <Route path="/pathways" element={<Navigate to="/learning" replace />} />
+          <Route path="/my-learning" element={<Navigate to="/learning" replace />} />
+        </>
+      )}
+      {FEATURES.mentorship && <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />}
       
       <Route path="*" element={<NotFound />} />
     </Routes>
