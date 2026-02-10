@@ -510,6 +510,7 @@ export type Database = {
           notes_internal: string | null
           program_id: string | null
           quarter_id: string | null
+          recurrence_pattern: string | null
           related_course_id: string | null
           start_time: string | null
           status: Database["public"]["Enums"]["event_status"] | null
@@ -534,6 +535,7 @@ export type Database = {
           notes_internal?: string | null
           program_id?: string | null
           quarter_id?: string | null
+          recurrence_pattern?: string | null
           related_course_id?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
@@ -558,6 +560,7 @@ export type Database = {
           notes_internal?: string | null
           program_id?: string | null
           quarter_id?: string | null
+          recurrence_pattern?: string | null
           related_course_id?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
@@ -2190,7 +2193,12 @@ export type Database = {
         | "leadership"
         | "other"
       delivery_type: "in_person" | "online" | "hybrid" | "reading_plan"
-      event_status: "Planned" | "Confirmed" | "Completed" | "Canceled"
+      event_status:
+        | "Planned"
+        | "Confirmed"
+        | "Completed"
+        | "Canceled"
+        | "Postponed"
       feedback_type: "encouragement" | "coaching" | "concern"
       gender_type: "male" | "female" | "other" | "prefer_not_to_say"
       goal_category:
@@ -2383,7 +2391,13 @@ export const Constants = {
         "other",
       ],
       delivery_type: ["in_person", "online", "hybrid", "reading_plan"],
-      event_status: ["Planned", "Confirmed", "Completed", "Canceled"],
+      event_status: [
+        "Planned",
+        "Confirmed",
+        "Completed",
+        "Canceled",
+        "Postponed",
+      ],
       feedback_type: ["encouragement", "coaching", "concern"],
       gender_type: ["male", "female", "other", "prefer_not_to_say"],
       goal_category: [
