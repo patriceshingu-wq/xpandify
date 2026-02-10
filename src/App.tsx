@@ -84,12 +84,16 @@ function AppRoutes() {
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<Navigate to="/goals" replace />} />
-      <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
-      <Route path="/courses" element={<Navigate to="/learning" replace />} />
+      {FEATURES.courses && (
+        <>
+          <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
+          <Route path="/courses" element={<Navigate to="/learning" replace />} />
+        </>
+      )}
       <Route path="/feedback" element={<Navigate to="/reviews" replace />} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
-      <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+      {FEATURES.surveys && <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />}
+      {FEATURES.analytics && <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />}
       <Route path="/admin" element={<Navigate to="/administration" replace />} />
       <Route path="/administration" element={<ProtectedRoute><Administration /></ProtectedRoute>} />
       <Route path="/settings" element={<Navigate to="/administration" replace />} />
