@@ -42,6 +42,11 @@ export default function EventsCalendarPage() {
 
   // Date range calculations based on view mode
   const { rangeStart, rangeEnd, calendarDays, weekDays } = useMemo(() => {
+    if (viewMode === 'list') {
+      const ys = startOfYear(currentDate);
+      const ye = endOfYear(currentDate);
+      return { rangeStart: ys, rangeEnd: ye, calendarDays: [], weekDays: [] };
+    }
     if (viewMode === 'week') {
       const ws = startOfWeek(currentDate);
       const we = endOfWeek(currentDate);
@@ -52,7 +57,7 @@ export default function EventsCalendarPage() {
         weekDays: eachDayOfInterval({ start: ws, end: we }),
       };
     }
-    // month (and list uses same range as month)
+    // month
     const ms = startOfMonth(currentDate);
     const me = endOfMonth(currentDate);
     const cs = startOfWeek(ms);
