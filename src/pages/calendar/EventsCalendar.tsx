@@ -18,6 +18,7 @@ import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInte
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventsListView from '@/components/calendar/EventsListView';
 import EventsWeekView from '@/components/calendar/EventsWeekView';
+import TeamColorLegend, { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 
 // Ministry color palette for calendar
 const ministryColors = [
@@ -260,7 +261,7 @@ export default function EventsCalendarPage() {
                                 key={event.id}
                                 data-event
                                 className={`text-xs p-1 rounded cursor-pointer truncate ${
-                                  event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
+                                  getTeamColorClass(event.language)
                                 } text-white`}
                                 onClick={() => navigate(`/calendar/events/${event.id}`)}
                                 title={getLocalizedField(event, 'title')}
@@ -282,16 +283,7 @@ export default function EventsCalendarPage() {
               </CardContent>
             </Card>
 
-            {ministries && ministries.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {ministries.map((m) => (
-                  <div key={m.id} className="flex items-center gap-2 text-sm">
-                    <div className={`w-3 h-3 rounded ${ministryColorMap[m.id]}`} />
-                    <span>{getLocalizedField(m, 'name')}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <TeamColorLegend />
           </>
         )}
       </div>

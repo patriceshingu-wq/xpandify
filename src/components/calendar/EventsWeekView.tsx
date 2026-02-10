@@ -5,12 +5,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isSameDay, parseISO } from 'date-fns';
 import type { CalendarEvent } from '@/hooks/useEvents';
+import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 
 interface EventsWeekViewProps {
   events: CalendarEvent[] | undefined;
   isLoading: boolean;
   weekDays: Date[];
-  ministryColorMap: Record<string, string>;
+  ministryColorMap?: Record<string, string>;
 }
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 7); // 7 AM – 6 PM
@@ -79,7 +80,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     <div
                       key={event.id}
                       className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
-                        event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
+                      getTeamColorClass(event.language)
                       }`}
                       onClick={() => navigate(`/calendar/events/${event.id}`)}
                       title={getLocalizedField(event, 'title')}
@@ -122,7 +123,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                         key={event.id}
                         data-event
                         className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
-                          event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
+                          getTeamColorClass(event.language)
                         }`}
                         onClick={() => navigate(`/calendar/events/${event.id}`)}
                         title={getLocalizedField(event, 'title')}
