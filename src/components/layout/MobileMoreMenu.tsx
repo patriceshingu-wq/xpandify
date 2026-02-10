@@ -7,7 +7,7 @@ import {
   Church,
   UsersRound,
   GraduationCap,
-  ClipboardCheck,
+  FileText,
   BarChart3,
   Shield,
   LogOut,
@@ -35,6 +35,7 @@ interface NavItem {
 
 const moreNavItems: NavItem[] = [
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
+  { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
 ];
 
 const calendarNavItems: NavItem[] = [
@@ -44,9 +45,9 @@ const calendarNavItems: NavItem[] = [
 ];
 
 const developmentNavItems: NavItem[] = [
+  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
   ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
   ...(FEATURES.mentorship ? [{ icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
-  ...(FEATURES.formalReviews ? [{ icon: ClipboardCheck, labelKey: 'nav.reviews', path: '/reviews' }] : []),
   ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
 ];
 
