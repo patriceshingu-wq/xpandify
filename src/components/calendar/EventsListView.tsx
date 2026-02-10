@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarIcon, Clock, MapPin } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
+import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 import type { CalendarEvent } from '@/hooks/useEvents';
 
 interface EventsListViewProps {
