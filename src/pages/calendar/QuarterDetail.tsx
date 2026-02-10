@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Calendar, Edit, Trash2, Flag, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import QuarterFormDialog from '@/components/calendar/QuarterFormDialog';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 
@@ -212,8 +212,8 @@ export default function QuarterDetailPage() {
                   <CardContent className="py-3 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="text-center min-w-[60px]">
-                        <div className="text-sm font-medium">{format(new Date(event.date), 'MMM d')}</div>
-                        <div className="text-xs text-muted-foreground">{format(new Date(event.date), 'EEE')}</div>
+                        <div className="text-sm font-medium">{format(parseISO(event.date), 'MMM d')}</div>
+                        <div className="text-xs text-muted-foreground">{format(parseISO(event.date), 'EEE')}</div>
                       </div>
                       <div>
                         <p className="font-medium">{getLocalizedField(event, 'title')}</p>

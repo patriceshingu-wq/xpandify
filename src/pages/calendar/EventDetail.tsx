@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Edit, Trash2, Calendar, Clock, MapPin, Flag, Users, Target, BookOpen, MessageSquare, CheckCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventRoleDialog from '@/components/calendar/EventRoleDialog';
 import EventGoalDialog from '@/components/calendar/EventGoalDialog';
@@ -80,7 +80,7 @@ export default function EventDetailPage() {
           </Button>
           <PageHeader
             title={getLocalizedField(event, 'title')}
-            subtitle={format(new Date(event.date), 'EEEE, MMMM d, yyyy')}
+            subtitle={format(parseISO(event.date), 'EEEE, MMMM d, yyyy')}
             actions={
               isAdminOrSuper && (
                 <div className="flex gap-2">
@@ -148,7 +148,7 @@ export default function EventDetailPage() {
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">{format(new Date(event.date), 'MMMM d, yyyy')}</p>
+                  <p className="font-medium">{format(parseISO(event.date), 'MMMM d, yyyy')}</p>
                   {!event.is_all_day && event.start_time && (
                     <p className="text-sm text-muted-foreground">
                       {event.start_time}{event.end_time && ` - ${event.end_time}`}
