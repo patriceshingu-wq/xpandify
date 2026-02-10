@@ -187,9 +187,18 @@ export function Sidebar() {
         {/* Theme Badge */}
         {themeName && !isCollapsed && (
           <div className="px-4 pb-2">
-            <Badge variant="outline" className="w-full justify-center border-accent/30 text-accent/80 text-[10px] tracking-wider uppercase py-1">
-              {orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}
-            </Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="w-full justify-center border-accent/30 text-accent/80 text-[10px] tracking-wider uppercase py-1 max-w-full truncate">
+                    {orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>{orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 
