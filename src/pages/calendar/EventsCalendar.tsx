@@ -116,9 +116,11 @@ export default function EventsCalendarPage() {
     }));
   };
 
-  const headerLabel = viewMode === 'week'
-    ? `${format(startOfWeek(currentDate), 'MMM d')} – ${format(endOfWeek(currentDate), 'MMM d, yyyy')}`
-    : format(currentDate, 'MMMM yyyy');
+  const headerLabel = viewMode === 'list'
+    ? format(currentDate, 'yyyy')
+    : viewMode === 'week'
+      ? `${format(startOfWeek(currentDate), 'MMM d')} – ${format(endOfWeek(currentDate), 'MMM d, yyyy')}`
+      : format(currentDate, 'MMMM yyyy');
 
   return (
     <MainLayout>
