@@ -78,16 +78,26 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
               return (
                 <div key={key} className="p-1 border-l min-h-[32px] space-y-0.5">
                   {allDay.map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
-                      getTeamColorClass(event.language)
-                      }`}
-                      onClick={() => navigate(`/calendar/events/${event.id}`)}
-                      title={getLocalizedField(event, 'title')}
-                    >
-                      {getLocalizedField(event, 'title')}
-                    </div>
+                    <TooltipProvider key={event.id} delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
+                            getTeamColorClass(event.language)
+                            }`}
+                            onClick={() => navigate(`/calendar/events/${event.id}`)}
+                          >
+                            {getLocalizedField(event, 'title')}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                          {event.ministry && (
+                            <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ))}
                 </div>
               );
