@@ -3,6 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { FEATURES } from '@/config/features';
+import { useOrganizationSettings } from '@/hooks/useOrganizationSettings';
+import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard,
   Users,
