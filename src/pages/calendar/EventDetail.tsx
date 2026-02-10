@@ -125,7 +125,9 @@ export default function EventDetailPage() {
           <Badge variant={getStatusBadgeVariant(event.status)} className="text-sm">
             {event.status}
           </Badge>
-          <Badge variant="outline">{event.language}</Badge>
+          {event.language && event.language !== 'Bilingual' && (
+            <Badge variant="outline">{event.language}</Badge>
+          )}
           {event.is_all_day && (
             <Badge variant="secondary">{t('calendar.allDay') || 'All Day'}</Badge>
           )}
