@@ -29,6 +29,7 @@ interface GoalFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   goal?: Goal | null;
+  presetLevel?: 'church' | 'ministry' | 'individual';
 }
 
 const currentYear = new Date().getFullYear();
