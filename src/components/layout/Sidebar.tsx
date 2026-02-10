@@ -11,7 +11,7 @@ import {
   CalendarDays,
   
   GraduationCap,
-  ClipboardCheck,
+  FileText,
   BarChart3,
   Shield,
   LogOut,
