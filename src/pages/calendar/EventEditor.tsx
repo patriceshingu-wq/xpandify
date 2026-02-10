@@ -17,8 +17,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Save, Plus } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ArrowLeft, Save, Plus, CalendarIcon } from 'lucide-react';
+import { format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function EventEditorPage() {
   const { id } = useParams();
@@ -178,32 +181,58 @@ export default function EventEditorPage() {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="date">{t('calendar.startDate') || 'Start Date'} *</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) => {
-                        const newDate = e.target.value;
-                        setFormData({
-                          ...formData,
-                          date: newDate,
-                          end_date: formData.end_date < newDate ? newDate : formData.end_date,
-                        });
-                      }}
-                      required
-                    />
+                    <Label>{t('calendar.startDate') || 'Start Date'} *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.date && "text-muted-foreground")}>
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.date ? format(parse(formData.date, 'yyyy-MM-dd', new Date()), 'PPP') : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.date ? parse(formData.date, 'yyyy-MM-dd', new Date()) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              const newDate = format(date, 'yyyy-MM-dd');
+                              setFormData({
+                                ...formData,
+                                date: newDate,
+                                end_date: formData.end_date < newDate ? newDate : formData.end_date,
+                              });
+                            }
+                          }}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="end_date">{t('calendar.endDate') || 'End Date'} *</Label>
-                    <Input
-                      id="end_date"
-                      type="date"
-                      value={formData.end_date}
-                      onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                      min={formData.date}
-                      required
-                    />
+                    <Label>{t('calendar.endDate') || 'End Date'} *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.end_date && "text-muted-foreground")}>
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.end_date ? format(parse(formData.end_date, 'yyyy-MM-dd', new Date()), 'PPP') : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.end_date ? parse(formData.end_date, 'yyyy-MM-dd', new Date()) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setFormData({ ...formData, end_date: format(date, 'yyyy-MM-dd') });
+                            }
+                          }}
+                          disabled={(date) => date < parse(formData.date, 'yyyy-MM-dd', new Date())}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                     {dateError && <p className="text-sm text-destructive">{dateError}</p>}
                   </div>
                   <div className="space-y-2">
