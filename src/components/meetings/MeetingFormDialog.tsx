@@ -410,7 +410,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
           )}
 
           {/* Organizer and Ministry */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${formData.meeting_type === 'one_on_one' ? 'grid-cols-1' : 'grid-cols-2'}`}>
             <div className="space-y-2">
               <Label>Organizer *</Label>
               <Select
@@ -429,38 +429,30 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Ministry (optional)</Label>
-              <Select
-                value={formData.ministry_id}
-                onValueChange={(value) => setFormData({ ...formData, ministry_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select ministry" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ministries?.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.name_en}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {formData.meeting_type !== 'one_on_one' && (
+              <div className="space-y-2">
+                <Label>Ministry (optional)</Label>
+                <Select
+                  value={formData.ministry_id}
+                  onValueChange={(value) => setFormData({ ...formData, ministry_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select ministry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ministries?.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.name_en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           {/* Additional Options */}
           <div className="space-y-4 pt-2 border-t">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="spiritual_focus" className="cursor-pointer">
-                Spiritual Focus Meeting
-              </Label>
-              <Switch
-                id="spiritual_focus"
-                checked={formData.spiritual_focus}
-                onCheckedChange={(checked) => setFormData({ ...formData, spiritual_focus: checked })}
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="recurrence">Recurrence Pattern</Label>
               <Select
