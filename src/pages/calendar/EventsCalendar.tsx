@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEvents, type EventFilters, type EventStatus } from '@/hooks/useEvents';
 import { useMinistries } from '@/hooks/useMinistries';
