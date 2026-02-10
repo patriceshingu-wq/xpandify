@@ -192,6 +192,7 @@ export default function Goals() {
     switch (lvl) {
       case 'church': return <Church className="h-4 w-4" />;
       case 'ministry': return <Building className="h-4 w-4" />;
+      case 'department': return <Users className="h-4 w-4" />;
       case 'individual': return <User className="h-4 w-4" />;
       default: return <Target className="h-4 w-4" />;
     }
@@ -201,6 +202,7 @@ export default function Goals() {
     switch (lvl) {
       case 'church': return 'bg-accent/10 text-accent';
       case 'ministry': return 'bg-info/10 text-info';
+      case 'department': return 'bg-warning/10 text-warning';
       case 'individual': return 'bg-success/10 text-success';
       default: return 'bg-muted text-muted-foreground';
     }
