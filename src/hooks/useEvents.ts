@@ -86,7 +86,8 @@ export function useEvents(filters?: EventFilters) {
           activity_category:activity_categories(id, name_en, name_fr, icon),
           course:courses(id, title_en, title_fr)
         `)
-        .order('date', { ascending: true });
+        .order('date', { ascending: true })
+        .order('start_time', { ascending: true, nullsFirst: false });
 
       if (filters?.quarter_id) query = query.eq('quarter_id', filters.quarter_id);
       if (filters?.program_id) query = query.eq('program_id', filters.program_id);
