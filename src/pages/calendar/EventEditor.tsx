@@ -36,8 +36,12 @@ export default function EventEditorPage() {
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
+  // Pre-fill date from query param (e.g. when clicking a day cell)
+  const initialDate = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
+
   const [formData, setFormData] = useState({
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: initialDate,
+    end_date: initialDate,
     start_time: '',
     end_time: '',
     title_en: '',
