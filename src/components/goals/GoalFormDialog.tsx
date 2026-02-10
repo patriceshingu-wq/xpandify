@@ -170,7 +170,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
 
   const isLoading = createGoal.isPending || updateGoal.isPending;
 
-  const showOwnerPerson = formData.goal_level === 'individual' || formData.goal_level === 'department';
+  const showOwnerPerson = formData.goal_level === 'individual';
   const showOwnerMinistry = formData.goal_level === 'ministry' || formData.goal_level === 'department';
 
   return (
