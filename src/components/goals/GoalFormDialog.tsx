@@ -229,11 +229,12 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="discipleship">Discipleship</SelectItem>
-                  <SelectItem value="evangelism">Evangelism</SelectItem>
-                  <SelectItem value="operations">Operations</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="spiritual">Spiritual</SelectItem>
+                  <SelectItem value="operational">Operational</SelectItem>
+                  <SelectItem value="financial">Financial</SelectItem>
+                  <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="training">Training</SelectItem>
+                  <SelectItem value="leadership">Leadership</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
