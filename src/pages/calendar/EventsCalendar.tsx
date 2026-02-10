@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addYears, subYears, startOfWeek, endOfWeek } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventsListView from '@/components/calendar/EventsListView';
 import EventsWeekView from '@/components/calendar/EventsWeekView';
@@ -42,6 +42,11 @@ export default function EventsCalendarPage() {
 
   // Date range calculations based on view mode
   const { rangeStart, rangeEnd, calendarDays, weekDays } = useMemo(() => {
+    if (viewMode === 'list') {
+      const ys = startOfYear(currentDate);
+      const ye = endOfYear(currentDate);
+      return { rangeStart: ys, rangeEnd: ye, calendarDays: [], weekDays: [] };
+    }
     if (viewMode === 'week') {
       const ws = startOfWeek(currentDate);
       const we = endOfWeek(currentDate);
@@ -52,7 +57,7 @@ export default function EventsCalendarPage() {
         weekDays: eachDayOfInterval({ start: ws, end: we }),
       };
     }
-    // month (and list uses same range as month)
+    // month
     const ms = startOfMonth(currentDate);
     const me = endOfMonth(currentDate);
     const cs = startOfWeek(ms);
@@ -91,12 +96,14 @@ export default function EventsCalendarPage() {
   }, [events]);
 
   const handlePrev = () => {
-    if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
+    if (viewMode === 'list') setCurrentDate(subYears(currentDate, 1));
+    else if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
     else setCurrentDate(subMonths(currentDate, 1));
   };
 
   const handleNext = () => {
-    if (viewMode === 'week') setCurrentDate(addWeeks(currentDate, 1));
+    if (viewMode === 'list') setCurrentDate(addYears(currentDate, 1));
+    else if (viewMode === 'week') setCurrentDate(addWeeks(currentDate, 1));
     else setCurrentDate(addMonths(currentDate, 1));
   };
 
@@ -109,9 +116,11 @@ export default function EventsCalendarPage() {
     }));
   };
 
-  const headerLabel = viewMode === 'week'
-    ? `${format(startOfWeek(currentDate), 'MMM d')} – ${format(endOfWeek(currentDate), 'MMM d, yyyy')}`
-    : format(currentDate, 'MMMM yyyy');
+  const headerLabel = viewMode === 'list'
+    ? format(currentDate, 'yyyy')
+    : viewMode === 'week'
+      ? `${format(startOfWeek(currentDate), 'MMM d')} – ${format(endOfWeek(currentDate), 'MMM d, yyyy')}`
+      : format(currentDate, 'MMMM yyyy');
 
   return (
     <MainLayout>
