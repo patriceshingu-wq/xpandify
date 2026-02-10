@@ -65,10 +65,15 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function Sidebar() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { hasAnyRole, signOut, person } = useAuth();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: orgSettings } = useOrganizationSettings();
+
+  const themeName = language === 'fr'
+    ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
+    : orgSettings?.yearly_theme_en;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
