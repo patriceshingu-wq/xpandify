@@ -2179,6 +2179,11 @@ export type Database = {
         | "finance"
         | "training"
         | "other"
+        | "spiritual"
+        | "operational"
+        | "financial"
+        | "growth"
+        | "leadership"
       goal_level: "church" | "ministry" | "department" | "individual"
       goal_status:
         | "not_started"
@@ -2367,6 +2372,11 @@ export const Constants = {
         "finance",
         "training",
         "other",
+        "spiritual",
+        "operational",
+        "financial",
+        "growth",
+        "leadership",
       ],
       goal_level: ["church", "ministry", "department", "individual"],
       goal_status: [
