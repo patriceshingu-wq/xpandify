@@ -99,7 +99,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         title_fr: '',
         description_en: '',
         description_fr: '',
-        goal_level: 'individual',
+        goal_level: presetLevel || 'individual',
         owner_person_id: '',
         owner_ministry_id: '',
         parent_goal_id: '',
