@@ -18,6 +18,7 @@ import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInte
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventsListView from '@/components/calendar/EventsListView';
 import EventsWeekView from '@/components/calendar/EventsWeekView';
+import TeamColorLegend, { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 
 // Ministry color palette for calendar
 const ministryColors = [
