@@ -129,8 +129,10 @@ export default function QuarterFormDialog({ open, onOpenChange, quarter }: Quart
                 type="date"
                 value={formData.end_date}
                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                min={formData.start_date || undefined}
                 required
               />
+              {dateError && <p className="text-sm text-destructive">{dateError}</p>}
             </div>
           </div>
 

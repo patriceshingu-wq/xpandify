@@ -224,7 +224,9 @@ export default function EventEditorPage() {
                         type="time"
                         value={formData.end_time}
                         onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                        min={formData.start_time || undefined}
                       />
+                      {timeError && <p className="text-sm text-destructive">{timeError}</p>}
                     </div>
                   </div>
                 )}
