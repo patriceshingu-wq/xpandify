@@ -87,6 +87,7 @@ export default function EventEditorPage() {
         completion_percentage: existingEvent.completion_percentage,
         notes_internal: existingEvent.notes_internal || '',
         related_course_id: existingEvent.related_course_id,
+        recurrence_pattern: existingEvent.recurrence_pattern || null,
       });
     }
   }, [existingEvent]);
