@@ -61,10 +61,11 @@ export default function EventsListView({ events, isLoading }: EventsListViewProp
             {monthEvents.map((event) => (
               <Card
                 key={event.id}
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                className="cursor-pointer hover:bg-muted/50 transition-colors overflow-hidden"
                 onClick={() => navigate(`/calendar/events/${event.id}`)}
               >
                 <CardContent className="p-3 flex items-start gap-3">
+                  <div className={`shrink-0 w-1 self-stretch rounded-full ${getTeamColorClass(event.language)}`} />
                   <div className="shrink-0 w-12 text-center">
                     <div className="text-xs text-muted-foreground">{format(parseISO(event.date), 'EEE')}</div>
                     <div className="text-lg font-bold">{format(parseISO(event.date), 'd')}</div>

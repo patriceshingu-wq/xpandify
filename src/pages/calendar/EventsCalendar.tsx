@@ -283,16 +283,7 @@ export default function EventsCalendarPage() {
               </CardContent>
             </Card>
 
-            {ministries && ministries.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {ministries.map((m) => (
-                  <div key={m.id} className="flex items-center gap-2 text-sm">
-                    <div className={`w-3 h-3 rounded ${ministryColorMap[m.id]}`} />
-                    <span>{getLocalizedField(m, 'name')}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <TeamColorLegend />
           </>
         )}
       </div>
