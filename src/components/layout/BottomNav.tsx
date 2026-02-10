@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   Users,
   Target,
-  Calendar,
+  CalendarDays,
   MoreHorizontal,
 } from 'lucide-react';
 
