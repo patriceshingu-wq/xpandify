@@ -7,7 +7,7 @@ import {
   Church,
   UsersRound,
   GraduationCap,
-  ClipboardCheck,
+  FileText,
   BarChart3,
   Shield,
   LogOut,
