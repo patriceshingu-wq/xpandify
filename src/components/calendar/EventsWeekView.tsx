@@ -5,12 +5,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isSameDay, parseISO } from 'date-fns';
 import type { CalendarEvent } from '@/hooks/useEvents';
+import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 
 interface EventsWeekViewProps {
   events: CalendarEvent[] | undefined;
   isLoading: boolean;
   weekDays: Date[];
-  ministryColorMap: Record<string, string>;
+  ministryColorMap?: Record<string, string>;
 }
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 7); // 7 AM – 6 PM
