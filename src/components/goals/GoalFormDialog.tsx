@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Goal, useCreateGoal, useUpdateGoal, useDeleteGoal, useGoals } from '@/hooks/useGoals';
 import { usePeople } from '@/hooks/usePeople';
 import { useMinistries } from '@/hooks/useMinistries';
@@ -15,6 +16,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
 
+const LEVEL_LABELS: Record<string, string> = {
+  church: 'Church',
+  ministry: 'Ministry',
+  department: 'Department',
+  individual: 'Individual',
+};
+
 const getLevelIcon = (level: string) => {
   switch (level) {
     case 'church': return <Church className="h-4 w-4" />;
@@ -29,13 +37,14 @@ interface GoalFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   goal?: Goal | null;
-  presetLevel?: 'church' | 'ministry' | 'individual';
+  presetLevel?: 'church' | 'ministry' | 'department' | 'individual';
 }
 
 const currentYear = new Date().getFullYear();
 
 export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFormDialogProps) {
   const { t } = useLanguage();
+  const { person } = useAuth();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
   const deleteGoal = useDeleteGoal();
@@ -44,17 +53,17 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
   const { data: allGoals } = useGoals();
   
   const isEditing = !!goal;
+  const effectiveLevel = presetLevel || goal?.goal_level || 'individual';
 
   const [formData, setFormData] = useState({
     title_en: '',
     title_fr: '',
     description_en: '',
     description_fr: '',
-    goal_level: (presetLevel || 'individual') as 'church' | 'ministry' | 'department' | 'individual',
+    goal_level: effectiveLevel as 'church' | 'ministry' | 'department' | 'individual',
     owner_person_id: '',
     owner_ministry_id: '',
     parent_goal_id: '',
-    year: currentYear,
     start_date: '',
     due_date: '',
     status: 'not_started' as 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled',
@@ -67,13 +76,26 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
     if (!allGoals) return [];
     const currentLevelIndex = LEVEL_ORDER.indexOf(formData.goal_level);
     return allGoals.filter(g => {
-      // Exclude self
       if (goal && g.id === goal.id) return false;
-      // Only allow parent goals at higher levels
       const parentLevelIndex = LEVEL_ORDER.indexOf(g.goal_level as any);
       return parentLevelIndex < currentLevelIndex;
     });
   }, [allGoals, formData.goal_level, goal]);
+
+  // Sync progress and status
+  useEffect(() => {
+    if (formData.progress_percent === 100 && formData.status !== 'completed') {
+      setFormData(prev => ({ ...prev, status: 'completed' }));
+    } else if (formData.progress_percent > 0 && formData.progress_percent < 100 && formData.status === 'not_started') {
+      setFormData(prev => ({ ...prev, status: 'in_progress' }));
+    }
+  }, [formData.progress_percent]);
+
+  useEffect(() => {
+    if (formData.status === 'completed' && formData.progress_percent !== 100) {
+      setFormData(prev => ({ ...prev, progress_percent: 100 }));
+    }
+  }, [formData.status]);
 
   useEffect(() => {
     if (goal) {
@@ -86,7 +108,6 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         owner_person_id: goal.owner_person_id || '',
         owner_ministry_id: goal.owner_ministry_id || '',
         parent_goal_id: goal.parent_goal_id || '',
-        year: goal.year || currentYear,
         start_date: goal.start_date || '',
         due_date: goal.due_date || '',
         status: goal.status || 'not_started',
@@ -100,10 +121,9 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         description_en: '',
         description_fr: '',
         goal_level: presetLevel || 'individual',
-        owner_person_id: '',
+        owner_person_id: (presetLevel === 'individual' && person?.id) ? person.id : '',
         owner_ministry_id: '',
         parent_goal_id: '',
-        year: currentYear,
         start_date: '',
         due_date: '',
         status: 'not_started',
@@ -111,13 +131,21 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         category: 'other',
       });
     }
-  }, [goal, open, presetLevel]);
+  }, [goal, open, presetLevel, person?.id]);
+
+  // Derive year from dates
+  const derivedYear = formData.start_date
+    ? new Date(formData.start_date).getFullYear()
+    : formData.due_date
+      ? new Date(formData.due_date).getFullYear()
+      : currentYear;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const payload = {
       ...formData,
+      year: derivedYear,
       owner_person_id: formData.owner_person_id || null,
       owner_ministry_id: formData.owner_ministry_id || null,
       parent_goal_id: formData.parent_goal_id || null,
@@ -142,51 +170,55 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
 
   const isLoading = createGoal.isPending || updateGoal.isPending;
 
+  const showOwnerPerson = formData.goal_level === 'individual' || formData.goal_level === 'department';
+  const showOwnerMinistry = formData.goal_level === 'ministry' || formData.goal_level === 'department';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">
-            {isEditing ? 'Edit Goal' : t('goals.addGoal')}
+          <DialogTitle className="font-serif flex items-center gap-2">
+            {getLevelIcon(formData.goal_level)}
+            {isEditing ? 'Edit Goal' : `New ${LEVEL_LABELS[formData.goal_level] || ''} Goal`}
           </DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update goal details' : 'Create a new goal'}
+            {isEditing ? 'Update goal details' : `Create a new ${LEVEL_LABELS[formData.goal_level]?.toLowerCase() || ''} goal`}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title - English */}
-          <div className="space-y-2">
-            <Label htmlFor="title_en">Title (English) *</Label>
-            <Input
-              id="title_en"
-              value={formData.title_en}
-              onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-              placeholder="Goal title"
-              required
-            />
-          </div>
-
-          {/* Title - French */}
-          <div className="space-y-2">
-            <Label htmlFor="title_fr">Title (Français)</Label>
-            <Input
-              id="title_fr"
-              value={formData.title_fr}
-              onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
-              placeholder="Titre de l'objectif"
-            />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Title */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="title_en">Title (English) *</Label>
+              <Input
+                id="title_en"
+                value={formData.title_en}
+                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                placeholder="Goal title"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="title_fr">Title (Français)</Label>
+              <Input
+                id="title_fr"
+                value={formData.title_fr}
+                onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
+                placeholder="Titre de l'objectif"
+              />
+            </div>
           </div>
 
           {/* Description */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Description (English)</Label>
               <Textarea
                 value={formData.description_en}
                 onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
                 placeholder="Goal description..."
-                rows={3}
+                rows={2}
               />
             </div>
             <div className="space-y-2">
@@ -195,58 +227,39 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
                 value={formData.description_fr}
                 onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
                 placeholder="Description de l'objectif..."
-                rows={3}
+                rows={2}
               />
             </div>
           </div>
 
-          {/* Level and Category */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Goal Level *</Label>
-              <Select
-                value={formData.goal_level}
-                onValueChange={(value) => setFormData({ ...formData, goal_level: value as any })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="church">{t('goals.church')}</SelectItem>
-                  <SelectItem value="ministry">{t('goals.ministry')}</SelectItem>
-                  <SelectItem value="department">{t('goals.department')}</SelectItem>
-                  <SelectItem value="individual">{t('goals.individual')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{t('common.category')}</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value as any })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="spiritual">Spiritual</SelectItem>
-                  <SelectItem value="operational">Operational</SelectItem>
-                  <SelectItem value="financial">Financial</SelectItem>
-                  <SelectItem value="growth">Growth</SelectItem>
-                  <SelectItem value="training">Training</SelectItem>
-                  <SelectItem value="leadership">Leadership</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Category */}
+          <div className="space-y-2">
+            <Label>{t('common.category')}</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => setFormData({ ...formData, category: value as any })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="spiritual">Spiritual</SelectItem>
+                <SelectItem value="operational">Operational</SelectItem>
+                <SelectItem value="financial">Financial</SelectItem>
+                <SelectItem value="growth">Growth</SelectItem>
+                <SelectItem value="training">Training</SelectItem>
+                <SelectItem value="leadership">Leadership</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Parent Goal (Cascade Link) */}
-          {formData.goal_level !== 'church' && (
+          {/* Parent Goal (Cascade Link) - hidden for church level */}
+          {formData.goal_level !== 'church' && availableParentGoals.length > 0 && (
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <GitBranch className="h-4 w-4" />
-                Parent Goal (Cascade Link)
+                Parent Goal
               </Label>
               <Select
                 value={formData.parent_goal_id}
@@ -268,70 +281,57 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Link this goal to a higher-level objective to show how it contributes to organizational priorities.
-              </p>
             </div>
           )}
 
-          {/* Owner */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Owner (Person)</Label>
-              <Select
-                value={formData.owner_person_id}
-                onValueChange={(value) => setFormData({ ...formData, owner_person_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select person" />
-                </SelectTrigger>
-                <SelectContent>
-                  {people?.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.first_name} {p.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Owner - conditional based on level */}
+          {(showOwnerPerson || showOwnerMinistry) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {showOwnerPerson && (
+                <div className="space-y-2">
+                  <Label>Owner (Person)</Label>
+                  <Select
+                    value={formData.owner_person_id}
+                    onValueChange={(value) => setFormData({ ...formData, owner_person_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select person" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {people?.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.first_name} {p.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {showOwnerMinistry && (
+                <div className="space-y-2">
+                  <Label>Owner (Ministry)</Label>
+                  <Select
+                    value={formData.owner_ministry_id}
+                    onValueChange={(value) => setFormData({ ...formData, owner_ministry_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ministry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ministries?.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.name_en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label>Owner (Ministry)</Label>
-              <Select
-                value={formData.owner_ministry_id}
-                onValueChange={(value) => setFormData({ ...formData, owner_ministry_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select ministry" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ministries?.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.name_en}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          )}
 
           {/* Dates */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t('common.year')}</Label>
-              <Select
-                value={formData.year.toString()}
-                onValueChange={(value) => setFormData({ ...formData, year: parseInt(value) })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[currentYear - 1, currentYear, currentYear + 1, currentYear + 2].map((y) => (
-                    <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('common.startDate')}</Label>
               <Input
@@ -381,6 +381,27 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
               />
             </div>
           </div>
+
+          {/* Goal Level display (read-only when preset) */}
+          {!presetLevel && !isEditing && (
+            <div className="space-y-2">
+              <Label>Goal Level *</Label>
+              <Select
+                value={formData.goal_level}
+                onValueChange={(value) => setFormData({ ...formData, goal_level: value as any })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="church">{t('goals.church')}</SelectItem>
+                  <SelectItem value="ministry">{t('goals.ministry')}</SelectItem>
+                  <SelectItem value="department">{t('goals.department')}</SelectItem>
+                  <SelectItem value="individual">{t('goals.individual')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-4 border-t">
             {isEditing ? (

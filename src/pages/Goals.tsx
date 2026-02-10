@@ -146,7 +146,7 @@ export default function Goals() {
     setPresetLevel(undefined);
   };
 
-  const handleCreateWithLevel = (level: 'church' | 'ministry' | 'individual') => {
+  const handleCreateWithLevel = (level: 'church' | 'ministry' | 'department' | 'individual') => {
     setEditingGoal(null);
     setPresetLevel(level);
     setIsFormOpen(true);
