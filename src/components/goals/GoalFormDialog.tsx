@@ -59,7 +59,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
     due_date: '',
     status: 'not_started' as 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled',
     progress_percent: 0,
-    category: 'other' as 'discipleship' | 'evangelism' | 'operations' | 'finance' | 'training' | 'other',
+    category: 'other' as 'spiritual' | 'operational' | 'financial' | 'growth' | 'training' | 'leadership' | 'discipleship' | 'evangelism' | 'operations' | 'finance' | 'other',
   });
 
   // Filter parent goals - only allow linking to higher-level goals
