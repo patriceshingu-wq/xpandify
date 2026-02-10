@@ -97,10 +97,11 @@ export default function EventEditorPage() {
 
   const handleSubmit = async (e: React.FormEvent, saveAndNew = false) => {
     e.preventDefault();
-    if (timeError) return;
+    if (timeError || dateError) return;
 
     const eventData = {
       ...formData,
+      end_date: formData.end_date || formData.date,
       start_time: formData.is_all_day ? null : formData.start_time || null,
       end_time: formData.is_all_day ? null : formData.end_time || null,
     };
