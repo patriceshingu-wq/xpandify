@@ -29,11 +29,12 @@ interface GoalFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   goal?: Goal | null;
+  presetLevel?: 'church' | 'ministry' | 'individual';
 }
 
 const currentYear = new Date().getFullYear();
 
-export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps) {
+export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFormDialogProps) {
   const { t } = useLanguage();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
@@ -49,7 +50,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
     title_fr: '',
     description_en: '',
     description_fr: '',
-    goal_level: 'individual' as 'church' | 'ministry' | 'department' | 'individual',
+    goal_level: (presetLevel || 'individual') as 'church' | 'ministry' | 'department' | 'individual',
     owner_person_id: '',
     owner_ministry_id: '',
     parent_goal_id: '',
@@ -58,7 +59,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
     due_date: '',
     status: 'not_started' as 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled',
     progress_percent: 0,
-    category: 'other' as 'discipleship' | 'evangelism' | 'operations' | 'finance' | 'training' | 'other',
+    category: 'other' as 'spiritual' | 'operational' | 'financial' | 'growth' | 'training' | 'leadership' | 'discipleship' | 'evangelism' | 'operations' | 'finance' | 'other',
   });
 
   // Filter parent goals - only allow linking to higher-level goals
@@ -81,7 +82,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
         title_fr: goal.title_fr || '',
         description_en: goal.description_en || '',
         description_fr: goal.description_fr || '',
-        goal_level: goal.goal_level || 'individual',
+        goal_level: goal.goal_level || presetLevel || 'individual',
         owner_person_id: goal.owner_person_id || '',
         owner_ministry_id: goal.owner_ministry_id || '',
         parent_goal_id: goal.parent_goal_id || '',
@@ -98,7 +99,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
         title_fr: '',
         description_en: '',
         description_fr: '',
-        goal_level: 'individual',
+        goal_level: presetLevel || 'individual',
         owner_person_id: '',
         owner_ministry_id: '',
         parent_goal_id: '',
@@ -110,7 +111,7 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
         category: 'other',
       });
     }
-  }, [goal, open]);
+  }, [goal, open, presetLevel]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,11 +229,12 @@ export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="discipleship">Discipleship</SelectItem>
-                  <SelectItem value="evangelism">Evangelism</SelectItem>
-                  <SelectItem value="operations">Operations</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="spiritual">Spiritual</SelectItem>
+                  <SelectItem value="operational">Operational</SelectItem>
+                  <SelectItem value="financial">Financial</SelectItem>
+                  <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="training">Training</SelectItem>
+                  <SelectItem value="leadership">Leadership</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
