@@ -55,8 +55,13 @@ export default function QuarterFormDialog({ open, onOpenChange, quarter }: Quart
     }
   }, [quarter, open]);
 
+  const dateError = formData.start_date && formData.end_date && formData.end_date < formData.start_date
+    ? 'End date must be on or after start date'
+    : '';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (dateError) return;
 
     if (quarter) {
       await updateQuarter.mutateAsync({ id: quarter.id, ...formData });
