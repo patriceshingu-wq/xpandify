@@ -68,6 +68,12 @@ export default function Administration() {
         secondary_color: settings.secondary_color || '#6b7280',
         accent_color: settings.accent_color || '#f59e0b',
         font_family: settings.font_family || 'Inter',
+        yearly_theme_en: settings.yearly_theme_en || '',
+        yearly_theme_fr: settings.yearly_theme_fr || '',
+        yearly_vision_en: settings.yearly_vision_en || '',
+        yearly_vision_fr: settings.yearly_vision_fr || '',
+        theme_year: settings.theme_year?.toString() || new Date().getFullYear().toString(),
+        theme_scripture: settings.theme_scripture || '',
       });
     }
   });
