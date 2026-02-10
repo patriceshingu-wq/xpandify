@@ -87,12 +87,18 @@ export default function EventsCalendarPage() {
     return map;
   }, [ministries]);
 
-  // Group events by date (for month view)
+  // Group events by date (for month view) – expand multi-day events
   const eventsByDate = useMemo(() => {
     const map: Record<string, typeof events> = {};
     events?.forEach((event) => {
-      if (!map[event.date]) map[event.date] = [];
-      map[event.date]!.push(event);
+      const start = parseISO(event.date);
+      const end = event.end_date ? parseISO(event.end_date) : start;
+      const days = eachDayOfInterval({ start, end });
+      days.forEach((day) => {
+        const key = format(day, 'yyyy-MM-dd');
+        if (!map[key]) map[key] = [];
+        map[key]!.push(event);
+      });
     });
     return map;
   }, [events]);
