@@ -80,7 +80,7 @@ export default function EventDetailPage() {
           </Button>
           <PageHeader
             title={getLocalizedField(event, 'title')}
-            subtitle={format(new Date(event.date), 'EEEE, MMMM d, yyyy')}
+            subtitle={format(parseISO(event.date), 'EEEE, MMMM d, yyyy')}
             actions={
               isAdminOrSuper && (
                 <div className="flex gap-2">
