@@ -119,6 +119,18 @@ export default function Goals() {
     (g) => !userMinistryIds || userMinistryIds.length === 0 || userMinistryIds.includes(g.owner_ministry_id || '')
   );
 
+  const { data: allDeptGoals, isLoading: deptGoalsLoading } = useGoals({
+    year,
+    goal_level: 'department',
+    status: status !== 'all' ? status : undefined,
+    exclude_pdp_items: true,
+  });
+
+  // Filter department goals to user's ministries client-side
+  const departmentGoals = (allDeptGoals || []).filter(
+    (g) => !userMinistryIds || userMinistryIds.length === 0 || userMinistryIds.includes(g.owner_ministry_id || '')
+  );
+
   const { data: churchGoals, isLoading: churchGoalsLoading } = useGoals({
     year,
     goal_level: 'church',
