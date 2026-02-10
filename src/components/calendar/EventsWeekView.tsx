@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { format, isSameDay, parseISO } from 'date-fns';
 import type { CalendarEvent } from '@/hooks/useEvents';
 import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
