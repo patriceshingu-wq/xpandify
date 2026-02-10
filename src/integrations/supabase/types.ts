@@ -1313,8 +1313,14 @@ export type Database = {
           primary_color: string | null
           secondary_color: string | null
           state_province: string | null
+          theme_scripture: string | null
+          theme_year: number | null
           updated_at: string
           website: string | null
+          yearly_theme_en: string | null
+          yearly_theme_fr: string | null
+          yearly_vision_en: string | null
+          yearly_vision_fr: string | null
         }
         Insert: {
           accent_color?: string | null
@@ -1337,8 +1343,14 @@ export type Database = {
           primary_color?: string | null
           secondary_color?: string | null
           state_province?: string | null
+          theme_scripture?: string | null
+          theme_year?: number | null
           updated_at?: string
           website?: string | null
+          yearly_theme_en?: string | null
+          yearly_theme_fr?: string | null
+          yearly_vision_en?: string | null
+          yearly_vision_fr?: string | null
         }
         Update: {
           accent_color?: string | null
@@ -1361,8 +1373,14 @@ export type Database = {
           primary_color?: string | null
           secondary_color?: string | null
           state_province?: string | null
+          theme_scripture?: string | null
+          theme_year?: number | null
           updated_at?: string
           website?: string | null
+          yearly_theme_en?: string | null
+          yearly_theme_fr?: string | null
+          yearly_vision_en?: string | null
+          yearly_vision_fr?: string | null
         }
         Relationships: []
       }
