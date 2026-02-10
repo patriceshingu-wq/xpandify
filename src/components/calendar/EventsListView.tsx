@@ -41,28 +41,33 @@ export default function EventsListView({ events, isLoading }: EventsListViewProp
     );
   }
 
-  // Group events by date
+  // Group events by month
   const grouped: Record<string, CalendarEvent[]> = {};
   events.forEach((event) => {
-    if (!grouped[event.date]) grouped[event.date] = [];
-    grouped[event.date].push(event);
+    const monthKey = format(parseISO(event.date), 'yyyy-MM');
+    if (!grouped[monthKey]) grouped[monthKey] = [];
+    grouped[monthKey].push(event);
   });
 
   return (
-    <div className="space-y-4">
-      {Object.entries(grouped).map(([date, dayEvents]) => (
-        <div key={date}>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2 sticky top-0 bg-background py-1">
-            {format(parseISO(date), 'EEEE, MMMM d, yyyy')}
-          </h3>
+    <div className="space-y-6">
+      {Object.entries(grouped).map(([monthKey, monthEvents]) => (
+        <div key={monthKey}>
+          <h2 className="text-base font-bold mb-3 sticky top-0 bg-background py-1 z-10 border-b pb-2">
+            {format(parseISO(`${monthKey}-01`), 'MMMM yyyy')}
+          </h2>
           <div className="space-y-2">
-            {dayEvents.map((event) => (
+            {monthEvents.map((event) => (
               <Card
                 key={event.id}
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => navigate(`/calendar/events/${event.id}`)}
               >
                 <CardContent className="p-3 flex items-start gap-3">
+                  <div className="shrink-0 w-12 text-center">
+                    <div className="text-xs text-muted-foreground">{format(parseISO(event.date), 'EEE')}</div>
+                    <div className="text-lg font-bold">{format(parseISO(event.date), 'd')}</div>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium truncate">
