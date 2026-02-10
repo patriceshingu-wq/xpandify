@@ -1,41 +1,25 @@
 
-# Surface the Yearly Theme Across the App
 
-## Overview
-The yearly theme ("EXPANSION", Isaiah 54:1-3) is fully configured in org settings but never shown to users. This plan adds a prominent theme banner on the Dashboard and a subtle theme reference in the Sidebar, making it a daily touchpoint for alignment.
+# Fix Sidebar Theme Badge for Long Theme Names
+
+## Problem
+When the yearly theme is a multi-word phrase (e.g., "Manifesting the Kingdom of God"), the theme badge in the sidebar expands or overflows, breaking the sidebar layout.
+
+## Solution
+Constrain the theme badge text with truncation so it never exceeds the sidebar width, and add a tooltip so users can still read the full theme on hover.
 
 ## Changes
 
-### 1. New Component: YearlyThemeBanner
-**File**: `src/components/dashboard/YearlyThemeBanner.tsx`
+### File: `src/components/layout/Sidebar.tsx`
 
-A visually striking card displayed at the top of the Dashboard, above the stats grid. It will:
-- Fetch org settings via `useOrganizationSettings()`
-- Display the theme name (e.g., "EXPANSION") in bold, decorative typography (Playfair Display)
-- Show the guiding scripture reference (Isaiah 54:1-3)
-- Include a collapsible section with the full vision statement (localized EN/FR via `getLocalizedField`)
-- Use the theme year as a label (e.g., "2026 Theme")
-- Gracefully hide if no theme is configured
-- Use a subtle gradient or accent-colored border to stand out without being overwhelming
+- Add `truncate` and `max-w-full` classes to the Badge so long text is clipped with an ellipsis
+- Wrap the Badge in a `Tooltip` so the full theme name is visible on hover
+- Keep the badge hidden when the sidebar is collapsed (already the case)
 
-### 2. Dashboard Integration
-**File**: `src/pages/Dashboard.tsx`
+### Technical Details
 
-- Import and render `YearlyThemeBanner` just below the welcome title, above the stats grid
-- The banner only renders when theme data exists in org settings
+- Uses the existing `Tooltip` component from `@/components/ui/tooltip`
+- No new dependencies or components needed
+- The badge container is already constrained to `w-full` -- just needs the inner text to truncate
+- Tooltip provides full accessibility for the clipped text
 
-### 3. Sidebar Theme Badge
-**File**: `src/components/layout/Sidebar.tsx`
-
-- Add a small, elegant theme badge near the bottom of the sidebar (above the user profile area)
-- Shows the theme year and name (e.g., "2026 -- EXPANSION")
-- Localized to the user's language preference
-- Only visible when theme data is configured
-
-## Technical Details
-
-- Uses the existing `useOrganizationSettings()` hook (no new queries needed)
-- Uses the existing `getLocalizedField()` helper for bilingual support
-- The banner uses Radix Collapsible for the expandable vision statement
-- No database changes required -- all data already exists
-- Mobile-responsive: banner stacks vertically, sidebar badge hidden on mobile (sidebar is already hidden)
