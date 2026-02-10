@@ -5,6 +5,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
+import { YearlyThemeBanner } from '@/components/dashboard/YearlyThemeBanner';
 import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart';
 import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
 import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
@@ -90,6 +91,9 @@ export default function Dashboard() {
       subtitle={t('dashboard.overview')}
     >
       <div className="space-y-6 animate-fade-in">
+        {/* Yearly Theme Banner */}
+        <YearlyThemeBanner />
+
         {/* Stats Grid - 2 cols on mobile, 4 on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {isLoading ? (

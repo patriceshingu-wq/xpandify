@@ -3,6 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { FEATURES } from '@/config/features';
+import { useOrganizationSettings } from '@/hooks/useOrganizationSettings';
+import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard,
   Users,
@@ -63,10 +65,15 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function Sidebar() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { hasAnyRole, signOut, person } = useAuth();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: orgSettings } = useOrganizationSettings();
+
+  const themeName = language === 'fr'
+    ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
+    : orgSettings?.yearly_theme_en;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -176,6 +183,15 @@ export function Sidebar() {
             </div>
           )}
         </nav>
+
+        {/* Theme Badge */}
+        {themeName && !isCollapsed && (
+          <div className="px-4 pb-2">
+            <Badge variant="outline" className="w-full justify-center border-accent/30 text-accent/80 text-[10px] tracking-wider uppercase py-1">
+              {orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}
+            </Badge>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="border-t border-sidebar-border p-4">
