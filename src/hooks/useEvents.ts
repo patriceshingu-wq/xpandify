@@ -9,6 +9,7 @@ export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled' | '
 export interface CalendarEvent {
   id: string;
   date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   title_en: string;
@@ -93,8 +94,17 @@ export function useEvents(filters?: EventFilters) {
       if (filters?.activity_category_id) query = query.eq('activity_category_id', filters.activity_category_id);
       if (filters?.language) query = query.eq('language', filters.language);
       if (filters?.status) query = query.eq('status', filters.status);
-      if (filters?.start_date) query = query.gte('date', filters.start_date);
-      if (filters?.end_date) query = query.lte('date', filters.end_date);
+      // Include events that overlap the requested range:
+      // event starts before range end AND event ends after range start
+      if (filters?.start_date && filters?.end_date) {
+        // Events where date <= range_end AND coalesce(end_date, date) >= range_start
+        query = query
+          .lte('date', filters.end_date)
+          .or(`end_date.gte.${filters.start_date},end_date.is.null,date.gte.${filters.start_date}`);
+      } else {
+        if (filters?.start_date) query = query.gte('date', filters.start_date);
+        if (filters?.end_date) query = query.lte('date', filters.end_date);
+      }
 
       const { data, error } = await query;
       if (error) throw error;

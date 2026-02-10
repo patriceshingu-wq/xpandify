@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { format, isSameDay, parseISO, eachDayOfInterval } from 'date-fns';
 import type { CalendarEvent } from '@/hooks/useEvents';
 import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
 
@@ -29,12 +29,24 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
       map[key] = { allDay: [], timed: [] };
     });
     events?.forEach((event) => {
-      const bucket = map[event.date];
-      if (!bucket) return;
-      if (event.is_all_day || !event.start_time) {
-        bucket.allDay.push(event);
+      const isMultiDay = event.end_date && event.end_date !== event.date;
+      if (isMultiDay) {
+        // Expand multi-day events across each day in the week
+        const start = parseISO(event.date);
+        const end = parseISO(event.end_date!);
+        const days = eachDayOfInterval({ start, end });
+        days.forEach((day) => {
+          const key = format(day, 'yyyy-MM-dd');
+          if (map[key]) map[key].allDay.push(event);
+        });
       } else {
-        bucket.timed.push(event);
+        const bucket = map[event.date];
+        if (!bucket) return;
+        if (event.is_all_day || !event.start_time) {
+          bucket.allDay.push(event);
+        } else {
+          bucket.timed.push(event);
+        }
       }
     });
     return map;
