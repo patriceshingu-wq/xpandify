@@ -181,7 +181,7 @@ export default function EventEditorPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>{t('calendar.startDate') || 'Start Date'} *</Label>
                     <Popover>
@@ -236,22 +236,6 @@ export default function EventEditorPage() {
                       </PopoverContent>
                     </Popover>
                     {dateError && <p className="text-sm text-destructive">{dateError}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="language">{t('calendar.language') || 'Language'}</Label>
-                    <Select
-                      value={formData.language}
-                      onValueChange={(v: ProgramLanguage) => setFormData({ ...formData, language: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EN">English</SelectItem>
-                        <SelectItem value="FR">Français</SelectItem>
-                        <SelectItem value="Bilingual">Bilingual</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
 
