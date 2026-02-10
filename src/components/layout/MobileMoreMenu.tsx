@@ -35,6 +35,7 @@ interface NavItem {
 
 const moreNavItems: NavItem[] = [
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
+  { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
 ];
 
 const calendarNavItems: NavItem[] = [
