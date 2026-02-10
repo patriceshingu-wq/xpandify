@@ -241,7 +241,11 @@ export default function EventsCalendarPage() {
                       return (
                         <div
                           key={dateKey}
-                          className={`min-h-[100px] border-b border-r p-1 ${!isCurrentMonth ? 'bg-muted/30' : ''}`}
+                          className={`min-h-[100px] border-b border-r p-1 cursor-pointer hover:bg-accent/30 transition-colors ${!isCurrentMonth ? 'bg-muted/30' : ''}`}
+                          onClick={(e) => {
+                            if ((e.target as HTMLElement).closest('[data-event]')) return;
+                            navigate(`/calendar/events/new?date=${dateKey}`);
+                          }}
                         >
                           <div
                             className={`text-sm font-medium p-1 w-7 h-7 flex items-center justify-center rounded-full ${
@@ -254,6 +258,7 @@ export default function EventsCalendarPage() {
                             {dayEvents.slice(0, 3).map((event) => (
                               <div
                                 key={event.id}
+                                data-event
                                 className={`text-xs p-1 rounded cursor-pointer truncate ${
                                   event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
                                 } text-white`}

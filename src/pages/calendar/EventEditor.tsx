@@ -36,8 +36,12 @@ export default function EventEditorPage() {
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
+  // Pre-fill date from query param (e.g. when clicking a day cell)
+  const initialDate = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
+
   const [formData, setFormData] = useState({
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: initialDate,
+    end_date: initialDate,
     start_time: '',
     end_time: '',
     title_en: '',
@@ -61,6 +65,7 @@ export default function EventEditorPage() {
     if (existingEvent) {
       setFormData({
         date: existingEvent.date,
+        end_date: (existingEvent as any).end_date || existingEvent.date,
         start_time: existingEvent.start_time || '',
         end_time: existingEvent.end_time || '',
         title_en: existingEvent.title_en,
@@ -86,12 +91,17 @@ export default function EventEditorPage() {
     ? 'End time must be after start time'
     : '';
 
+  const dateError = formData.end_date && formData.end_date < formData.date
+    ? 'End date must be on or after start date'
+    : '';
+
   const handleSubmit = async (e: React.FormEvent, saveAndNew = false) => {
     e.preventDefault();
-    if (timeError) return;
+    if (timeError || dateError) return;
 
     const eventData = {
       ...formData,
+      end_date: formData.end_date || formData.date,
       start_time: formData.is_all_day ? null : formData.start_time || null,
       end_time: formData.is_all_day ? null : formData.end_time || null,
     };
@@ -166,16 +176,35 @@ export default function EventEditorPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="date">{t('calendar.date') || 'Date'} *</Label>
+                    <Label htmlFor="date">{t('calendar.startDate') || 'Start Date'} *</Label>
                     <Input
                       id="date"
                       type="date"
                       value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setFormData({
+                          ...formData,
+                          date: newDate,
+                          end_date: formData.end_date < newDate ? newDate : formData.end_date,
+                        });
+                      }}
                       required
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end_date">{t('calendar.endDate') || 'End Date'} *</Label>
+                    <Input
+                      id="end_date"
+                      type="date"
+                      value={formData.end_date}
+                      onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                      min={formData.date}
+                      required
+                    />
+                    {dateError && <p className="text-sm text-destructive">{dateError}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="language">{t('calendar.language') || 'Language'}</Label>

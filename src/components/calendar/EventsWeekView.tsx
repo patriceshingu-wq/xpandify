@@ -111,11 +111,16 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                 return (
                   <div
                     key={key}
-                    className={`border-l min-h-[48px] p-0.5 relative ${isToday ? 'bg-primary/5' : ''}`}
+                    className={`border-l min-h-[48px] p-0.5 relative cursor-pointer hover:bg-accent/30 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('[data-event]')) return;
+                      navigate(`/calendar/events/new?date=${key}`);
+                    }}
                   >
                     {hourEvents.map((event) => (
                       <div
                         key={event.id}
+                        data-event
                         className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
                           event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
                         }`}
