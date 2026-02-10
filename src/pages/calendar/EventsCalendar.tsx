@@ -258,6 +258,7 @@ export default function EventsCalendarPage() {
                             {dayEvents.slice(0, 3).map((event) => (
                               <div
                                 key={event.id}
+                                data-event
                                 className={`text-xs p-1 rounded cursor-pointer truncate ${
                                   event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
                                 } text-white`}

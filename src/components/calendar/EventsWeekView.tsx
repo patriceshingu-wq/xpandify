@@ -120,6 +120,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     {hourEvents.map((event) => (
                       <div
                         key={event.id}
+                        data-event
                         className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
                           event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
                         }`}
