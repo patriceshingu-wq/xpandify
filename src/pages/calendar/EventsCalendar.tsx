@@ -261,7 +261,7 @@ export default function EventsCalendarPage() {
                                 key={event.id}
                                 data-event
                                 className={`text-xs p-1 rounded cursor-pointer truncate ${
-                                  event.ministry_id ? ministryColorMap[event.ministry_id] : 'bg-primary'
+                                  getTeamColorClass(event.language)
                                 } text-white`}
                                 onClick={() => navigate(`/calendar/events/${event.id}`)}
                                 title={getLocalizedField(event, 'title')}
