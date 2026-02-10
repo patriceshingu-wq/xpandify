@@ -9,6 +9,7 @@ export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled' | '
 export interface CalendarEvent {
   id: string;
   date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   title_en: string;
