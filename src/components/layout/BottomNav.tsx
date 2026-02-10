@@ -17,9 +17,9 @@ interface NavItem {
 
 const primaryNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
-  { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
+  { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },
 ];
 
 interface BottomNavProps {
