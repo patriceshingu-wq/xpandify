@@ -148,7 +148,7 @@ export default function EventDetailPage() {
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">{format(new Date(event.date), 'MMMM d, yyyy')}</p>
+                  <p className="font-medium">{format(parseISO(event.date), 'MMMM d, yyyy')}</p>
                   {!event.is_all_day && event.start_time && (
                     <p className="text-sm text-muted-foreground">
                       {event.start_time}{event.end_time && ` - ${event.end_time}`}
