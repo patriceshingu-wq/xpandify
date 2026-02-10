@@ -111,7 +111,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         category: 'other',
       });
     }
-  }, [goal, open]);
+  }, [goal, open, presetLevel]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
