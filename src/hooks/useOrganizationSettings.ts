@@ -23,6 +23,12 @@ export interface OrganizationSettings {
   secondary_color: string | null;
   accent_color: string | null;
   font_family: string | null;
+  yearly_theme_en: string | null;
+  yearly_theme_fr: string | null;
+  yearly_vision_en: string | null;
+  yearly_vision_fr: string | null;
+  theme_year: number | null;
+  theme_scripture: string | null;
   created_at: string;
   updated_at: string;
 }

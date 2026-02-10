@@ -68,6 +68,12 @@ export default function Administration() {
         secondary_color: settings.secondary_color || '#6b7280',
         accent_color: settings.accent_color || '#f59e0b',
         font_family: settings.font_family || 'Inter',
+        yearly_theme_en: settings.yearly_theme_en || '',
+        yearly_theme_fr: settings.yearly_theme_fr || '',
+        yearly_vision_en: settings.yearly_vision_en || '',
+        yearly_vision_fr: settings.yearly_vision_fr || '',
+        theme_year: settings.theme_year?.toString() || new Date().getFullYear().toString(),
+        theme_scripture: settings.theme_scripture || '',
       });
     }
   });
@@ -83,7 +89,12 @@ export default function Administration() {
 
   const handleSaveSettings = async () => {
     if (!settings?.id) return;
-    await updateSettings.mutateAsync({ id: settings.id, ...formData });
+    const { theme_year, ...rest } = formData;
+    await updateSettings.mutateAsync({
+      id: settings.id,
+      ...rest,
+      theme_year: theme_year ? parseInt(theme_year, 10) : null,
+    });
     setHasChanges(false);
   };
 
@@ -322,6 +333,83 @@ export default function Administration() {
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
                     <Input id="country" value={formData.country || settings?.country || ''} onChange={(e) => handleFieldChange('country', e.target.value)} placeholder="Canada" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Yearly Theme */}
+            <Card className="mt-6">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle>Yearly Theme</CardTitle>
+                    <CardDescription>Set your organization's annual theme, vision, and guiding scripture</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="theme_year">Theme Year</Label>
+                  <Input
+                    id="theme_year"
+                    type="number"
+                    value={formData.theme_year || settings?.theme_year?.toString() || ''}
+                    onChange={(e) => handleFieldChange('theme_year', e.target.value)}
+                    placeholder={new Date().getFullYear().toString()}
+                    className="max-w-[120px]"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="yearly_theme_en">Theme (English)</Label>
+                    <Input
+                      id="yearly_theme_en"
+                      value={formData.yearly_theme_en || settings?.yearly_theme_en || ''}
+                      onChange={(e) => handleFieldChange('yearly_theme_en', e.target.value)}
+                      placeholder="e.g., EXPANSION"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="yearly_theme_fr">Theme (French)</Label>
+                    <Input
+                      id="yearly_theme_fr"
+                      value={formData.yearly_theme_fr || settings?.yearly_theme_fr || ''}
+                      onChange={(e) => handleFieldChange('yearly_theme_fr', e.target.value)}
+                      placeholder="e.g., EXPANSION"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="theme_scripture">Guiding Scripture</Label>
+                  <Input
+                    id="theme_scripture"
+                    value={formData.theme_scripture || settings?.theme_scripture || ''}
+                    onChange={(e) => handleFieldChange('theme_scripture', e.target.value)}
+                    placeholder="e.g., Isaiah 54:1–3"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="yearly_vision_en">Vision Statement (English)</Label>
+                    <Textarea
+                      id="yearly_vision_en"
+                      value={formData.yearly_vision_en || settings?.yearly_vision_en || ''}
+                      onChange={(e) => handleFieldChange('yearly_vision_en', e.target.value)}
+                      placeholder="Describe the vision for this year..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="yearly_vision_fr">Vision Statement (French)</Label>
+                    <Textarea
+                      id="yearly_vision_fr"
+                      value={formData.yearly_vision_fr || settings?.yearly_vision_fr || ''}
+                      onChange={(e) => handleFieldChange('yearly_vision_fr', e.target.value)}
+                      placeholder="Décrivez la vision pour cette année..."
+                      rows={3}
+                    />
                   </div>
                 </div>
                 {hasChanges && (
