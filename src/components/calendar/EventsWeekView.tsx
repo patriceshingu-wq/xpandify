@@ -130,17 +130,27 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     }}
                   >
                     {hourEvents.map((event) => (
-                      <div
-                        key={event.id}
-                        data-event
-                        className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
-                          getTeamColorClass(event.language)
-                        }`}
-                        onClick={() => navigate(`/calendar/events/${event.id}`)}
-                        title={getLocalizedField(event, 'title')}
-                      >
-                        {event.start_time?.slice(0, 5)} {getLocalizedField(event, 'title')}
-                      </div>
+                      <TooltipProvider key={event.id} delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              data-event
+                              className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
+                                getTeamColorClass(event.language)
+                              }`}
+                              onClick={() => navigate(`/calendar/events/${event.id}`)}
+                            >
+                              {event.start_time?.slice(0, 5)} {getLocalizedField(event, 'title')}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                            {event.ministry && (
+                              <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     ))}
                   </div>
                 );
