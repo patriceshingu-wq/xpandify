@@ -212,8 +212,8 @@ export default function QuarterDetailPage() {
                   <CardContent className="py-3 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="text-center min-w-[60px]">
-                        <div className="text-sm font-medium">{format(new Date(event.date), 'MMM d')}</div>
-                        <div className="text-xs text-muted-foreground">{format(new Date(event.date), 'EEE')}</div>
+                        <div className="text-sm font-medium">{format(parseISO(event.date), 'MMM d')}</div>
+                        <div className="text-xs text-muted-foreground">{format(parseISO(event.date), 'EEE')}</div>
                       </div>
                       <div>
                         <p className="font-medium">{getLocalizedField(event, 'title')}</p>
