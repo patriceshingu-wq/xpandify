@@ -259,17 +259,27 @@ export default function EventsCalendarPage() {
                           </div>
                           <div className="space-y-1 mt-1">
                             {dayEvents.slice(0, 3).map((event) => (
-                              <div
-                                key={event.id}
-                                data-event
-                                className={`text-xs p-1 rounded cursor-pointer truncate ${
-                                  getTeamColorClass(event.language)
-                                } text-white`}
-                                onClick={() => navigate(`/calendar/events/${event.id}`)}
-                                title={getLocalizedField(event, 'title')}
-                              >
-                                {getLocalizedField(event, 'title')}
-                              </div>
+                              <TooltipProvider key={event.id} delayDuration={200}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      data-event
+                                      className={`text-xs p-1 rounded cursor-pointer truncate ${
+                                        getTeamColorClass(event.language)
+                                      } text-white`}
+                                      onClick={() => navigate(`/calendar/events/${event.id}`)}
+                                    >
+                                      {getLocalizedField(event, 'title')}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                                    {event.ministry && (
+                                      <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                                    )}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             ))}
                             {dayEvents.length > 3 && (
                               <div className="text-xs text-muted-foreground px-1">

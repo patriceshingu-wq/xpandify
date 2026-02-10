@@ -26,6 +26,7 @@ export interface CalendarEvent {
   completion_percentage: number;
   notes_internal: string | null;
   related_course_id: string | null;
+  recurrence_pattern: string | null;
   created_at: string;
   updated_at: string;
   quarter?: {
