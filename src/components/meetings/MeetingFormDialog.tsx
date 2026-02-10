@@ -452,16 +452,6 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
 
           {/* Additional Options */}
           <div className="space-y-4 pt-2 border-t">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="spiritual_focus" className="cursor-pointer">
-                Spiritual Focus Meeting
-              </Label>
-              <Switch
-                id="spiritual_focus"
-                checked={formData.spiritual_focus}
-                onCheckedChange={(checked) => setFormData({ ...formData, spiritual_focus: checked })}
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="recurrence">Recurrence Pattern</Label>
               <Select
