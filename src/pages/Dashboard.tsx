@@ -5,6 +5,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
+import { YearlyThemeBanner } from '@/components/dashboard/YearlyThemeBanner';
 import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart';
 import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
 import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
