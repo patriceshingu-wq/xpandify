@@ -34,7 +34,7 @@ interface GoalFormDialogProps {
 
 const currentYear = new Date().getFullYear();
 
-export function GoalFormDialog({ open, onOpenChange, goal }: GoalFormDialogProps) {
+export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFormDialogProps) {
   const { t } = useLanguage();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
