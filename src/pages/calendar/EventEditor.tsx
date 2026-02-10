@@ -266,6 +266,26 @@ export default function EventEditorPage() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="recurrence">{t('calendar.recurrence') || 'Recurrence'}</Label>
+                  <Select
+                    value={formData.recurrence_pattern || 'none'}
+                    onValueChange={(v) => setFormData({ ...formData, recurrence_pattern: v === 'none' ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="No recurrence" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="annually">Annually</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {!formData.is_all_day && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
