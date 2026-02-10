@@ -19,7 +19,7 @@ import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { GoalCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import {
   Plus, Target, Calendar, User, Building, Search, FileText,
-  GitBranch, Loader2, Church,
+  GitBranch, Loader2, Church, Users,
 } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
 import { PDPFormDialog } from '@/components/development/PDPFormDialog';
@@ -84,7 +84,7 @@ export default function Goals() {
   const [status, setStatus] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-  const [presetLevel, setPresetLevel] = useState<'church' | 'ministry' | 'individual' | undefined>();
+  const [presetLevel, setPresetLevel] = useState<'church' | 'ministry' | 'department' | 'individual' | undefined>();
 
   // PDP state
   const [pdpStatus, setPdpStatus] = useState<string>('all');
@@ -119,6 +119,18 @@ export default function Goals() {
     (g) => !userMinistryIds || userMinistryIds.length === 0 || userMinistryIds.includes(g.owner_ministry_id || '')
   );
 
+  const { data: allDeptGoals, isLoading: deptGoalsLoading } = useGoals({
+    year,
+    goal_level: 'department',
+    status: status !== 'all' ? status : undefined,
+    exclude_pdp_items: true,
+  });
+
+  // Filter department goals to user's ministries client-side
+  const departmentGoals = (allDeptGoals || []).filter(
+    (g) => !userMinistryIds || userMinistryIds.length === 0 || userMinistryIds.includes(g.owner_ministry_id || '')
+  );
+
   const { data: churchGoals, isLoading: churchGoalsLoading } = useGoals({
     year,
     goal_level: 'church',
@@ -146,7 +158,7 @@ export default function Goals() {
     setPresetLevel(undefined);
   };
 
-  const handleCreateWithLevel = (level: 'church' | 'ministry' | 'individual') => {
+  const handleCreateWithLevel = (level: 'church' | 'ministry' | 'department' | 'individual') => {
     setEditingGoal(null);
     setPresetLevel(level);
     setIsFormOpen(true);
@@ -180,6 +192,7 @@ export default function Goals() {
     switch (lvl) {
       case 'church': return <Church className="h-4 w-4" />;
       case 'ministry': return <Building className="h-4 w-4" />;
+      case 'department': return <Users className="h-4 w-4" />;
       case 'individual': return <User className="h-4 w-4" />;
       default: return <Target className="h-4 w-4" />;
     }
@@ -189,6 +202,7 @@ export default function Goals() {
     switch (lvl) {
       case 'church': return 'bg-accent/10 text-accent';
       case 'ministry': return 'bg-info/10 text-info';
+      case 'department': return 'bg-warning/10 text-warning';
       case 'individual': return 'bg-success/10 text-success';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -307,11 +321,16 @@ export default function Goals() {
           />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 sm:w-auto sm:inline-flex">
+            <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex gap-1">
               <TabsTrigger value="my" className="gap-1.5 touch-target">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">My Goals</span>
                 <span className="sm:hidden text-xs">My</span>
+              </TabsTrigger>
+              <TabsTrigger value="department" className="gap-1.5 touch-target">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Department</span>
+                <span className="sm:hidden text-xs">Dept</span>
               </TabsTrigger>
               <TabsTrigger value="ministry" className="gap-1.5 touch-target">
                 <Building className="h-4 w-4" />
@@ -346,6 +365,21 @@ export default function Goals() {
               </div>
               {renderFilters()}
               {renderGoalList(myGoals, myGoalsLoading, () => handleCreateWithLevel('individual'))}
+            </TabsContent>
+
+            {/* ========== Department Goals Tab ========== */}
+            <TabsContent value="department" className="space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div />
+                {(isMinistryLeader || isAdminOrSuper) && (
+                  <Button onClick={() => handleCreateWithLevel('department')} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Department Goal
+                  </Button>
+                )}
+              </div>
+              {renderFilters()}
+              {renderGoalList(departmentGoals, deptGoalsLoading)}
             </TabsContent>
 
             {/* ========== Ministry Goals Tab ========== */}
