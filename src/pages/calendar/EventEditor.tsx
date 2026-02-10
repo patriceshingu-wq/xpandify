@@ -82,8 +82,13 @@ export default function EventEditorPage() {
     }
   }, [existingEvent]);
 
+  const timeError = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time
+    ? 'End time must be after start time'
+    : '';
+
   const handleSubmit = async (e: React.FormEvent, saveAndNew = false) => {
     e.preventDefault();
+    if (timeError) return;
 
     const eventData = {
       ...formData,
@@ -219,7 +224,9 @@ export default function EventEditorPage() {
                         type="time"
                         value={formData.end_time}
                         onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                        min={formData.start_time || undefined}
                       />
+                      {timeError && <p className="text-sm text-destructive">{timeError}</p>}
                     </div>
                   </div>
                 )}
