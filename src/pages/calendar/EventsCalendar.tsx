@@ -96,12 +96,14 @@ export default function EventsCalendarPage() {
   }, [events]);
 
   const handlePrev = () => {
-    if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
+    if (viewMode === 'list') setCurrentDate(subYears(currentDate, 1));
+    else if (viewMode === 'week') setCurrentDate(subWeeks(currentDate, 1));
     else setCurrentDate(subMonths(currentDate, 1));
   };
 
   const handleNext = () => {
-    if (viewMode === 'week') setCurrentDate(addWeeks(currentDate, 1));
+    if (viewMode === 'list') setCurrentDate(addYears(currentDate, 1));
+    else if (viewMode === 'week') setCurrentDate(addWeeks(currentDate, 1));
     else setCurrentDate(addMonths(currentDate, 1));
   };
 
