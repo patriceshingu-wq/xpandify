@@ -69,6 +69,9 @@ export default function EventsListView({ events, isLoading }: EventsListViewProp
                   <div className="shrink-0 w-12 text-center">
                     <div className="text-xs text-muted-foreground">{format(parseISO(event.date), 'EEE')}</div>
                     <div className="text-lg font-bold">{format(parseISO(event.date), 'd')}</div>
+                    {event.end_date && event.end_date !== event.date && (
+                      <div className="text-[10px] text-muted-foreground">– {format(parseISO(event.end_date), 'MMM d')}</div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
