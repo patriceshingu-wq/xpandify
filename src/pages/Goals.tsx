@@ -19,7 +19,7 @@ import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { GoalCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import {
   Plus, Target, Calendar, User, Building, Search, FileText,
-  GitBranch, Loader2, Church,
+  GitBranch, Loader2, Church, Users,
 } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
 import { PDPFormDialog } from '@/components/development/PDPFormDialog';
