@@ -315,6 +315,7 @@ export default function EventEditorPage() {
                         <SelectItem value="Confirmed">{t('calendar.confirmed') || 'Confirmed'}</SelectItem>
                         <SelectItem value="Completed">{t('calendar.completed') || 'Completed'}</SelectItem>
                         <SelectItem value="Canceled">{t('calendar.canceled') || 'Canceled'}</SelectItem>
+                        <SelectItem value="Postponed">{t('calendar.postponed') || 'Postponed'}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
