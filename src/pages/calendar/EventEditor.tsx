@@ -188,7 +188,7 @@ export default function EventEditorPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.date && "text-muted-foreground")}>
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.date ? format(parse(formData.date, 'yyyy-MM-dd', new Date()), 'PPP') : <span>Pick a date</span>}
+                          {formData.date ? format(parse(formData.date, 'yyyy-MM-dd', new Date()), 'MM/dd/yyyy') : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
