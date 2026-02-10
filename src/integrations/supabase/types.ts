@@ -500,6 +500,7 @@ export type Database = {
           date: string
           description_en: string | null
           description_fr: string | null
+          end_date: string | null
           end_time: string | null
           id: string
           is_all_day: boolean | null
@@ -523,6 +524,7 @@ export type Database = {
           date: string
           description_en?: string | null
           description_fr?: string | null
+          end_date?: string | null
           end_time?: string | null
           id?: string
           is_all_day?: boolean | null
@@ -546,6 +548,7 @@ export type Database = {
           date?: string
           description_en?: string | null
           description_fr?: string | null
+          end_date?: string | null
           end_time?: string | null
           id?: string
           is_all_day?: boolean | null
