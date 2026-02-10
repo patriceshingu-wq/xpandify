@@ -89,7 +89,12 @@ export default function Administration() {
 
   const handleSaveSettings = async () => {
     if (!settings?.id) return;
-    await updateSettings.mutateAsync({ id: settings.id, ...formData });
+    const { theme_year, ...rest } = formData;
+    await updateSettings.mutateAsync({
+      id: settings.id,
+      ...rest,
+      theme_year: theme_year ? parseInt(theme_year, 10) : null,
+    });
     setHasChanges(false);
   };
 
