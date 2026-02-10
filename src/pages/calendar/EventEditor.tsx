@@ -62,6 +62,7 @@ export default function EventEditorPage() {
     completion_percentage: 0,
     notes_internal: '',
     related_course_id: null as string | null,
+    recurrence_pattern: null as string | null,
   });
 
   useEffect(() => {
@@ -86,6 +87,7 @@ export default function EventEditorPage() {
         completion_percentage: existingEvent.completion_percentage,
         notes_internal: existingEvent.notes_internal || '',
         related_course_id: existingEvent.related_course_id,
+        recurrence_pattern: existingEvent.recurrence_pattern || null,
       });
     }
   }, [existingEvent]);
@@ -186,7 +188,7 @@ export default function EventEditorPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.date && "text-muted-foreground")}>
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.date ? format(parse(formData.date, 'yyyy-MM-dd', new Date()), 'PPP') : <span>Pick a date</span>}
+                          {formData.date ? format(parse(formData.date, 'yyyy-MM-dd', new Date()), 'MM/dd/yyyy') : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -215,7 +217,7 @@ export default function EventEditorPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.end_date && "text-muted-foreground")}>
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.end_date ? format(parse(formData.end_date, 'yyyy-MM-dd', new Date()), 'PPP') : <span>Pick a date</span>}
+                          {formData.end_date ? format(parse(formData.end_date, 'yyyy-MM-dd', new Date()), 'MM/dd/yyyy') : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -262,6 +264,26 @@ export default function EventEditorPage() {
                     />
                     <Label htmlFor="is_all_day">{t('calendar.allDay') || 'All Day'}</Label>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="recurrence">{t('calendar.recurrence') || 'Recurrence'}</Label>
+                  <Select
+                    value={formData.recurrence_pattern || 'none'}
+                    onValueChange={(v) => setFormData({ ...formData, recurrence_pattern: v === 'none' ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="No recurrence" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="annually">Annually</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {!formData.is_all_day && (
@@ -313,6 +335,7 @@ export default function EventEditorPage() {
                         <SelectItem value="Confirmed">{t('calendar.confirmed') || 'Confirmed'}</SelectItem>
                         <SelectItem value="Completed">{t('calendar.completed') || 'Completed'}</SelectItem>
                         <SelectItem value="Canceled">{t('calendar.canceled') || 'Canceled'}</SelectItem>
+                        <SelectItem value="Postponed">{t('calendar.postponed') || 'Postponed'}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

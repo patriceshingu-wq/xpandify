@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { ProgramLanguage } from './usePrograms';
 
-export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled';
+export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled' | 'Postponed';
 
 export interface CalendarEvent {
   id: string;
@@ -26,6 +26,7 @@ export interface CalendarEvent {
   completion_percentage: number;
   notes_internal: string | null;
   related_course_id: string | null;
+  recurrence_pattern: string | null;
   created_at: string;
   updated_at: string;
   quarter?: {

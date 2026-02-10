@@ -9,6 +9,8 @@ export function getStatusBadgeVariant(status: EventStatus): 'default' | 'seconda
       return 'secondary';
     case 'Canceled':
       return 'destructive';
+    case 'Postponed':
+      return 'secondary';
     case 'Planned':
     default:
       return 'outline';

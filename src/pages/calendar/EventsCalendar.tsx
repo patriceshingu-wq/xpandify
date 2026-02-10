@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addYears, subYears, startOfWeek, endOfWeek } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
@@ -172,6 +173,7 @@ export default function EventsCalendarPage() {
                 <SelectItem value="Confirmed">Confirmed</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
                 <SelectItem value="Canceled">Canceled</SelectItem>
+                <SelectItem value="Postponed">Postponed</SelectItem>
               </SelectContent>
             </Select>
 
@@ -257,17 +259,27 @@ export default function EventsCalendarPage() {
                           </div>
                           <div className="space-y-1 mt-1">
                             {dayEvents.slice(0, 3).map((event) => (
-                              <div
-                                key={event.id}
-                                data-event
-                                className={`text-xs p-1 rounded cursor-pointer truncate ${
-                                  getTeamColorClass(event.language)
-                                } text-white`}
-                                onClick={() => navigate(`/calendar/events/${event.id}`)}
-                                title={getLocalizedField(event, 'title')}
-                              >
-                                {getLocalizedField(event, 'title')}
-                              </div>
+                              <TooltipProvider key={event.id} delayDuration={200}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      data-event
+                                      className={`text-xs p-1 rounded cursor-pointer truncate ${
+                                        getTeamColorClass(event.language)
+                                      } text-white`}
+                                      onClick={() => navigate(`/calendar/events/${event.id}`)}
+                                    >
+                                      {getLocalizedField(event, 'title')}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                                    {event.ministry && (
+                                      <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                                    )}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             ))}
                             {dayEvents.length > 3 && (
                               <div className="text-xs text-muted-foreground px-1">

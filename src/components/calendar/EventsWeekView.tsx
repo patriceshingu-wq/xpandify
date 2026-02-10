@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { format, isSameDay, parseISO } from 'date-fns';
 import type { CalendarEvent } from '@/hooks/useEvents';
 import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
@@ -77,16 +78,26 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
               return (
                 <div key={key} className="p-1 border-l min-h-[32px] space-y-0.5">
                   {allDay.map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
-                      getTeamColorClass(event.language)
-                      }`}
-                      onClick={() => navigate(`/calendar/events/${event.id}`)}
-                      title={getLocalizedField(event, 'title')}
-                    >
-                      {getLocalizedField(event, 'title')}
-                    </div>
+                    <TooltipProvider key={event.id} delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
+                            getTeamColorClass(event.language)
+                            }`}
+                            onClick={() => navigate(`/calendar/events/${event.id}`)}
+                          >
+                            {getLocalizedField(event, 'title')}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                          {event.ministry && (
+                            <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ))}
                 </div>
               );
@@ -119,17 +130,27 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     }}
                   >
                     {hourEvents.map((event) => (
-                      <div
-                        key={event.id}
-                        data-event
-                        className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
-                          getTeamColorClass(event.language)
-                        }`}
-                        onClick={() => navigate(`/calendar/events/${event.id}`)}
-                        title={getLocalizedField(event, 'title')}
-                      >
-                        {event.start_time?.slice(0, 5)} {getLocalizedField(event, 'title')}
-                      </div>
+                      <TooltipProvider key={event.id} delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              data-event
+                              className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
+                                getTeamColorClass(event.language)
+                              }`}
+                              onClick={() => navigate(`/calendar/events/${event.id}`)}
+                            >
+                              {event.start_time?.slice(0, 5)} {getLocalizedField(event, 'title')}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-medium">{getLocalizedField(event, 'title')}</p>
+                            {event.ministry && (
+                              <p className="text-xs text-muted-foreground">{getLocalizedField(event.ministry, 'name')}</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     ))}
                   </div>
                 );
