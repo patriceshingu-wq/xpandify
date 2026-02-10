@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import Auth from "./pages/Auth";
+import { FEATURES } from "@/config/features";
 import Dashboard from "./pages/Dashboard";
 import People from "./pages/People";
 import Ministries from "./pages/Ministries";
