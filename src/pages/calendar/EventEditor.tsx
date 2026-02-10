@@ -91,6 +91,10 @@ export default function EventEditorPage() {
     ? 'End time must be after start time'
     : '';
 
+  const dateError = formData.end_date && formData.end_date < formData.date
+    ? 'End date must be on or after start date'
+    : '';
+
   const handleSubmit = async (e: React.FormEvent, saveAndNew = false) => {
     e.preventDefault();
     if (timeError) return;
