@@ -449,6 +449,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
                 </Select>
               </div>
             )}
+          </div>
 
           {/* Additional Options */}
           <div className="space-y-4 pt-2 border-t">
