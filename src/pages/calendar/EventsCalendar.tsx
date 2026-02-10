@@ -172,6 +172,7 @@ export default function EventsCalendarPage() {
                 <SelectItem value="Confirmed">Confirmed</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
                 <SelectItem value="Canceled">Canceled</SelectItem>
+                <SelectItem value="Postponed">Postponed</SelectItem>
               </SelectContent>
             </Select>
 
