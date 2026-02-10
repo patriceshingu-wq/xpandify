@@ -17,8 +17,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Save, Plus } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ArrowLeft, Save, Plus, CalendarIcon } from 'lucide-react';
+import { format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function EventEditorPage() {
   const { id } = useParams();
