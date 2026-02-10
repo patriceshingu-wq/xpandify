@@ -62,6 +62,7 @@ export default function EventEditorPage() {
     completion_percentage: 0,
     notes_internal: '',
     related_course_id: null as string | null,
+    recurrence_pattern: null as string | null,
   });
 
   useEffect(() => {
