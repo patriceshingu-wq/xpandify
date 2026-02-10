@@ -84,7 +84,7 @@ export default function Goals() {
   const [status, setStatus] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-  const [presetLevel, setPresetLevel] = useState<'church' | 'ministry' | 'individual' | undefined>();
+  const [presetLevel, setPresetLevel] = useState<'church' | 'ministry' | 'department' | 'individual' | undefined>();
 
   // PDP state
   const [pdpStatus, setPdpStatus] = useState<string>('all');
