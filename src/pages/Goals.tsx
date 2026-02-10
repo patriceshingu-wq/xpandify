@@ -321,11 +321,16 @@ export default function Goals() {
           />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 sm:w-auto sm:inline-flex">
+            <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex gap-1">
               <TabsTrigger value="my" className="gap-1.5 touch-target">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">My Goals</span>
                 <span className="sm:hidden text-xs">My</span>
+              </TabsTrigger>
+              <TabsTrigger value="department" className="gap-1.5 touch-target">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Department</span>
+                <span className="sm:hidden text-xs">Dept</span>
               </TabsTrigger>
               <TabsTrigger value="ministry" className="gap-1.5 touch-target">
                 <Building className="h-4 w-4" />
@@ -360,6 +365,21 @@ export default function Goals() {
               </div>
               {renderFilters()}
               {renderGoalList(myGoals, myGoalsLoading, () => handleCreateWithLevel('individual'))}
+            </TabsContent>
+
+            {/* ========== Department Goals Tab ========== */}
+            <TabsContent value="department" className="space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div />
+                {(isMinistryLeader || isAdminOrSuper) && (
+                  <Button onClick={() => handleCreateWithLevel('department')} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Department Goal
+                  </Button>
+                )}
+              </div>
+              {renderFilters()}
+              {renderGoalList(departmentGoals, deptGoalsLoading)}
             </TabsContent>
 
             {/* ========== Ministry Goals Tab ========== */}
