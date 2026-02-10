@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { ProgramLanguage } from './usePrograms';
 
-export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled';
+export type EventStatus = 'Planned' | 'Confirmed' | 'Completed' | 'Canceled' | 'Postponed';
 
 export interface CalendarEvent {
   id: string;
