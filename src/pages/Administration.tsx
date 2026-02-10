@@ -423,16 +423,6 @@ export default function Administration() {
               </CardContent>
             </Card>
           </TabsContent>
-                  <div className="flex justify-end pt-4">
-                    <Button onClick={handleSaveSettings} disabled={updateSettings.isPending}>
-                      {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save Changes
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Campuses Tab */}
           <TabsContent value="campuses" className="mt-6">
