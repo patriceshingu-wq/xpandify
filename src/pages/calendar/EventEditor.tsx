@@ -65,6 +65,7 @@ export default function EventEditorPage() {
     if (existingEvent) {
       setFormData({
         date: existingEvent.date,
+        end_date: (existingEvent as any).end_date || existingEvent.date,
         start_time: existingEvent.start_time || '',
         end_time: existingEvent.end_time || '',
         title_en: existingEvent.title_en,
