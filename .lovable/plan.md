@@ -1,25 +1,46 @@
 
 
-# Fix Sidebar Theme Badge for Long Theme Names
+# Beta Readiness: Test Accounts + Forgot Password Flow
 
-## Problem
-When the yearly theme is a multi-word phrase (e.g., "Manifesting the Kingdom of God"), the theme badge in the sidebar expands or overflows, breaking the sidebar layout.
+## 1. Create Test Accounts
 
-## Solution
-Constrain the theme badge text with truncation so it never exceeds the sidebar width, and add a tooltip so users can still read the full theme on hover.
+Create 3 new beta-tester accounts via a database migration that inserts into `auth.users` -- actually, we cannot insert into `auth.users` via migrations. Instead, I will provide instructions for you to create accounts through the Auth page (sign up), then I will assign roles and link people records via migration.
 
-## Changes
+**Better approach**: Since accounts already exist for testing (johnny@montcarmel.org as Admin, deo@montcarmel.org as Staff, cris@montcarmel.org as Volunteer), and bidel@gmail.com / bideldjiki@gmail.com as Super Admin -- these are already usable for beta. If you need additional accounts, you can sign them up through the app and I will assign roles afterward.
 
-### File: `src/components/layout/Sidebar.tsx`
+## 2. Add Forgot Password Flow
 
-- Add `truncate` and `max-w-full` classes to the Badge so long text is clipped with an ellipsis
-- Wrap the Badge in a `Tooltip` so the full theme name is visible on hover
-- Keep the badge hidden when the sidebar is collapsed (already the case)
+### Changes to `src/pages/Auth.tsx`
+- Add a third mode: `'login' | 'signup' | 'forgot'`
+- In "forgot" mode, show only the email field and a "Send Reset Link" button
+- Call `supabase.auth.resetPasswordForEmail(email, { redirectTo })` 
+- Add a "Forgot password?" link below the password field (translation key already exists: `auth.forgotPassword`)
+- Show success toast after sending
 
-### Technical Details
+### New page: `src/pages/ResetPassword.tsx`
+- A page at `/reset-password` where users land after clicking the email link
+- Reads the token from URL (Supabase appends it automatically)
+- Shows a "New Password" + "Confirm Password" form
+- Calls `supabase.auth.updateUser({ password })` to set the new password
+- Redirects to `/dashboard` on success
 
-- Uses the existing `Tooltip` component from `@/components/ui/tooltip`
-- No new dependencies or components needed
-- The badge container is already constrained to `w-full` -- just needs the inner text to truncate
-- Tooltip provides full accessibility for the clipped text
+### Changes to `src/App.tsx`
+- Add route: `/reset-password` as a public route pointing to `ResetPassword`
+
+### Changes to `src/contexts/AuthContext.tsx`
+- Add a `resetPassword(email: string)` method that wraps `supabase.auth.resetPasswordForEmail`
+
+### Translation keys (`src/contexts/LanguageContext.tsx`)
+- `auth.forgotPasswordTitle`: "Reset your password" / "Reinitialiser votre mot de passe"
+- `auth.forgotPasswordDescription`: "Enter your email to receive a reset link" / "Entrez votre courriel pour recevoir un lien"
+- `auth.sendResetLink`: "Send Reset Link" / "Envoyer le lien"
+- `auth.resetLinkSent`: "Check your email for a reset link" / "Verifiez votre courriel"
+- `auth.newPassword`: "New Password" / "Nouveau mot de passe"
+- `auth.resetPassword`: "Reset Password" / "Reinitialiser"
+- `auth.resetSuccess`: "Password updated successfully" / "Mot de passe mis a jour"
+- `auth.backToLogin`: "Back to login" / "Retour a la connexion"
+
+## Summary
+
+No database migrations needed -- the forgot password flow uses built-in auth capabilities. Four files will be changed and one new file created.
 
