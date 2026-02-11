@@ -52,6 +52,16 @@ const translations: Translations = {
   'auth.logoutSuccess': { en: 'Logged out successfully', fr: 'Déconnexion réussie' },
   'auth.welcome': { en: 'Welcome back', fr: 'Bienvenue' },
   'auth.createAccount': { en: 'Create your account', fr: 'Créez votre compte' },
+  'auth.forgotPasswordTitle': { en: 'Reset your password', fr: 'Réinitialiser votre mot de passe' },
+  'auth.forgotPasswordDescription': { en: 'Enter your email to receive a reset link', fr: 'Entrez votre courriel pour recevoir un lien' },
+  'auth.sendResetLink': { en: 'Send Reset Link', fr: 'Envoyer le lien' },
+  'auth.resetLinkSent': { en: 'Check your email for a reset link', fr: 'Vérifiez votre courriel' },
+  'auth.newPassword': { en: 'New Password', fr: 'Nouveau mot de passe' },
+  'auth.confirmNewPassword': { en: 'Confirm New Password', fr: 'Confirmer le nouveau mot de passe' },
+  'auth.resetPassword': { en: 'Reset Password', fr: 'Réinitialiser' },
+  'auth.resetSuccess': { en: 'Password updated successfully', fr: 'Mot de passe mis à jour' },
+  'auth.backToLogin': { en: 'Back to login', fr: 'Retour à la connexion' },
+  'auth.passwordsMismatch': { en: 'Passwords do not match', fr: 'Les mots de passe ne correspondent pas' },
   
   // Dashboard
   'dashboard.welcome': { en: 'Welcome back', fr: 'Bienvenue' },
