@@ -1,46 +1,87 @@
 
 
-# Beta Readiness: Test Accounts + Forgot Password Flow
+# Ministry and Department Hierarchy UI
 
-## 1. Create Test Accounts
+## Overview
 
-Create 3 new beta-tester accounts via a database migration that inserts into `auth.users` -- actually, we cannot insert into `auth.users` via migrations. Instead, I will provide instructions for you to create accounts through the Auth page (sign up), then I will assign roles and link people records via migration.
+The database already supports hierarchy via `parent_ministry_id`, but currently all ministries are displayed as a flat grid and the form doesn't allow setting a parent. This plan surfaces the tree structure in both the list view and the detail view, and adds a "Parent Ministry" selector to the form.
 
-**Better approach**: Since accounts already exist for testing (johnny@montcarmel.org as Admin, deo@montcarmel.org as Staff, cris@montcarmel.org as Volunteer), and bidel@gmail.com / bideldjiki@gmail.com as Super Admin -- these are already usable for beta. If you need additional accounts, you can sign them up through the app and I will assign roles afterward.
+## What Changes
 
-## 2. Add Forgot Password Flow
+### 1. Ministries List View -- Tree Layout (src/pages/Ministries.tsx)
 
-### Changes to `src/pages/Auth.tsx`
-- Add a third mode: `'login' | 'signup' | 'forgot'`
-- In "forgot" mode, show only the email field and a "Send Reset Link" button
-- Call `supabase.auth.resetPasswordForEmail(email, { redirectTo })` 
-- Add a "Forgot password?" link below the password field (translation key already exists: `auth.forgotPassword`)
-- Show success toast after sending
+Replace the flat card grid with a hierarchical accordion-based tree:
 
-### New page: `src/pages/ResetPassword.tsx`
-- A page at `/reset-password` where users land after clicking the email link
-- Reads the token from URL (Supabase appends it automatically)
-- Shows a "New Password" + "Confirm Password" form
-- Calls `supabase.auth.updateUser({ password })` to set the new password
-- Redirects to `/dashboard` on success
+- **Top-level ministries** (those with no `parent_ministry_id`) display as expandable cards
+- **Child ministries/departments** are nested inside, indented, and shown when the parent is expanded
+- Each level shows the ministry name, leader, and a count of children (e.g., "3 departments")
+- Clicking a ministry still opens its detail view
+- The tree is built client-side by grouping the existing `ministries` array by `parent_ministry_id`
 
-### Changes to `src/App.tsx`
-- Add route: `/reset-password` as a public route pointing to `ResetPassword`
+```text
++--------------------------------------+
+| [Church icon] NextGen Ministry       |
+|   Led by Jane Doe  |  3 departments  |
+|   [v expand]                         |
+|   +----------------------------------+
+|   | Kingdom Kids Ministry            |
+|   | Students Ministry                |
+|   | Young Adults Ministry            |
+|   +----------------------------------+
++--------------------------------------+
+| [Church icon] Worship                |
+|   Led by John Smith  | 1 department  |
++--------------------------------------+
+```
 
-### Changes to `src/contexts/AuthContext.tsx`
-- Add a `resetPassword(email: string)` method that wraps `supabase.auth.resetPasswordForEmail`
+Uses the existing `Collapsible` component (Radix) for expand/collapse, with a chevron toggle.
 
-### Translation keys (`src/contexts/LanguageContext.tsx`)
-- `auth.forgotPasswordTitle`: "Reset your password" / "Reinitialiser votre mot de passe"
-- `auth.forgotPasswordDescription`: "Enter your email to receive a reset link" / "Entrez votre courriel pour recevoir un lien"
-- `auth.sendResetLink`: "Send Reset Link" / "Envoyer le lien"
-- `auth.resetLinkSent`: "Check your email for a reset link" / "Verifiez votre courriel"
-- `auth.newPassword`: "New Password" / "Nouveau mot de passe"
-- `auth.resetPassword`: "Reset Password" / "Reinitialiser"
-- `auth.resetSuccess`: "Password updated successfully" / "Mot de passe mis a jour"
-- `auth.backToLogin`: "Back to login" / "Retour a la connexion"
+### 2. Ministry Detail View -- Show Children (src/pages/Ministries.tsx)
 
-## Summary
+When viewing a ministry's detail page, add a "Sub-Ministries / Departments" section below the members list:
 
-No database migrations needed -- the forgot password flow uses built-in auth capabilities. Four files will be changed and one new file created.
+- Lists child ministries as clickable cards
+- Each card shows name, leader, and a "View" action
+- Clicking navigates into that child ministry's detail view
+- Admins see an "Add Department" button that opens the form with `parent_ministry_id` pre-filled
+
+### 3. Ministry Form -- Parent Selector (src/components/ministries/MinistryFormDialog.tsx)
+
+Add a "Parent Ministry" dropdown to the form:
+
+- Shows all existing ministries as options (excluding the ministry being edited and its descendants, to prevent circular references)
+- Optional field -- leaving it empty creates a top-level ministry
+- Add `parent_ministry_id` to the form state and payload
+- Pass the current ministries list as a prop (already available from the page)
+
+### 4. Hook Update (src/hooks/useMinistries.ts)
+
+- Add `children` as an optional field on the `Ministry` interface (computed client-side, not from DB)
+- Add a helper function `buildMinistryTree(ministries)` that groups flat data into a nested structure
+
+### 5. Breadcrumb Navigation (src/pages/Ministries.tsx)
+
+When viewing a nested ministry, show a breadcrumb trail so users can navigate up:
+
+```text
+Ministries > NextGen Ministry > Kingdom Kids Ministry
+```
+
+Built by walking up the `parent_ministry_id` chain using the loaded ministries data.
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `src/hooks/useMinistries.ts` | Add `buildMinistryTree` helper, add `children` to interface |
+| `src/pages/Ministries.tsx` | Replace flat grid with collapsible tree; add children section in detail view; add breadcrumbs |
+| `src/components/ministries/MinistryFormDialog.tsx` | Add `parent_ministry_id` field with dropdown; accept `ministries` prop |
+
+## Technical Details
+
+- **Tree building**: A `buildMinistryTree` utility groups the flat array into nested nodes. Top-level = items where `parent_ministry_id` is null.
+- **Circular reference prevention**: When editing, the parent dropdown excludes the current ministry and all its descendants (computed by walking the tree).
+- **No database migration needed** -- `parent_ministry_id` column already exists.
+- **Collapsible UI**: Uses the existing `@radix-ui/react-collapsible` component already installed in the project.
+- **Breadcrumbs**: Uses the existing `Breadcrumb` component from `src/components/ui/breadcrumb.tsx`.
 
