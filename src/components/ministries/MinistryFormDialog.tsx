@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Ministry, useCreateMinistry, useUpdateMinistry, useDeleteMinistry } from '@/hooks/useMinistries';
+import { Ministry, useCreateMinistry, useUpdateMinistry, useDeleteMinistry, getDescendantIds } from '@/hooks/useMinistries';
 import { usePeople } from '@/hooks/usePeople';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,10 +15,12 @@ interface MinistryFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   ministry?: Ministry | null;
+  ministries?: Ministry[];
+  defaultParentId?: string;
 }
 
-export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFormDialogProps) {
-  const { t } = useLanguage();
+export function MinistryFormDialog({ open, onOpenChange, ministry, ministries = [], defaultParentId }: MinistryFormDialogProps) {
+  const { t, getLocalizedField } = useLanguage();
   const createMinistry = useCreateMinistry();
   const updateMinistry = useUpdateMinistry();
   const deleteMinistry = useDeleteMinistry();
@@ -32,6 +34,7 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
     description_en: '',
     description_fr: '',
     leader_id: '',
+    parent_ministry_id: '',
   });
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
         description_en: ministry.description_en || '',
         description_fr: ministry.description_fr || '',
         leader_id: ministry.leader_id || '',
+        parent_ministry_id: ministry.parent_ministry_id || '',
       });
     } else {
       setFormData({
@@ -50,9 +54,23 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
         description_en: '',
         description_fr: '',
         leader_id: '',
+        parent_ministry_id: defaultParentId || '',
       });
     }
-  }, [ministry, open]);
+  }, [ministry, open, defaultParentId]);
+
+  // Filter out self and descendants to prevent circular references
+  const parentOptions = useMemo(() => {
+    if (!ministries.length) return [];
+    const excludeIds = new Set<string>();
+    if (ministry) {
+      excludeIds.add(ministry.id);
+      for (const id of getDescendantIds(ministries, ministry.id)) {
+        excludeIds.add(id);
+      }
+    }
+    return ministries.filter(m => !excludeIds.has(m.id));
+  }, [ministries, ministry]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +78,7 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
     const payload = {
       ...formData,
       leader_id: formData.leader_id || null,
+      parent_ministry_id: formData.parent_ministry_id || null,
     };
 
     if (isEditing && ministry) {
@@ -78,7 +97,6 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
   };
 
   const isLoading = createMinistry.isPending || updateMinistry.isPending;
-
   const leaderOptions = people?.filter(p => p.person_type === 'staff' || p.person_type === 'volunteer') || [];
 
   return (
@@ -89,11 +107,32 @@ export function MinistryFormDialog({ open, onOpenChange, ministry }: MinistryFor
             {isEditing ? 'Edit Ministry' : 'Add Ministry'}
           </DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update ministry details' : 'Create a new ministry'}
+            {isEditing ? 'Update ministry details' : 'Create a new ministry or department'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Parent Ministry */}
+          <div className="space-y-2">
+            <Label>Parent Ministry</Label>
+            <Select
+              value={formData.parent_ministry_id}
+              onValueChange={(value) => setFormData({ ...formData, parent_ministry_id: value === '__none__' ? '' : value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="None (top-level ministry)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None (top-level ministry)</SelectItem>
+                {parentOptions.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {getLocalizedField(m, 'name')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Name */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
