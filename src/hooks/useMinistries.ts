@@ -18,6 +18,58 @@ export interface Ministry {
     first_name: string;
     last_name: string;
   };
+  children?: MinistryTreeNode[];
+}
+
+export interface MinistryTreeNode extends Ministry {
+  children: MinistryTreeNode[];
+}
+
+export function buildMinistryTree(ministries: Ministry[]): MinistryTreeNode[] {
+  const map = new Map<string, MinistryTreeNode>();
+  const roots: MinistryTreeNode[] = [];
+
+  // Create nodes
+  for (const m of ministries) {
+    map.set(m.id, { ...m, children: [] });
+  }
+
+  // Build tree
+  for (const node of map.values()) {
+    if (node.parent_ministry_id && map.has(node.parent_ministry_id)) {
+      map.get(node.parent_ministry_id)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
+}
+
+export function getDescendantIds(ministries: Ministry[], id: string): string[] {
+  const ids: string[] = [];
+  const queue = ministries.filter(m => m.parent_ministry_id === id);
+  while (queue.length) {
+    const current = queue.pop()!;
+    ids.push(current.id);
+    queue.push(...ministries.filter(m => m.parent_ministry_id === current.id));
+  }
+  return ids;
+}
+
+export function getAncestorChain(ministries: Ministry[], id: string): Ministry[] {
+  const chain: Ministry[] = [];
+  let current = ministries.find(m => m.id === id);
+  while (current?.parent_ministry_id) {
+    const parent = ministries.find(m => m.id === current!.parent_ministry_id);
+    if (parent) {
+      chain.unshift(parent);
+      current = parent;
+    } else {
+      break;
+    }
+  }
+  return chain;
 }
 
 export function useMinistries() {
