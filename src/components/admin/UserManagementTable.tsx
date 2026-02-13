@@ -87,7 +87,7 @@ export function UserManagementTable({ users, roles }: UserManagementTableProps) 
                       {user.roles.length > 0 ? (
                         user.roles.map((role) => (
                           <Badge key={role} variant="outline" className={`text-xs ${roleColors[role]}`}>
-                            {role.replace('_', ' ')}
+                            {t(`roles.${role}`)}
                           </Badge>
                         ))
                       ) : (
@@ -202,7 +202,7 @@ export function UserManagementTable({ users, roles }: UserManagementTableProps) 
                     {user.roles.length > 0 ? (
                       user.roles.map((role) => (
                         <Badge key={role} variant="outline" className={`text-xs ${roleColors[role]}`}>
-                          {role.replace('_', ' ')}
+                          {t(`roles.${role}`)}
                         </Badge>
                       ))
                     ) : (

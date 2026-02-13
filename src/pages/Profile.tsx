@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { User, Mail, Phone, Globe, Shield, ShieldCheck, UserCog, Users, Heart, Save, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, Globe, Shield, ShieldCheck, UserCog, Users, Heart, Save, Loader2, Lock } from 'lucide-react';
 
 const roleIcons: Record<AppRoleType, React.ReactNode> = {
   super_admin: <ShieldCheck className="h-4 w-4" />,
@@ -47,6 +47,9 @@ export default function Profile() {
   const [callingDescription, setCallingDescription] = useState('');
   const [strengths, setStrengths] = useState('');
   const [growthAreas, setGrowthAreas] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -135,6 +138,29 @@ export default function Profile() {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast({ title: t('common.error'), description: t('profile.passwordTooShort'), variant: 'destructive' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: t('common.error'), description: t('profile.passwordsMismatch'), variant: 'destructive' });
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: t('profile.passwordUpdated') });
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      toast({ title: t('common.error'), description: error.message, variant: 'destructive' });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const getInitials = () => {
     if (person) {
       return `${person.first_name.charAt(0)}${person.last_name.charAt(0)}`.toUpperCase();
@@ -174,7 +200,7 @@ export default function Profile() {
                     roles.map((role) => (
                       <Badge key={role} variant="outline" className={roleColors[role]}>
                         {roleIcons[role]}
-                        <span className="ml-1 capitalize">{role.replace('_', ' ')}</span>
+                        <span className="ml-1">{t(`roles.${role}`)}</span>
                       </Badge>
                     ))
                   ) : (
@@ -355,7 +381,7 @@ export default function Profile() {
                           {roleIcons[role]}
                         </div>
                         <div>
-                          <p className="font-medium capitalize">{role.replace('_', ' ')}</p>
+                          <p className="font-medium">{t(`roles.${role}`)}</p>
                           <p className="text-xs text-muted-foreground">
                             {t(`profile.role.${role}`)}
                           </p>
@@ -369,6 +395,48 @@ export default function Profile() {
                     <p className="text-sm text-muted-foreground">{t('profile.noRolesDescription')}</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+            {/* Change Password */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5" />
+                  {t('profile.changePassword')}
+                </CardTitle>
+                <CardDescription>{t('profile.changePasswordDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword || !newPassword}
+                  className="w-full"
+                >
+                  {isChangingPassword ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Lock className="h-4 w-4 mr-2" />
+                  )}
+                  {t('profile.updatePassword')}
+                </Button>
               </CardContent>
             </Card>
           </div>
