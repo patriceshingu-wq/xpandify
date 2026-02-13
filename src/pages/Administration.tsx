@@ -254,7 +254,7 @@ export default function Administration() {
                         <div className="flex items-center gap-3">
                           <Shield className="h-5 w-5 text-muted-foreground" />
                           <div>
-                            <p className="font-medium capitalize">{role.name.replace('_', ' ')}</p>
+                            <p className="font-medium">{t(`roles.${role.name}`)}</p>
                             <p className="text-sm text-muted-foreground">
                               {role.description || t('admin.noDescription')}
                             </p>
