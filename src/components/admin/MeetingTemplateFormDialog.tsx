@@ -221,7 +221,7 @@ export function MeetingTemplateFormDialog({ open, onOpenChange, template }: Meet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[90vh] !flex !flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {template ? 'Edit Meeting Template' : 'Create Meeting Template'}
