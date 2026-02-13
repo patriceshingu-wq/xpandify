@@ -228,7 +228,7 @@ export function MeetingTemplateFormDialog({ open, onOpenChange, template }: Meet
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 min-h-0 pr-4">
           <div className="space-y-6 pb-4">
             {/* Basic Info */}
             <div className="space-y-4">
