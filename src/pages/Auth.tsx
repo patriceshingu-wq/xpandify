@@ -76,7 +76,7 @@ export default function Auth() {
 
   const getTitle = () => {
     if (mode === 'forgot') return t('auth.forgotPasswordTitle');
-    return mode === 'login' ? t('auth.welcome') : t('auth.createAccount');
+    return mode === 'login' ? t('app.tagline') : t('auth.createAccount');
   };
 
   const getDescription = () => {
@@ -99,9 +99,8 @@ export default function Auth() {
 
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
-          <img src={logo} alt="Xpandify logo" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-3xl font-serif font-bold text-white">Xpandify</h1>
-          <p className="text-primary-foreground/70 mt-2">{t('app.tagline')}</p>
+          <img src={logo} alt="Xpandify logo" className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4" />
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white">Xpandify</h1>
         </div>
 
         <Card className="border-0 shadow-xl">
