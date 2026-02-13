@@ -170,10 +170,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
-    setPerson(null);
-    setRoles([]);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.warn('Sign out error (session may have expired):', error);
+    } finally {
+      // Always clear local state regardless of API result
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setPerson(null);
+      setRoles([]);
+    }
   };
 
   const hasRole = (role: AppRoleType): boolean => {
