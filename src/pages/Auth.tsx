@@ -100,7 +100,7 @@ export default function Auth() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <img src={logo} alt="Xpandify logo" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-3xl font-serif font-bold text-primary-foreground">Xpandify</h1>
+          <h1 className="text-3xl font-serif font-bold text-white">Xpandify</h1>
           <p className="text-primary-foreground/70 mt-2">{t('app.tagline')}</p>
         </div>
 
