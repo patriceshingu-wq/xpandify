@@ -221,14 +221,14 @@ export function MeetingTemplateFormDialog({ open, onOpenChange, template }: Meet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] !flex !flex-col overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden" style={{ display: 'flex', flexDirection: 'column' }}>
         <DialogHeader>
           <DialogTitle>
             {template ? 'Edit Meeting Template' : 'Create Meeting Template'}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 pr-4">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2">
           <div className="space-y-6 pb-4">
             {/* Basic Info */}
             <div className="space-y-4">
@@ -393,7 +393,7 @@ export function MeetingTemplateFormDialog({ open, onOpenChange, template }: Meet
               )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
