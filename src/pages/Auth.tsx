@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Globe, Loader2, ArrowLeft } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import { z } from 'zod';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
@@ -98,9 +99,7 @@ export default function Auth() {
 
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-accent mb-4 shadow-gold">
-            <span className="text-3xl font-bold text-primary">X</span>
-          </div>
+          <img src={logo} alt="Xpandify logo" className="w-20 h-20 mx-auto mb-4" />
           <h1 className="text-3xl font-serif font-bold text-primary-foreground">Xpandify</h1>
           <p className="text-primary-foreground/70 mt-2">{t('app.tagline')}</p>
         </div>

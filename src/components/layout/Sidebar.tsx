@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import logo from '@/assets/logo.png';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -120,9 +121,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
           {!isCollapsed && (
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center">
-                <span className="text-sidebar-primary-foreground font-bold text-lg">X</span>
-              </div>
+              <img src={logo} alt="Xpandify" className="w-8 h-8" />
               <span className="font-serif text-xl font-semibold text-sidebar-foreground">
                 Xpandify
               </span>
