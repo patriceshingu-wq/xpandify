@@ -78,7 +78,7 @@ export function UserRoleDialog({ open, onOpenChange, user, roles }: UserRoleDial
               userRoleNames.map((roleName) => (
                 <Badge key={roleName} variant="outline" className={roleColors[roleName]}>
                   {roleIcons[roleName]}
-                  <span className="ml-1 capitalize">{roleName.replace('_', ' ')}</span>
+                  <span className="ml-1">{t(`roles.${roleName}`)}</span>
                 </Badge>
               ))
             ) : (
@@ -103,7 +103,7 @@ export function UserRoleDialog({ open, onOpenChange, user, roles }: UserRoleDial
                     <div>
                       <Label htmlFor={role.id} className="flex items-center gap-2 cursor-pointer">
                         {roleIcons[role.name]}
-                        <span className="capitalize font-medium">{role.name.replace('_', ' ')}</span>
+                        <span className="font-medium">{t(`roles.${role.name}`)}</span>
                       </Label>
                       {role.description && (
                         <p className="text-xs text-muted-foreground mt-0.5">{role.description}</p>

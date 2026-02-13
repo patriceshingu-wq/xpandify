@@ -255,7 +255,7 @@ const translations: Translations = {
   // Role names for display
   'roles.super_admin': { en: 'Super Admin', fr: 'Super Admin' },
   'roles.admin': { en: 'Admin', fr: 'Admin' },
-  'roles.pastor_supervisor': { en: 'Pastor / Supervisor', fr: 'Pasteur / Superviseur' },
+  'roles.pastor_supervisor': { en: 'Supervisor', fr: 'Superviseur' },
   'roles.staff': { en: 'Staff', fr: 'Personnel' },
   'roles.volunteer': { en: 'Volunteer', fr: 'Bénévole' },
   
@@ -290,6 +290,14 @@ const translations: Translations = {
   'profile.role.pastor_supervisor': { en: 'Supervise team members and ministries', fr: 'Superviser les membres de l\'équipe et les ministères' },
   'profile.role.staff': { en: 'Staff member access', fr: 'Accès membre du personnel' },
   'profile.role.volunteer': { en: 'Volunteer access', fr: 'Accès bénévole' },
+  'profile.changePassword': { en: 'Change Password', fr: 'Changer le mot de passe' },
+  'profile.changePasswordDescription': { en: 'Update your account password', fr: 'Mettre à jour le mot de passe de votre compte' },
+  'profile.newPassword': { en: 'New Password', fr: 'Nouveau mot de passe' },
+  'profile.confirmPassword': { en: 'Confirm Password', fr: 'Confirmer le mot de passe' },
+  'profile.updatePassword': { en: 'Update Password', fr: 'Mettre à jour le mot de passe' },
+  'profile.passwordUpdated': { en: 'Password updated successfully', fr: 'Mot de passe mis à jour avec succès' },
+  'profile.passwordTooShort': { en: 'Password must be at least 6 characters', fr: 'Le mot de passe doit contenir au moins 6 caractères' },
+  'profile.passwordsMismatch': { en: 'Passwords do not match', fr: 'Les mots de passe ne correspondent pas' },
   
   // Admin
   'admin.title': { en: 'Administration', fr: 'Administration' },
