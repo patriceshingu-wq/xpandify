@@ -1,40 +1,29 @@
 
-# Rename "Pastor Supervisor" + Add Change Password to Profile
+# Support Overnight Events in the Calendar
 
-## 1. Rename "Pastor Supervisor" to "Supervisor"
+## Problem
+When creating an event that crosses midnight (e.g., Prayer Night from 10:00 PM to 2:00 AM), the form shows "End time must be after start time" and blocks saving. This is because the validation only compares times without considering dates.
 
-Update display labels only -- the database enum value `pastor_supervisor` stays the same (no migration needed).
+## Solution
+Update the time validation logic so that when end_time is earlier than start_time, the system automatically advances the end_date to the next day -- making overnight events intuitive to create.
 
-### Files to update
+## How It Will Work
+1. **User enters** Start Date: Jan 15, Start Time: 10:00 PM, End Time: 2:00 AM
+2. **System auto-sets** End Date to Jan 16 and removes the error
+3. If the user changes end time back to after start time (e.g., 11:30 PM), end date reverts to match start date
+4. A small info label appears: "Ends next day" so it's clear what happened
 
-| File | What changes |
-|------|-------------|
-| `src/contexts/LanguageContext.tsx` | Change `roles.pastor_supervisor` from "Pastor / Supervisor" to "Supervisor" (en) and "Superviseur" (fr). Update `profile.role.pastor_supervisor` description similarly. |
-| `src/pages/Profile.tsx` | The role display uses `role.replace('_', ' ')` which currently shows "pastor supervisor" -- update to use the translation key `roles.{role}` instead for proper display. |
-| `src/components/admin/UserRoleDialog.tsx` | Same fix: use translation key for role name display instead of raw string replacement. |
-| `src/components/admin/UserManagementTable.tsx` | Same fix if it displays role names via string replacement. |
+## Technical Changes
 
-## 2. Add Change Password Section to Profile Page
+### 1. `src/pages/calendar/EventEditor.tsx`
+- **Remove the blanket time error** (line 95-97) that rejects `end_time <= start_time` when `end_date > date`
+- **Auto-advance end_date**: When the user picks an end_time earlier than start_time and both dates are still the same, automatically set `end_date` to the day after `start_date`
+- **Auto-revert end_date**: When end_time is changed back to after start_time and end_date was auto-advanced, revert end_date to match start_date
+- **Add "Ends next day" indicator** next to the end time field when end_time < start_time and end_date is the next day
+- Only show the time error when dates are the same AND end_time is not after start_time
 
-Add a new card in the right column of the profile page (below the Language and Roles cards).
+### 2. `src/pages/calendar/EventDetail.tsx` (display)
+- When showing event times, if end_date is the day after start_date and end_time < start_time, display it clearly as an overnight event (e.g., "10:00 PM - 2:00 AM (+1 day)")
 
-### UI
-- Card titled "Change Password" with a Lock icon
-- Two fields: "New Password" and "Confirm Password"
-- "Update Password" button
-- Client-side validation: passwords must match and be at least 6 characters
-- Calls `supabase.auth.updateUser({ password })` on submit
-- Shows success/error toast
-
-### Files to update
-
-| File | What changes |
-|------|-------------|
-| `src/pages/Profile.tsx` | Add password change card with form state, validation, and submit handler |
-| `src/contexts/LanguageContext.tsx` | Add translation keys: `profile.changePassword`, `profile.changePasswordDescription`, `profile.confirmPassword`, `profile.passwordUpdated`, `profile.passwordTooShort`, `profile.passwordsMismatch` |
-
-## Technical Notes
-
-- No database migration needed for either change
-- Password update uses the existing `supabase.auth.updateUser()` API -- the user is already authenticated via their session
-- The `pastor_supervisor` enum value in the database remains unchanged; only UI labels are updated
+### 3. Calendar views (no database changes needed)
+- The existing `date` / `end_date` fields already support multi-day spans, so overnight events will naturally render across two days in Month and Week views with no additional changes needed
