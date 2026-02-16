@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Edit, Trash2, Calendar, Clock, MapPin, Flag, Users, Target, BookOpen, MessageSquare, CheckCircle } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventRoleDialog from '@/components/calendar/EventRoleDialog';
 import EventGoalDialog from '@/components/calendar/EventGoalDialog';
@@ -154,6 +154,10 @@ export default function EventDetailPage() {
                   {!event.is_all_day && event.start_time && (
                     <p className="text-sm text-muted-foreground">
                       {event.start_time}{event.end_time && ` - ${event.end_time}`}
+                      {event.end_time && event.end_date && event.end_time <= event.start_time &&
+                        format(parseISO(event.end_date), 'yyyy-MM-dd') === format(addDays(parseISO(event.date), 1), 'yyyy-MM-dd') &&
+                        <span className="ml-1 text-xs font-medium text-muted-foreground">(+1 day)</span>
+                      }
                     </p>
                   )}
                 </div>

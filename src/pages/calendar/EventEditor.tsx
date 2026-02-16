@@ -20,7 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ArrowLeft, Save, Plus, CalendarIcon } from 'lucide-react';
-import { format, parse } from 'date-fns';
+import { format, parse, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 export default function EventEditorPage() {
@@ -92,7 +92,13 @@ export default function EventEditorPage() {
     }
   }, [existingEvent]);
 
-  const timeError = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time
+  // Overnight event detection: end_time < start_time is valid when end_date is the next day
+  const isOvernight = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time;
+  const nextDay = format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd');
+  const isAutoAdvanced = isOvernight && formData.end_date === nextDay;
+
+  // Only show time error when dates are the same AND end_time is not after start_time
+  const timeError = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time && formData.date === formData.end_date
     ? 'End time must be after start time'
     : '';
 
@@ -287,10 +293,22 @@ export default function EventEditorPage() {
                         id="end_time"
                         type="time"
                         value={formData.end_time}
-                        onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                        min={formData.start_time || undefined}
+                        onChange={(e) => {
+                          const newEndTime = e.target.value;
+                          const startTime = formData.start_time;
+                          let newEndDate = formData.end_date;
+                          if (startTime && newEndTime && newEndTime <= startTime && formData.date === formData.end_date) {
+                            // Auto-advance end_date to next day for overnight events
+                            newEndDate = format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd');
+                          } else if (startTime && newEndTime && newEndTime > startTime && formData.end_date === format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd')) {
+                            // Auto-revert end_date when no longer overnight
+                            newEndDate = formData.date;
+                          }
+                          setFormData({ ...formData, end_time: newEndTime, end_date: newEndDate });
+                        }}
                       />
                       {timeError && <p className="text-sm text-destructive">{timeError}</p>}
+                      {isAutoAdvanced && <p className="text-sm text-muted-foreground">{t('calendar.endsNextDay') || '↪ Ends next day'}</p>}
                     </div>
                   </div>
                 )}
