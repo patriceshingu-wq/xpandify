@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEvent, useCreateEvent, useUpdateEvent, type CalendarEvent, type EventStatus } from '@/hooks/useEvents';
+import { useCreateRecurringEvent, useRecurrenceRule } from '@/hooks/useRecurringEvents';
+import RecurrenceRuleEditor from '@/components/calendar/RecurrenceRuleEditor';
+import EditScopeDialog, { type EditScope } from '@/components/calendar/EditScopeDialog';
+import type { RecurrenceRule } from '@/lib/recurrence';
 import { useQuarters } from '@/hooks/useQuarters';
 import { usePrograms, type ProgramLanguage } from '@/hooks/usePrograms';
 import { useMinistries } from '@/hooks/useMinistries';
@@ -38,6 +42,22 @@ export default function EventEditorPage() {
   const { data: courses } = useCourses();
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
+  const createRecurringEvent = useCreateRecurringEvent();
+
+  // Recurrence state
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
+  const existingRuleId = (existingEvent as any)?.recurrence_rule_id;
+  const existingSeriesId = (existingEvent as any)?.recurring_series_id;
+  const { data: existingRule } = useRecurrenceRule(existingRuleId);
+  const [showScopeDialog, setShowScopeDialog] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState<{ saveAndNew: boolean } | null>(null);
+
+  // Load existing recurrence rule when editing
+  useEffect(() => {
+    if (existingRule) {
+      setRecurrenceRule(existingRule);
+    }
+  }, [existingRule]);
 
   // Pre-fill date from query param (e.g. when clicking a day cell)
   const initialDate = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
@@ -110,6 +130,17 @@ export default function EventEditorPage() {
     e.preventDefault();
     if (timeError || dateError) return;
 
+    // If editing a recurring event, show scope dialog
+    if (isEditing && existingSeriesId && !showScopeDialog) {
+      setPendingSubmit({ saveAndNew });
+      setShowScopeDialog(true);
+      return;
+    }
+
+    await doSubmit(saveAndNew);
+  };
+
+  const doSubmit = async (saveAndNew = false, scope?: EditScope) => {
     const eventData = {
       ...formData,
       end_date: formData.end_date || formData.date,
@@ -118,26 +149,92 @@ export default function EventEditorPage() {
     };
 
     if (isEditing) {
-      await updateEvent.mutateAsync({ id, ...eventData });
-      navigate(`/calendar/events/${id}`);
-    } else {
-      const result = await createEvent.mutateAsync(eventData);
-      if (saveAndNew) {
-        setFormData({
-          ...formData,
-          title_en: '',
-          title_fr: '',
-          description_en: '',
-          description_fr: '',
-          notes_internal: '',
-        });
+      if (existingSeriesId && scope) {
+        // Use recurring update
+        const { useUpdateRecurringEvent } = await import('@/hooks/useRecurringEvents');
+        // We need to call the mutation directly since we can't use hooks conditionally
+        const { quarter, program, ministry, activity_category, course, ...cleanData } = eventData as any;
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { generateOccurrences } = await import('@/lib/recurrence');
+
+        if (scope === 'this_only') {
+          await (supabase.from('events') as any)
+            .update({ ...cleanData, is_recurrence_exception: true })
+            .eq('id', id);
+        } else if (scope === 'this_and_future') {
+          await (supabase.from('events') as any)
+            .delete()
+            .eq('recurring_series_id', existingSeriesId)
+            .gte('date', existingEvent!.date)
+            .eq('is_recurrence_exception', false);
+
+          if (existingRuleId && recurrenceRule) {
+            const { data: exceptions } = await supabase.from('event_recurrence_exceptions' as any)
+              .select('exception_date')
+              .eq('recurring_series_id', existingSeriesId);
+            const exceptionDates = ((exceptions || []) as any[]).map((e: any) => e.exception_date);
+            const dates = generateOccurrences(existingEvent!.date, recurrenceRule, exceptionDates);
+            if (dates.length > 0) {
+              const newEvents = dates.map((date) => ({
+                ...cleanData,
+                date,
+                end_date: cleanData.end_date === cleanData.date ? date : cleanData.end_date,
+                recurring_series_id: existingSeriesId,
+                recurrence_rule_id: existingRuleId,
+                is_recurrence_exception: false,
+                original_date: date,
+              }));
+              await (supabase.from('events') as any).insert(newEvents);
+            }
+          }
+        }
+        navigate(`/calendar/events`);
       } else {
-        navigate(`/calendar/events/${result.id}`);
+        await updateEvent.mutateAsync({ id, ...eventData });
+        navigate(`/calendar/events/${id}`);
+      }
+    } else {
+      // Creating new event
+      if (recurrenceRule) {
+        const result = await createRecurringEvent.mutateAsync({ eventData, rule: recurrenceRule });
+        if (saveAndNew) {
+          setFormData({
+            ...formData,
+            title_en: '',
+            title_fr: '',
+            description_en: '',
+            description_fr: '',
+            notes_internal: '',
+          });
+          setRecurrenceRule(null);
+        } else {
+          navigate(`/calendar/events`);
+        }
+      } else {
+        const result = await createEvent.mutateAsync(eventData);
+        if (saveAndNew) {
+          setFormData({
+            ...formData,
+            title_en: '',
+            title_fr: '',
+            description_en: '',
+            description_fr: '',
+            notes_internal: '',
+          });
+        } else {
+          navigate(`/calendar/events/${result.id}`);
+        }
       }
     }
   };
 
-  const isPending = createEvent.isPending || updateEvent.isPending;
+  const handleScopeSelect = async (scope: EditScope) => {
+    setShowScopeDialog(false);
+    await doSubmit(pendingSubmit?.saveAndNew || false, scope);
+    setPendingSubmit(null);
+  };
+
+  const isPending = createEvent.isPending || updateEvent.isPending || createRecurringEvent.isPending;
 
   if (isEditing && eventLoading) {
     return (
@@ -257,23 +354,12 @@ export default function EventEditorPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="recurrence">{t('calendar.recurrence') || 'Recurrence'}</Label>
-                  <Select
-                    value={formData.recurrence_pattern || 'none'}
-                    onValueChange={(v) => setFormData({ ...formData, recurrence_pattern: v === 'none' ? null : v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="No recurrence" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="quarterly">Quarterly</SelectItem>
-                      <SelectItem value="annually">Annually</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>{t('calendar.recurrence') || 'Recurrence'}</Label>
+                  <RecurrenceRuleEditor
+                    rule={recurrenceRule}
+                    onChange={setRecurrenceRule}
+                    eventDate={formData.date}
+                  />
                 </div>
 
                 {!formData.is_all_day && (
@@ -518,6 +604,12 @@ export default function EventEditorPage() {
           </div>
         </form>
       </div>
+      <EditScopeDialog
+        open={showScopeDialog}
+        onOpenChange={setShowScopeDialog}
+        onSelect={handleScopeSelect}
+        mode="edit"
+      />
     </MainLayout>
   );
 }
