@@ -146,7 +146,7 @@ export default function EventDetailPage() {
         </div>
 
         {/* Status and Progress */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Badge variant={getStatusBadgeVariant(event.status)} className="text-sm">
             {event.status}
           </Badge>

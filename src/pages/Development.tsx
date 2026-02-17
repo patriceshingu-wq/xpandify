@@ -144,7 +144,7 @@ export default function Development() {
                 placeholder={t('common.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-[200px]"
+                className="pl-9 w-full sm:w-[200px]"
               />
             </div>
           </div>

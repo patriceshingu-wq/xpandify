@@ -158,7 +158,7 @@ export default function EventsCalendarPage() {
 
           <div className="flex flex-wrap gap-2 flex-1">
             <Select value={filters.ministry_id || 'all'} onValueChange={(v) => handleFilterChange('ministry_id', v)}>
-              <SelectTrigger className="w-36">
+              <SelectTrigger className="w-full sm:w-36">
                 <SelectValue placeholder="All Ministries" />
               </SelectTrigger>
               <SelectContent>
@@ -170,7 +170,7 @@ export default function EventsCalendarPage() {
             </Select>
 
             <Select value={filters.status || 'all'} onValueChange={(v) => handleFilterChange('status', v)}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-full sm:w-32">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -184,7 +184,7 @@ export default function EventsCalendarPage() {
             </Select>
 
             <Select value={filters.language || 'all'} onValueChange={(v) => handleFilterChange('language', v)}>
-              <SelectTrigger className="w-28">
+              <SelectTrigger className="w-full sm:w-28">
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent>
@@ -198,7 +198,7 @@ export default function EventsCalendarPage() {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={handlePrev}>
               <ChevronLeft className="h-4 w-4" />
@@ -231,11 +231,11 @@ export default function EventsCalendarPage() {
         {viewMode === 'month' && (
           <>
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 {isLoading ? (
                   <Skeleton className="h-[600px]" />
                 ) : (
-                  <div className="grid grid-cols-7">
+                  <div className="grid grid-cols-7 min-w-[700px]">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                       <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground border-b">
                         {day}

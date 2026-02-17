@@ -303,7 +303,7 @@ export default function EventEditorPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>{t('calendar.startDate') || 'Start Date'} *</Label>
                     <Popover>
@@ -382,7 +382,7 @@ export default function EventEditorPage() {
                 </div>
 
                 {!formData.is_all_day && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="start_time">{t('calendar.startTime') || 'Start Time'}</Label>
                       <Input
@@ -437,7 +437,7 @@ export default function EventEditorPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="status">{t('calendar.status') || 'Status'}</Label>
                     <Select
