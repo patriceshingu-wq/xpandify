@@ -10,7 +10,10 @@ import { usePrograms, type ProgramLanguage } from '@/hooks/usePrograms';
 import { useMinistries } from '@/hooks/useMinistries';
 import { useActivityCategories } from '@/hooks/useActivityCategories';
 import { useCourses } from '@/hooks/useCourses';
+import { useCampuses } from '@/hooks/useCampuses';
+import { usePeople } from '@/hooks/usePeople';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +35,7 @@ export default function EventEditorPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { getLocalizedField, t } = useLanguage();
+  const { person } = useAuth();
   const isEditing = !!id;
 
   const { data: existingEvent, isLoading: eventLoading } = useEvent(id);
@@ -40,6 +44,8 @@ export default function EventEditorPage() {
   const { data: ministries } = useMinistries();
   const { data: categories } = useActivityCategories();
   const { data: courses } = useCourses();
+  const { data: campuses } = useCampuses();
+  const { data: people } = usePeople({ status: 'active' });
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
   const createRecurringEvent = useCreateRecurringEvent();
@@ -82,6 +88,8 @@ export default function EventEditorPage() {
     completion_percentage: 0,
     notes_internal: '',
     related_course_id: null as string | null,
+    campus_id: null as string | null,
+    organizer_id: null as string | null,
   });
 
   useEffect(() => {
@@ -106,9 +114,14 @@ export default function EventEditorPage() {
         completion_percentage: existingEvent.completion_percentage,
         notes_internal: existingEvent.notes_internal || '',
         related_course_id: existingEvent.related_course_id,
+        campus_id: existingEvent.campus_id,
+        organizer_id: existingEvent.organizer_id,
       });
+    } else if (!isEditing && person?.id) {
+      // Auto-set organizer to current user when creating new event
+      setFormData(prev => ({ ...prev, organizer_id: person.id }));
     }
-  }, [existingEvent]);
+  }, [existingEvent, isEditing, person?.id]);
 
   // Overnight event detection: end_time < start_time is valid when end_date is the next day
   const isOvernight = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time;
@@ -505,6 +518,42 @@ export default function EventEditorPage() {
                       <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
                       {ministries?.map((m) => (
                         <SelectItem key={m.id} value={m.id}>{getLocalizedField(m, 'name')}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="campus_id">{t('calendar.campus') || 'Campus'}</Label>
+                  <Select
+                    value={formData.campus_id || 'none'}
+                    onValueChange={(v) => setFormData({ ...formData, campus_id: v === 'none' ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('calendar.selectCampus') || 'Select campus'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                      {campuses?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}{c.code ? ` (${c.code})` : ''}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="organizer_id">{t('calendar.organizer') || 'Organizer'}</Label>
+                  <Select
+                    value={formData.organizer_id || 'none'}
+                    onValueChange={(v) => setFormData({ ...formData, organizer_id: v === 'none' ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('calendar.selectOrganizer') || 'Select organizer'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                      {people?.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.preferred_name || p.first_name} {p.last_name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

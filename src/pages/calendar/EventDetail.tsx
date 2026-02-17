@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Edit, Trash2, Calendar, Clock, MapPin, Flag, Users, Target, BookOpen, MessageSquare, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Calendar, Clock, MapPin, Flag, Users, Target, BookOpen, MessageSquare, CheckCircle, Building, User } from 'lucide-react';
 import { format, parseISO, addDays } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventRoleDialog from '@/components/calendar/EventRoleDialog';
@@ -204,6 +204,23 @@ export default function EventDetailPage() {
                 <div className="flex items-start gap-3">
                   <Flag className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <p>{getLocalizedField(event.ministry, 'name')}</p>
+                </div>
+              )}
+
+              {event.campus && (
+                <div className="flex items-start gap-3">
+                  <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <p>{event.campus.name}{event.campus.code ? ` (${event.campus.code})` : ''}</p>
+                </div>
+              )}
+
+              {event.organizer && (
+                <div className="flex items-start gap-3">
+                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t('calendar.organizer') || 'Organizer'}</p>
+                    <p>{event.organizer.first_name} {event.organizer.last_name}</p>
+                  </div>
                 </div>
               )}
 
