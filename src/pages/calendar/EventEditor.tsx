@@ -186,15 +186,23 @@ export default function EventEditorPage() {
             const exceptionDates = ((exceptions || []) as any[]).map((e: any) => e.exception_date);
             const dates = generateOccurrences(existingEvent!.date, recurrenceRule, exceptionDates);
             if (dates.length > 0) {
-              const newEvents = dates.map((date) => ({
+              const startMs = new Date(cleanData.date + 'T00:00:00').getTime();
+              const endMs = new Date((cleanData.end_date || cleanData.date) + 'T00:00:00').getTime();
+              const durDays = Math.round((endMs - startMs) / (1000 * 60 * 60 * 24));
+              const newEvents = dates.map((date) => {
+                const occEnd = durDays > 0
+                  ? new Date(new Date(date + 'T00:00:00').getTime() + durDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+                  : date;
+                return {
                 ...cleanData,
                 date,
-                end_date: cleanData.end_date === cleanData.date ? date : cleanData.end_date,
+                end_date: occEnd,
                 recurring_series_id: existingSeriesId,
                 recurrence_rule_id: existingRuleId,
                 is_recurrence_exception: false,
                 original_date: date,
-              }));
+              };
+              });
               await (supabase.from('events') as any).insert(newEvents);
             }
           }
