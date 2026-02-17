@@ -437,6 +437,8 @@ const translations: Translations = {
   'calendar.eventNotFound': { en: 'Event not found', fr: 'Événement non trouvé' },
   'calendar.deleteEventWarning': { en: 'This will permanently delete this event.', fr: 'Cela supprimera définitivement cet événement.' },
   'calendar.noEventsInQuarter': { en: 'No events in this quarter', fr: 'Aucun événement dans ce trimestre' },
+  'calendar.noEvents': { en: 'No events found', fr: 'Aucun événement trouvé' },
+  'calendar.noEventsDescription': { en: 'No events match your current filters.', fr: 'Aucun événement ne correspond à vos filtres actuels.' },
   
   'calendar.allMinistries': { en: 'All Ministries', fr: 'Tous les ministères' },
   'calendar.allPrograms': { en: 'All Programs', fr: 'Tous les programmes' },
