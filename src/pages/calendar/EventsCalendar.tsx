@@ -231,11 +231,11 @@ export default function EventsCalendarPage() {
         {viewMode === 'month' && (
           <>
             <Card>
-              <CardContent className="p-0 overflow-x-auto">
+              <CardContent className="p-0">
                 {isLoading ? (
                   <Skeleton className="h-[600px]" />
                 ) : (
-                  <div className="grid grid-cols-7 min-w-[700px]">
+                  <div className="grid grid-cols-7">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                       <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground border-b">
                         {day}
