@@ -117,6 +117,17 @@ export default function EventEditorPage() {
   const nextDay = format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd');
   const isAutoAdvanced = isOvernight && formData.end_date === nextDay;
 
+  // Reactive overnight detection safety net (covers loads, programmatic changes)
+  useEffect(() => {
+    if (formData.is_all_day || !formData.start_time || !formData.end_time) return;
+    const computedNextDay = format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd');
+    if (formData.end_time <= formData.start_time && formData.date === formData.end_date) {
+      setFormData(prev => ({ ...prev, end_date: computedNextDay }));
+    } else if (formData.end_time > formData.start_time && formData.end_date === computedNextDay) {
+      setFormData(prev => ({ ...prev, end_date: prev.date }));
+    }
+  }, [formData.start_time, formData.end_time, formData.date]);
+
   // Only show time error when dates are the same AND end_time is not after start_time
   const timeError = !formData.is_all_day && formData.start_time && formData.end_time && formData.end_time <= formData.start_time && formData.date === formData.end_date
     ? 'End time must be after start time'
@@ -370,7 +381,17 @@ export default function EventEditorPage() {
                         id="start_time"
                         type="time"
                         value={formData.start_time}
-                        onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                        onChange={(e) => {
+                          const newStartTime = e.target.value;
+                          const endTime = formData.end_time;
+                          let newEndDate = formData.end_date;
+                          if (endTime && newStartTime && endTime <= newStartTime && formData.date === formData.end_date) {
+                            newEndDate = format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd');
+                          } else if (endTime && newStartTime && endTime > newStartTime && formData.end_date === format(addDays(parse(formData.date, 'yyyy-MM-dd', new Date()), 1), 'yyyy-MM-dd')) {
+                            newEndDate = formData.date;
+                          }
+                          setFormData({ ...formData, start_time: newStartTime, end_date: newEndDate });
+                        }}
                       />
                     </div>
                     <div className="space-y-2">
