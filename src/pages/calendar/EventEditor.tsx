@@ -90,6 +90,10 @@ export default function EventEditorPage() {
     related_course_id: null as string | null,
     campus_id: null as string | null,
     organizer_id: null as string | null,
+    recurrence_rule_id: null as string | null,
+    recurring_series_id: null as string | null,
+    is_recurrence_exception: false,
+    original_date: null as string | null,
   });
 
   useEffect(() => {
@@ -116,8 +120,11 @@ export default function EventEditorPage() {
         related_course_id: existingEvent.related_course_id,
         campus_id: existingEvent.campus_id,
         organizer_id: existingEvent.organizer_id,
+        recurrence_rule_id: existingEvent.recurrence_rule_id,
+        recurring_series_id: existingEvent.recurring_series_id,
+        is_recurrence_exception: existingEvent.is_recurrence_exception ?? false,
+        original_date: existingEvent.original_date,
       });
-    } else if (!isEditing && person?.id) {
       // Auto-set organizer to current user when creating new event
       setFormData(prev => ({ ...prev, organizer_id: person.id }));
     }
