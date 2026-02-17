@@ -1,17 +1,35 @@
 
 
-# Fix: Remove Forced Horizontal Scroll on Events Calendar Month View
+# Restore Language Dropdown on Event Editor Page
 
 ## Problem
-The last mobile-optimization change added `min-w-[700px]` to the month grid (line 238) and `overflow-x-auto` on its parent (line 234). This forces the calendar to be at least 700px wide, creating the left-right sliding behavior on mobile that wasn't there before.
+The Language selector (English / French / Bilingual) was removed from the Event Editor form. The `formData.language` field still exists in state (line 80 of `EventEditor.tsx`) and is submitted correctly, but there is no UI control to change it -- it always defaults to "Bilingual".
 
 ## Fix
 
-### `src/pages/calendar/EventsCalendar.tsx`
+### `src/pages/calendar/EventEditor.tsx`
+Add a Language dropdown (Select) in the "Organization" card section (around line 479-569), alongside Ministry, Quarter, Program, Category, and Course selectors. The dropdown will have three options: English, French, and Bilingual.
 
-**Line 234**: Remove `overflow-x-auto` from the `CardContent` so it doesn't create a horizontal scroll container.
+The select will be inserted as the first field in the Organization card, using the same pattern as the other selects:
 
-**Line 238**: Remove `min-w-[700px]` from the 7-column grid div. The `grid-cols-7` will naturally divide the available viewport width into 7 equal columns, fitting any screen size without overflow.
+```tsx
+<div className="space-y-2">
+  <Label>{t('calendar.language') || 'Language'}</Label>
+  <Select
+    value={formData.language}
+    onValueChange={(v: ProgramLanguage) => setFormData({ ...formData, language: v })}
+  >
+    <SelectTrigger>
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="EN">English</SelectItem>
+      <SelectItem value="FR">Fran&ccedil;ais</SelectItem>
+      <SelectItem value="Bilingual">{t('calendar.bilingual') || 'Bilingual'}</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+```
 
-These are the only two class changes needed -- no logic or functionality is affected.
+No other files need changes -- the `ProgramLanguage` type is already imported and the `formData.language` state is already wired up for submission.
 
