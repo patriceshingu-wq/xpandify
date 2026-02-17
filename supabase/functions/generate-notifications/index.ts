@@ -59,7 +59,41 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    // Authenticate the caller - require admin role
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Check admin role using service client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: isAdmin } = await supabase.rpc('is_admin_or_super', { check_user_id: userId });
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: 'Forbidden: admin access required' }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const now = new Date();
     const tomorrow = new Date(now);
@@ -402,7 +436,7 @@ serve(async (req) => {
     // Send all emails
     console.log(`Sending ${emailsToSend.length} email notifications...`);
     for (const emailPayload of emailsToSend) {
-      await sendEmailNotification(supabaseUrl, supabaseAnonKey, emailPayload);
+      await sendEmailNotification(supabaseUrl, supabaseServiceKey, emailPayload);
     }
 
     console.log(`Generated ${notifications.length} notifications, sent ${emailsToSend.length} emails`);
