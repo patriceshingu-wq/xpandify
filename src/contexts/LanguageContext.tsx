@@ -485,6 +485,7 @@ const translations: Translations = {
   'calendar.titleFrench': { en: 'Title (French)', fr: 'Titre (français)' },
   'calendar.date': { en: 'Date', fr: 'Date' },
   'calendar.language': { en: 'Language', fr: 'Langue' },
+  'calendar.bilingual': { en: 'Bilingual', fr: 'Bilingue' },
   'calendar.startTime': { en: 'Start Time', fr: 'Heure de début' },
   'calendar.endTime': { en: 'End Time', fr: 'Heure de fin' },
   'calendar.location': { en: 'Location', fr: 'Lieu' },
