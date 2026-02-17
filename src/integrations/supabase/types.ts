@@ -561,6 +561,7 @@ export type Database = {
       events: {
         Row: {
           activity_category_id: string | null
+          campus_id: string | null
           completion_percentage: number | null
           created_at: string | null
           date: string
@@ -575,10 +576,10 @@ export type Database = {
           location: string | null
           ministry_id: string | null
           notes_internal: string | null
+          organizer_id: string | null
           original_date: string | null
           program_id: string | null
           quarter_id: string | null
-          recurrence_pattern: string | null
           recurrence_rule_id: string | null
           recurring_series_id: string | null
           related_course_id: string | null
@@ -590,6 +591,7 @@ export type Database = {
         }
         Insert: {
           activity_category_id?: string | null
+          campus_id?: string | null
           completion_percentage?: number | null
           created_at?: string | null
           date: string
@@ -604,10 +606,10 @@ export type Database = {
           location?: string | null
           ministry_id?: string | null
           notes_internal?: string | null
+          organizer_id?: string | null
           original_date?: string | null
           program_id?: string | null
           quarter_id?: string | null
-          recurrence_pattern?: string | null
           recurrence_rule_id?: string | null
           recurring_series_id?: string | null
           related_course_id?: string | null
@@ -619,6 +621,7 @@ export type Database = {
         }
         Update: {
           activity_category_id?: string | null
+          campus_id?: string | null
           completion_percentage?: number | null
           created_at?: string | null
           date?: string
@@ -633,10 +636,10 @@ export type Database = {
           location?: string | null
           ministry_id?: string | null
           notes_internal?: string | null
+          organizer_id?: string | null
           original_date?: string | null
           program_id?: string | null
           quarter_id?: string | null
-          recurrence_pattern?: string | null
           recurrence_rule_id?: string | null
           recurring_series_id?: string | null
           related_course_id?: string | null
@@ -655,10 +658,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "events_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "events_ministry_id_fkey"
             columns: ["ministry_id"]
             isOneToOne: false
             referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "people"
             referencedColumns: ["id"]
           },
           {

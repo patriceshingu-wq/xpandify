@@ -82,7 +82,6 @@ export default function EventEditorPage() {
     completion_percentage: 0,
     notes_internal: '',
     related_course_id: null as string | null,
-    recurrence_pattern: null as string | null,
   });
 
   useEffect(() => {
@@ -107,7 +106,6 @@ export default function EventEditorPage() {
         completion_percentage: existingEvent.completion_percentage,
         notes_internal: existingEvent.notes_internal || '',
         related_course_id: existingEvent.related_course_id,
-        recurrence_pattern: existingEvent.recurrence_pattern || null,
       });
     }
   }, [existingEvent]);

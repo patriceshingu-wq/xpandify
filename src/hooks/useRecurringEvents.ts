@@ -95,7 +95,6 @@ export function useCreateRecurringEvent() {
         recurrence_rule_id: ruleId,
         is_recurrence_exception: false,
         original_date: date,
-        recurrence_pattern: null,
       };
       });
 

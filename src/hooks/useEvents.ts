@@ -22,12 +22,17 @@ export interface CalendarEvent {
   program_id: string | null;
   ministry_id: string | null;
   activity_category_id: string | null;
+  campus_id: string | null;
+  organizer_id: string | null;
   language: ProgramLanguage;
   status: EventStatus;
   completion_percentage: number;
   notes_internal: string | null;
   related_course_id: string | null;
-  recurrence_pattern: string | null;
+  recurrence_rule_id: string | null;
+  recurring_series_id: string | null;
+  is_recurrence_exception: boolean | null;
+  original_date: string | null;
   created_at: string;
   updated_at: string;
   quarter?: {
@@ -58,6 +63,16 @@ export interface CalendarEvent {
     title_en: string;
     title_fr: string | null;
   } | null;
+  campus?: {
+    id: string;
+    name: string;
+    code: string | null;
+  } | null;
+  organizer?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 export interface EventFilters {
@@ -84,7 +99,9 @@ export function useEvents(filters?: EventFilters) {
           program:programs(id, code, name_en, name_fr),
           ministry:ministries(id, name_en, name_fr),
           activity_category:activity_categories(id, name_en, name_fr, icon),
-          course:courses(id, title_en, title_fr)
+          course:courses(id, title_en, title_fr),
+          campus:campuses(id, name, code),
+          organizer:people!events_organizer_id_fkey(id, first_name, last_name)
         `)
         .order('date', { ascending: true })
         .order('start_time', { ascending: true, nullsFirst: false });
@@ -128,7 +145,9 @@ export function useEvent(id: string | undefined) {
           program:programs(id, code, name_en, name_fr),
           ministry:ministries(id, name_en, name_fr),
           activity_category:activity_categories(id, name_en, name_fr, icon),
-          course:courses(id, title_en, title_fr)
+          course:courses(id, title_en, title_fr),
+          campus:campuses(id, name, code),
+          organizer:people!events_organizer_id_fkey(id, first_name, last_name)
         `)
         .eq('id', id)
         .maybeSingle();
