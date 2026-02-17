@@ -139,6 +139,16 @@ serve(async (req) => {
   }
 
   try {
+    // Verify the caller is using the service role key (internal calls only)
+    const authHeader = req.headers.get('Authorization');
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    if (!authHeader || authHeader !== `Bearer ${serviceRoleKey}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: internal use only' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const payload: EmailNotificationPayload = await req.json();
     
     if (!payload.to || !payload.subject) {
