@@ -6,18 +6,27 @@ import { test as base, Page, expect } from '@playwright/test';
  */
 
 // Test user credentials (use environment variables in CI)
+// Default accounts use Gmail + addressing pattern (all go to same inbox)
 export const TEST_USERS = {
   admin: {
-    email: process.env.E2E_ADMIN_EMAIL || 'johnny@montcarmel.org',
-    password: process.env.E2E_ADMIN_PASSWORD || 'testpassword123',
+    email: process.env.E2E_ADMIN_EMAIL || 'bideldjiki+admin@gmail.com',
+    password: process.env.E2E_ADMIN_PASSWORD || 'testpassword@123',
   },
   staff: {
-    email: process.env.E2E_STAFF_EMAIL || 'deo@montcarmel.org',
-    password: process.env.E2E_STAFF_PASSWORD || 'testpassword123',
+    email: process.env.E2E_STAFF_EMAIL || 'bideldjiki+staff1@gmail.com',
+    password: process.env.E2E_STAFF_PASSWORD || 'testpassword@123',
   },
   volunteer: {
-    email: process.env.E2E_VOLUNTEER_EMAIL || 'cris@montcarmel.org',
-    password: process.env.E2E_VOLUNTEER_PASSWORD || 'testpassword123',
+    email: process.env.E2E_VOLUNTEER_EMAIL || 'bideldjiki+volunteer@gmail.com',
+    password: process.env.E2E_VOLUNTEER_PASSWORD || 'testpassword@123',
+  },
+  pastor: {
+    email: process.env.E2E_PASTOR_EMAIL || 'bideldjiki+pastor@gmail.com',
+    password: process.env.E2E_PASTOR_PASSWORD || 'testpassword@123',
+  },
+  staff2: {
+    email: process.env.E2E_STAFF2_EMAIL || 'bideldjiki+staff2@gmail.com',
+    password: process.env.E2E_STAFF2_PASSWORD || 'testpassword@123',
   },
 };
 

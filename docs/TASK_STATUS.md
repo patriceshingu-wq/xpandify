@@ -49,12 +49,12 @@ supabase/migrations/
 ## Test Accounts Created
 
 ```
-Test user setup:
-- youremail+admin@gmail.com (super_admin role)
-- youremail+pastor@gmail.com (pastor_supervisor role)
-- youremail+staff1@gmail.com (staff role)
-- youremail+staff2@gmail.com (staff role)
-- youremail+volunteer@gmail.com (volunteer role)
+Test user setup (password: testpassword@123):
+- bideldjiki+admin@gmail.com (super_admin role)
+- bideldjiki+pastor@gmail.com (pastor_supervisor role)
+- bideldjiki+staff1@gmail.com (staff role)
+- bideldjiki+staff2@gmail.com (staff role)
+- bideldjiki+volunteer@gmail.com (volunteer role)
 ```
 
 **Test data seeding:** Using Supabase Studio to manually create test data for:
