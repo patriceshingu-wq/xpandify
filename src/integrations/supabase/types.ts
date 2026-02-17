@@ -444,6 +444,72 @@ export type Database = {
           },
         ]
       }
+      event_recurrence_exceptions: {
+        Row: {
+          created_at: string | null
+          exception_date: string
+          id: string
+          recurring_series_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          exception_date: string
+          id?: string
+          recurring_series_id: string
+        }
+        Update: {
+          created_at?: string | null
+          exception_date?: string
+          id?: string
+          recurring_series_id?: string
+        }
+        Relationships: []
+      }
+      event_recurrence_rules: {
+        Row: {
+          created_at: string | null
+          day_of_month: number | null
+          days_of_week: number[] | null
+          end_count: number | null
+          end_date: string | null
+          end_type: string
+          frequency: string
+          id: string
+          interval_value: number
+          nth_weekday: number | null
+          updated_at: string | null
+          weekday_of_month: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_month?: number | null
+          days_of_week?: number[] | null
+          end_count?: number | null
+          end_date?: string | null
+          end_type?: string
+          frequency: string
+          id?: string
+          interval_value?: number
+          nth_weekday?: number | null
+          updated_at?: string | null
+          weekday_of_month?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_month?: number | null
+          days_of_week?: number[] | null
+          end_count?: number | null
+          end_date?: string | null
+          end_type?: string
+          frequency?: string
+          id?: string
+          interval_value?: number
+          nth_weekday?: number | null
+          updated_at?: string | null
+          weekday_of_month?: number | null
+        }
+        Relationships: []
+      }
       event_roles: {
         Row: {
           created_at: string | null
@@ -504,13 +570,17 @@ export type Database = {
           end_time: string | null
           id: string
           is_all_day: boolean | null
+          is_recurrence_exception: boolean | null
           language: Database["public"]["Enums"]["program_language"] | null
           location: string | null
           ministry_id: string | null
           notes_internal: string | null
+          original_date: string | null
           program_id: string | null
           quarter_id: string | null
           recurrence_pattern: string | null
+          recurrence_rule_id: string | null
+          recurring_series_id: string | null
           related_course_id: string | null
           start_time: string | null
           status: Database["public"]["Enums"]["event_status"] | null
@@ -529,13 +599,17 @@ export type Database = {
           end_time?: string | null
           id?: string
           is_all_day?: boolean | null
+          is_recurrence_exception?: boolean | null
           language?: Database["public"]["Enums"]["program_language"] | null
           location?: string | null
           ministry_id?: string | null
           notes_internal?: string | null
+          original_date?: string | null
           program_id?: string | null
           quarter_id?: string | null
           recurrence_pattern?: string | null
+          recurrence_rule_id?: string | null
+          recurring_series_id?: string | null
           related_course_id?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
@@ -554,13 +628,17 @@ export type Database = {
           end_time?: string | null
           id?: string
           is_all_day?: boolean | null
+          is_recurrence_exception?: boolean | null
           language?: Database["public"]["Enums"]["program_language"] | null
           location?: string | null
           ministry_id?: string | null
           notes_internal?: string | null
+          original_date?: string | null
           program_id?: string | null
           quarter_id?: string | null
           recurrence_pattern?: string | null
+          recurrence_rule_id?: string | null
+          recurring_series_id?: string | null
           related_course_id?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
@@ -595,6 +673,13 @@ export type Database = {
             columns: ["quarter_id"]
             isOneToOne: false
             referencedRelation: "quarters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_recurrence_rule_id_fkey"
+            columns: ["recurrence_rule_id"]
+            isOneToOne: false
+            referencedRelation: "event_recurrence_rules"
             referencedColumns: ["id"]
           },
           {

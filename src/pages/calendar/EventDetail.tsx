@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
+import { useRecurrenceRule, useDeleteRecurringEvent } from '@/hooks/useRecurringEvents';
+import EditScopeDialog, { type EditScope } from '@/components/calendar/EditScopeDialog';
+import { describeRecurrenceRule } from '@/lib/recurrence';
 import { useEventRoles } from '@/hooks/useEventRoles';
 import { useEventGoals } from '@/hooks/useEventGoals';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,7 +25,7 @@ import EventGoalDialog from '@/components/calendar/EventGoalDialog';
 export default function EventDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getLocalizedField, t } = useLanguage();
+  const { getLocalizedField, t, language } = useLanguage();
   const { isAdminOrSuper } = useAuth();
   const { data: event, isLoading } = useEvent(id);
   const { data: roles, isLoading: rolesLoading } = useEventRoles(id);
@@ -32,9 +35,31 @@ export default function EventDetailPage() {
 
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
+  const [showDeleteScope, setShowDeleteScope] = useState(false);
+
+  // Recurrence info
+  const recurrenceRuleId = (event as any)?.recurrence_rule_id;
+  const recurringSeriesId = (event as any)?.recurring_series_id;
+  const { data: recurrenceRule } = useRecurrenceRule(recurrenceRuleId);
+  const deleteRecurring = useDeleteRecurringEvent();
 
   const handleDelete = async () => {
+    if (recurringSeriesId) {
+      setShowDeleteScope(true);
+      return;
+    }
     await deleteEvent.mutateAsync(id!);
+    navigate('/calendar/events');
+  };
+
+  const handleDeleteScope = async (scope: EditScope) => {
+    setShowDeleteScope(false);
+    await deleteRecurring.mutateAsync({
+      eventId: id!,
+      scope,
+      seriesId: recurringSeriesId,
+      eventDate: event!.date,
+    });
     navigate('/calendar/events');
   };
 
@@ -130,6 +155,11 @@ export default function EventDetailPage() {
           )}
           {event.is_all_day && (
             <Badge variant="secondary">{t('calendar.allDay') || 'All Day'}</Badge>
+          )}
+          {recurringSeriesId && recurrenceRule && (
+            <Badge variant="outline" className="flex items-center gap-1">
+              🔄 {describeRecurrenceRule(recurrenceRule, language as 'en' | 'fr')}
+            </Badge>
           )}
           <div className="flex-1 max-w-xs">
             <div className="flex items-center justify-between text-sm mb-1">
@@ -325,6 +355,13 @@ export default function EventDetailPage() {
         onOpenChange={setIsGoalDialogOpen}
         eventId={id!}
         existingGoalIds={eventGoals?.map((eg) => eg.goal_id) || []}
+      />
+
+      <EditScopeDialog
+        open={showDeleteScope}
+        onOpenChange={setShowDeleteScope}
+        onSelect={handleDeleteScope}
+        mode="delete"
       />
     </MainLayout>
   );
