@@ -149,7 +149,7 @@ export default function Settings() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
                       <Input
@@ -201,7 +201,7 @@ export default function Settings() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city">City</Label>
                       <Input
@@ -222,7 +222,7 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="postal_code">Postal Code</Label>
                       <Input
@@ -330,7 +330,7 @@ export default function Settings() {
                   <CardDescription>Configure email sender settings and templates</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email_sender_name">Sender Name</Label>
                       <Input
@@ -394,7 +394,7 @@ export default function Settings() {
                   <CardDescription>Customize your organization's visual identity</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="primary_color">Primary Color</Label>
                       <div className="flex items-center gap-2">

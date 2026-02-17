@@ -171,7 +171,7 @@ export default function RecurrenceRuleEditor({ rule, onChange, eventDate }: Recu
               )}
 
               {monthlyMode === 'nth_weekday' && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Select
                     value={String(rule.nth_weekday ?? computeNthWeekday())}
                     onValueChange={(v) => updateRule({ nth_weekday: parseInt(v) })}

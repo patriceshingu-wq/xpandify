@@ -183,7 +183,7 @@ export default function Profile() {
         {/* Profile Header Card */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
               <Avatar className="h-20 w-20">
                 <AvatarFallback className="bg-accent/10 text-accent text-2xl font-medium">
                   {getInitials()}
@@ -225,7 +225,7 @@ export default function Profile() {
             <CardContent className="space-y-4">
               {person ? (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">{t('profile.firstName')}</Label>
                       <Input
@@ -254,7 +254,7 @@ export default function Profile() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">{t('common.email')}</Label>
                       <Input
@@ -287,7 +287,7 @@ export default function Profile() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="strengths">{t('profile.strengths')}</Label>
                       <Textarea
