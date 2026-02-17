@@ -478,6 +478,23 @@ export default function EventEditorPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label>{t('calendar.language') || 'Language'}</Label>
+                  <Select
+                    value={formData.language}
+                    onValueChange={(v: ProgramLanguage) => setFormData({ ...formData, language: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EN">English</SelectItem>
+                      <SelectItem value="FR">Français</SelectItem>
+                      <SelectItem value="Bilingual">{t('calendar.bilingual') || 'Bilingual'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="ministry_id">{t('calendar.ministry') || 'Ministry'}</Label>
                   <Select
                     value={formData.ministry_id || 'none'}
