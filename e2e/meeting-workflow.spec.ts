@@ -34,9 +34,9 @@ test.describe('Meeting Workflow', () => {
     // Dialog should be visible
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    
-    // Should have form fields
-    await expect(page.getByLabel(/title/i)).toBeVisible();
+
+    // Should have form fields (bilingual - use first title field)
+    await expect(page.getByLabel(/title.*english/i)).toBeVisible();
   });
 
   test('should navigate to meetings from dashboard', async ({ page }) => {

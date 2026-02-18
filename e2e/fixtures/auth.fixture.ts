@@ -48,8 +48,8 @@ export const test = base.extend<{
       await page.getByLabel(/email/i).fill(user.email);
       await page.getByLabel(/password/i).fill(user.password);
       
-      // Submit and wait for navigation
-      await page.getByRole('button', { name: /sign in|log in/i }).click();
+      // Submit and wait for navigation (button text is "Login" or "Connexion" in FR)
+      await page.getByRole('button', { name: /login|connexion/i }).click();
       
       // Wait for redirect to dashboard
       await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });

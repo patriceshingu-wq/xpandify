@@ -24,12 +24,12 @@ test.describe('Role-Based Access Control', () => {
 
     test('admin user can access settings page', async ({ page, loginAs }) => {
       await loginAs('admin');
-      
+
       await page.goto('/settings');
       await page.waitForLoadState('networkidle');
-      
-      // Admin should see settings content
-      await expect(page.locator('h1, .page-title')).toBeVisible();
+
+      // Admin should see settings content - use first() to avoid strict mode violation
+      await expect(page.locator('h1, .page-title').first()).toBeVisible();
     });
 
     test('admin user sees admin navigation items', async ({ page, loginAs }) => {

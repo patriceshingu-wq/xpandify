@@ -17,8 +17,8 @@ export class AuthPage {
     this.page = page;
     this.emailInput = page.getByLabel(/email/i);
     this.passwordInput = page.getByLabel(/password/i);
-    this.signInButton = page.getByRole('button', { name: /sign in|log in/i });
-    this.signUpButton = page.getByRole('button', { name: /sign up|register/i });
+    this.signInButton = page.getByRole('button', { name: /login|connexion/i });
+    this.signUpButton = page.getByRole('button', { name: /signup|inscription/i });
     this.errorMessage = page.locator('[role="alert"], .error-message, [data-testid="error"]');
   }
 
@@ -77,7 +77,8 @@ export class MeetingsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.addMeetingButton = page.getByRole('button', { name: /add meeting|new meeting|create/i });
+    // Use first() to handle multiple matching buttons (header + empty state)
+    this.addMeetingButton = page.getByRole('button', { name: /schedule meeting|planifier/i }).first();
     this.meetingsList = page.locator('[class*="meeting"], .meeting-list, [data-testid="meetings"]');
     this.meetingCards = page.locator('[class*="card"]').filter({ hasText: /1:1|meeting|team/i });
   }
@@ -126,7 +127,8 @@ export class AdminPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.locator('h1').filter({ hasText: /admin/i });
+    // Use first() to avoid strict mode violation when multiple h1s exist
+    this.pageTitle = page.locator('h1').filter({ hasText: /administration/i }).first();
     this.userManagementTab = page.getByRole('tab', { name: /user/i });
     this.accessDenied = page.locator('[class*="access-denied"], [class*="unauthorized"]');
   }
@@ -137,11 +139,13 @@ export class AdminPage {
   }
 
   async expectAccessAllowed() {
+    // Check we're on admin page and can see the title
+    await expect(this.page).toHaveURL(/\/admin/);
     await expect(this.pageTitle).toBeVisible();
   }
 
   async expectAccessDenied() {
-    // Non-admins should be redirected or see access denied
-    await expect(this.page).not.toHaveURL(/\/admin/);
+    // Non-admins should be redirected to dashboard
+    await expect(this.page).toHaveURL(/\/dashboard/);
   }
 }
