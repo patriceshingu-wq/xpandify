@@ -170,11 +170,23 @@ export default function EventEditorPage() {
   };
 
   const doSubmit = async (saveAndNew = false, scope?: EditScope) => {
+    // Sanitize empty strings to null for optional UUID/nullable fields
+    const sanitized = { ...formData };
+    const nullableFields: (keyof typeof sanitized)[] = [
+      'quarter_id', 'program_id', 'ministry_id', 'activity_category_id',
+      'related_course_id', 'campus_id', 'organizer_id',
+      'recurrence_rule_id', 'recurring_series_id', 'original_date',
+    ];
+    for (const field of nullableFields) {
+      if ((sanitized as any)[field] === '') {
+        (sanitized as any)[field] = null;
+      }
+    }
     const eventData = {
-      ...formData,
-      end_date: formData.end_date || formData.date,
-      start_time: formData.is_all_day ? null : formData.start_time || null,
-      end_time: formData.is_all_day ? null : formData.end_time || null,
+      ...sanitized,
+      end_date: sanitized.end_date || sanitized.date,
+      start_time: sanitized.is_all_day ? null : sanitized.start_time || null,
+      end_time: sanitized.is_all_day ? null : sanitized.end_time || null,
     };
 
     if (isEditing) {
