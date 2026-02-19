@@ -31,7 +31,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | Feature | Status | Gaps Found | Session |
 |---------|--------|------------|---------|
 | Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
-| People/Directory | 🔄 Implementing | 7/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅), 2 remaining | 2026-02-18 |
+| People/Directory | ✅ Complete | 9/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅, invite flow ✅, bulk import/export ✅) | 2026-02-18 |
 | Ministries | ⏳ Pending | — | — |
 | Goals | ⏳ Pending | — | — |
 | Meetings | ⏳ Pending | — | — |
@@ -60,8 +60,8 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | 4 | Add profile photo upload (Supabase Storage) | Medium | Medium | ✅ Done |
 | 5 | Add ministry assignment UI (both directions) | High | Medium | ✅ Done |
 | 6 | Add org chart visualization | Medium | High | ✅ Done |
-| 7 | Add user invite flow (create auth + person) | Medium | High | ⏳ Pending |
-| 8 | Add bulk import/export (CSV) | Low | High | ⏳ Pending |
+| 7 | Add user invite flow (create auth + person) | Medium | High | ✅ Done |
+| 8 | Add bulk import/export (CSV) | Low | High | ✅ Done |
 | 9 | Add infinite scroll to directory | Low | Low | ✅ Done |
 
 **Profile Page Design Decisions:**
@@ -102,6 +102,8 @@ src/
   components/people/DirectoryTab.tsx    ✅ Updated - displays title and campus, links to profile page, infinite scroll
   components/people/OrgChartTab.tsx     ✅ Created - hierarchical org chart with expand/collapse, zoom, search
   hooks/useProfilePhoto.ts              ✅ Created - upload/delete profile photos to Supabase Storage
+  hooks/useInviteUser.ts                ✅ Created - invite user via Supabase Edge Function
+  hooks/useBulkPeopleOperations.ts      ✅ Created - CSV export/import with validation
   components/team/TeammateCard.tsx      ✅ Updated - displays title and campus.name
   components/team/SupervisorCard.tsx    ✅ Updated - displays title and campus.name
   contexts/LanguageContext.tsx          ✅ Updated - added people.*, personProfile.* translations
@@ -110,6 +112,9 @@ src/
   pages/PersonProfile.tsx               ✅ Created - profile page with contact, ministries, development, stats, photo upload
   App.tsx                               ✅ Updated - added /people/:id route
   pages/People.tsx                      ✅ Updated - added Org Chart tab
+  pages/Admin.tsx                       ✅ Updated - added Invite User button + dialog
+  components/admin/InviteUserDialog.tsx ✅ Created - user invite form with person info + role selection
+  components/people/BulkImportDialog.tsx ✅ Created - CSV import wizard with validation preview
 
 e2e/
   auth.spec.ts                  ✅ Complete
@@ -121,6 +126,9 @@ supabase/migrations/
   20260217180000_fix_events_schema.sql  ✅ Applied - adds organizer_id, campus_id, drops recurrence_pattern
   20260218100000_people_add_title_and_campus_fk.sql  ✅ Applied - adds title, campus_id FK, drops campus text
   20260218150000_add_profile_photos.sql ⏳ Pending - adds photo_url column, creates storage bucket + RLS policies
+
+supabase/functions/
+  invite-user/index.ts                  ✅ Created - Edge Function for admin user invite with person creation
 ```
 
 ---
@@ -292,10 +300,36 @@ Test user setup (password: testpassword@123):
     - Updated `PersonProfile.tsx` with photo upload overlay (camera icon on hover)
     - Updated `DirectoryTab.tsx` and `OrgChartTab.tsx` to display photos
     - Added 4 translations for photo upload/delete feedback
+12. Implemented user invite flow:
+    - Created Edge Function `supabase/functions/invite-user/index.ts`:
+      - Validates caller has admin/pastor_supervisor role
+      - Uses `auth.admin.inviteUserByEmail` to create auth user
+      - Creates linked person record with all form data
+      - Optionally assigns role to new user
+    - Created `useInviteUser.ts` hook for frontend integration
+    - Created `InviteUserDialog.tsx` with 3 tabs (Account, Person, Role)
+    - Updated `Admin.tsx` to include Invite User button
+    - Added 14 translations for invite flow UI
+    - Pastor/Supervisors can now access Admin page (for invite only)
+13. Implemented bulk CSV import/export:
+    - Created `useBulkPeopleOperations.ts` hook:
+      - CSV export with proper escaping and date formatting
+      - CSV parsing with quote handling
+      - Validation (required fields, email format, foreign keys)
+      - Bulk insert with error tracking
+    - Created `BulkImportDialog.tsx` with 3-step wizard:
+      - Step 1: Upload - download template, drag-drop file
+      - Step 2: Preview - shows valid/warning/error counts, table preview
+      - Step 3: Result - import summary
+    - Updated `DirectoryTab.tsx`:
+      - Added "Bulk Actions" dropdown (admin only)
+      - Export CSV option
+      - Import CSV option
+    - Added 20 translations for bulk import/export UI
 
 **Pending:**
 - Migration `20260218150000_add_profile_photos.sql` needs to be applied
-- Remaining 2 People gaps to implement (invite flow, bulk import/export)
+- Deploy Edge Function `invite-user` to Supabase (`npx supabase functions deploy invite-user`)
 
 ### 2026-02-17 Session (continued)
 **Focus:** Calendar/Events UI implementation for campus and organizer fields
@@ -345,12 +379,11 @@ Test user setup (password: testpassword@123):
 ## Resume Prompt (copy-paste to start next session)
 
 ```
-Read @docs/TASK_STATUS.md. Working on People/Directory feature gaps.
-Completed: title field + campus_id FK (migration + types + hooks + UI).
-Migration `20260218100000_people_add_title_and_campus_fk.sql` needs to be
-applied (run `npx supabase login` then `npx supabase db push`).
-Next: Implement remaining 2 gaps (invite flow, bulk import/export).
-Migration `20260218150000_add_profile_photos.sql` needs to be applied.
+Read @docs/TASK_STATUS.md. People/Directory feature gap analysis COMPLETE (9/9 gaps done).
+Pending deployments:
+- Migration: `20260218150000_add_profile_photos.sql`
+- Edge Function: `invite-user`
+Next: Move to gap analysis for next feature (Ministries, Goals, etc.)
 ```
 
 ---

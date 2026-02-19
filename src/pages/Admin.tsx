@@ -8,23 +8,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateManagement';
-import { Search, Users, Shield, Settings, ShieldAlert, FileText } from 'lucide-react';
+import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
+import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function Admin() {
   const { t } = useLanguage();
-  const { isAdminOrSuper, isLoading: authLoading } = useAuth();
+  const { isAdminOrSuper, hasAnyRole, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('users');
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const { data: users, isLoading: usersLoading } = useAdminUsers();
   const { data: roles, isLoading: rolesLoading } = useAppRoles();
 
-  // Redirect non-admins
-  if (!authLoading && !isAdminOrSuper) {
+  // Allow pastor_supervisor to access the admin page (for invite functionality)
+  const canAccessAdmin = isAdminOrSuper || hasAnyRole(['pastor_supervisor']);
+
+  // Redirect non-admins (but allow pastor_supervisors)
+  if (!authLoading && !canAccessAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -116,14 +122,20 @@ export default function Admin() {
           <TabsContent value="users" className="mt-4 md:mt-6 space-y-4">
             <Card>
               <CardContent className="p-3 md:p-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder={t('admin.searchUsers')}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 touch-target w-full md:max-w-sm"
-                  />
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                  <div className="relative flex-1 sm:max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder={t('admin.searchUsers')}
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9 touch-target w-full"
+                    />
+                  </div>
+                  <Button onClick={() => setIsInviteDialogOpen(true)} className="touch-target">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {t('admin.inviteUser')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -219,6 +231,11 @@ export default function Admin() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <InviteUserDialog
+          open={isInviteDialogOpen}
+          onOpenChange={setIsInviteDialogOpen}
+        />
       </div>
     </MainLayout>
   );

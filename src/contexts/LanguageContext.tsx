@@ -105,6 +105,29 @@ const translations: Translations = {
   'people.noOrgDataDescription': { en: 'No people found to display in the org chart', fr: 'Aucune personne trouvée pour afficher dans l\'organigramme' },
   'people.noOrgSearchResults': { en: 'No people match your search criteria', fr: 'Aucune personne ne correspond à vos critères de recherche' },
 
+  // Bulk Import/Export
+  'people.bulkActions': { en: 'Bulk Actions', fr: 'Actions en masse' },
+  'people.bulkImport': { en: 'Import CSV', fr: 'Importer CSV' },
+  'people.bulkImportDescription': { en: 'Import multiple people from a CSV file', fr: 'Importer plusieurs personnes depuis un fichier CSV' },
+  'people.exportCsv': { en: 'Export CSV', fr: 'Exporter CSV' },
+  'people.downloadTemplate': { en: 'Download Template', fr: 'Télécharger le modèle' },
+  'people.importUpload': { en: 'Upload', fr: 'Télécharger' },
+  'people.importPreview': { en: 'Preview', fr: 'Aperçu' },
+  'people.importResult': { en: 'Result', fr: 'Résultat' },
+  'people.importInstructions': { en: 'Download the template, fill in your data, then upload the CSV file. Required fields: first_name, last_name, person_type.', fr: 'Téléchargez le modèle, remplissez vos données, puis téléchargez le fichier CSV. Champs obligatoires: first_name, last_name, person_type.' },
+  'people.importDropzone': { en: 'Click to select a CSV file or drag and drop', fr: 'Cliquez pour sélectionner un fichier CSV ou glissez-déposez' },
+  'people.importRow': { en: 'Row', fr: 'Ligne' },
+  'people.importValid': { en: 'valid', fr: 'valide(s)' },
+  'people.importWarnings': { en: 'with warnings', fr: 'avec avertissements' },
+  'people.importErrors': { en: 'with errors', fr: 'avec erreurs' },
+  'people.importErrorsWillSkip': { en: 'Rows with errors will be skipped during import.', fr: 'Les lignes avec erreurs seront ignorées lors de l\'importation.' },
+  'people.importButton': { en: 'Import {count} people', fr: 'Importer {count} personnes' },
+  'people.importComplete': { en: 'Import Complete', fr: 'Importation terminée' },
+  'people.importSummary': { en: '{success} imported successfully, {failed} failed.', fr: '{success} importée(s) avec succès, {failed} échouée(s).' },
+  'people.importSuccess': { en: '{count} people imported successfully', fr: '{count} personnes importées avec succès' },
+  'people.importPartial': { en: '{success} imported, {failed} failed', fr: '{success} importée(s), {failed} échouée(s)' },
+  'people.importError': { en: 'Failed to import people', fr: 'Échec de l\'importation des personnes' },
+
   // Profile Photo
   'profilePhoto.uploadSuccess': { en: 'Profile photo updated', fr: 'Photo de profil mise à jour' },
   'profilePhoto.deleteSuccess': { en: 'Profile photo removed', fr: 'Photo de profil supprimée' },
@@ -380,6 +403,22 @@ const translations: Translations = {
   'admin.emailConfirmationDescription': { en: 'Require email confirmation for new signups', fr: 'Exiger la confirmation par courriel pour les nouvelles inscriptions' },
   'admin.signupEnabled': { en: 'Signup Enabled', fr: 'Inscription activée' },
   'admin.signupEnabledDescription': { en: 'Allow new users to create accounts', fr: 'Permettre aux nouveaux utilisateurs de créer des comptes' },
+
+  // User Invite
+  'admin.inviteUser': { en: 'Invite User', fr: 'Inviter un utilisateur' },
+  'admin.inviteUserDescription': { en: 'Send an invitation to join the system', fr: 'Envoyer une invitation à rejoindre le système' },
+  'admin.inviteAccount': { en: 'Account', fr: 'Compte' },
+  'admin.invitePerson': { en: 'Person', fr: 'Personne' },
+  'admin.inviteRole': { en: 'Role', fr: 'Rôle' },
+  'admin.inviteEmailHelp': { en: 'An invitation email will be sent to this address', fr: 'Un courriel d\'invitation sera envoyé à cette adresse' },
+  'admin.systemRole': { en: 'System Role', fr: 'Rôle système' },
+  'admin.selectRole': { en: 'Select a role', fr: 'Sélectionner un rôle' },
+  'admin.inviteRoleHelp': { en: 'Optional - determines what features the user can access', fr: 'Optionnel - détermine les fonctionnalités accessibles à l\'utilisateur' },
+  'admin.sendInvite': { en: 'Send Invite', fr: 'Envoyer l\'invitation' },
+  'admin.inviteSuccess': { en: 'Invitation sent successfully', fr: 'Invitation envoyée avec succès' },
+  'admin.inviteError': { en: 'Failed to send invitation', fr: 'Échec de l\'envoi de l\'invitation' },
+  'admin.inviteErrorEmailExists': { en: 'A user with this email already exists', fr: 'Un utilisateur avec ce courriel existe déjà' },
+  'admin.inviteErrorPermissions': { en: 'You do not have permission to invite users', fr: 'Vous n\'avez pas la permission d\'inviter des utilisateurs' },
   
   // Settings
   'settings.title': { en: 'Settings', fr: 'Paramètres' },

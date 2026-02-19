@@ -1,26 +1,37 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { usePeopleInfinite, Person } from '@/hooks/usePeople';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePeopleInfinite, usePeople, Person } from '@/hooks/usePeople';
+import { useCampuses } from '@/hooks/useCampuses';
+import { generateCSVExport, downloadCSV } from '@/hooks/useBulkPeopleOperations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Search, Users, Mail, Phone, Building, Loader2 } from 'lucide-react';
+import { Plus, Search, Users, Mail, Phone, Building, Loader2, Download, Upload, MoreHorizontal } from 'lucide-react';
 import { PersonFormDialog } from '@/components/people/PersonFormDialog';
+import { BulkImportDialog } from '@/components/people/BulkImportDialog';
 
 export function DirectoryTab() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { isAdminOrSuper } = useAuth();
   const [search, setSearch] = useState('');
   const [personType, setPersonType] = useState('all');
   const [status, setStatus] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // For export - fetch all people
+  const { data: allPeople } = usePeople();
+  const { data: campuses } = useCampuses();
 
   const {
     data,
@@ -83,9 +94,36 @@ export function DirectoryTab() {
     return `${person.first_name.charAt(0)}${person.last_name.charAt(0)}`.toUpperCase();
   };
 
+  const handleExport = () => {
+    if (!allPeople || !campuses) return;
+    const csv = generateCSVExport(allPeople, campuses);
+    const date = new Date().toISOString().split('T')[0];
+    downloadCSV(csv, `people_export_${date}.csv`);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {isAdminOrSuper && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2 touch-target">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('people.bulkActions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setIsImportDialogOpen(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                {t('people.bulkImport')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExport} disabled={!allPeople?.length}>
+                <Download className="h-4 w-4 mr-2" />
+                {t('people.exportCsv')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Button onClick={() => setIsFormOpen(true)} className="gap-2 touch-target">
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">{t('people.addPerson')}</span>
@@ -232,6 +270,11 @@ export function DirectoryTab() {
         open={isFormOpen}
         onOpenChange={handleCloseForm}
         person={editingPerson}
+      />
+
+      <BulkImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
       />
     </div>
   );
