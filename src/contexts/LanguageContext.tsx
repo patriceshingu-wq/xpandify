@@ -93,6 +93,17 @@ const translations: Translations = {
   'people.noMinistriesAvailable': { en: 'No ministries available', fr: 'Aucun ministère disponible' },
   'people.ministriesSelected': { en: 'ministries selected', fr: 'ministères sélectionnés' },
   'people.ministriesUpdated': { en: 'Ministry assignments updated', fr: 'Affectations ministérielles mises à jour' },
+  'people.directory': { en: 'Directory', fr: 'Répertoire' },
+  'people.orgChart': { en: 'Org Chart', fr: 'Organigramme' },
+  'people.reports': { en: 'Reports', fr: 'Équipe' },
+  'people.peers': { en: 'Peers', fr: 'Pairs' },
+  'people.supervisor': { en: 'Supervisor', fr: 'Superviseur' },
+  'people.searchOrgChart': { en: 'Search org chart...', fr: 'Rechercher dans l\'organigramme...' },
+  'people.expandAll': { en: 'Expand All', fr: 'Tout développer' },
+  'people.collapseAll': { en: 'Collapse All', fr: 'Tout réduire' },
+  'people.noOrgData': { en: 'No Organization Data', fr: 'Aucune donnée d\'organisation' },
+  'people.noOrgDataDescription': { en: 'No people found to display in the org chart', fr: 'Aucune personne trouvée pour afficher dans l\'organigramme' },
+  'people.noOrgSearchResults': { en: 'No people match your search criteria', fr: 'Aucune personne ne correspond à vos critères de recherche' },
 
   // Person Profile
   'personProfile.loading': { en: 'Loading...', fr: 'Chargement...' },
