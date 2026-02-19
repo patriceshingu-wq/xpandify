@@ -9,7 +9,13 @@ export interface Teammate {
   preferred_name: string | null;
   email: string | null;
   person_type: string | null;
-  campus: string | null;
+  title: string | null;
+  campus_id: string | null;
+  campus: {
+    id: string;
+    name: string;
+    code: string | null;
+  } | null;
 }
 
 export function useTeammates() {
@@ -33,7 +39,7 @@ export function useTeammates() {
       // Get all people who share the same supervisor (excluding current user)
       const { data: teammates, error: teammatesError } = await supabase
         .from('people')
-        .select('id, first_name, last_name, preferred_name, email, person_type, campus')
+        .select('id, first_name, last_name, preferred_name, email, person_type, title, campus_id, campus:campuses(id, name, code)')
         .eq('supervisor_id', currentPerson.supervisor_id)
         .eq('status', 'active')
         .neq('id', person.id)

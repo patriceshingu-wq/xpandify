@@ -10,7 +10,13 @@ export interface Supervisor {
   email: string | null;
   phone: string | null;
   person_type: string | null;
-  campus: string | null;
+  title: string | null;
+  campus_id: string | null;
+  campus: {
+    id: string;
+    name: string;
+    code: string | null;
+  } | null;
 }
 
 export function useSupervisor() {
@@ -34,7 +40,7 @@ export function useSupervisor() {
       // Get supervisor details
       const { data: supervisor, error: supervisorError } = await supabase
         .from('people')
-        .select('id, first_name, last_name, preferred_name, email, phone, person_type, campus')
+        .select('id, first_name, last_name, preferred_name, email, phone, person_type, title, campus_id, campus:campuses(id, name, code)')
         .eq('id', currentPerson.supervisor_id)
         .single();
 

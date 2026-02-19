@@ -25,13 +25,13 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold truncate">{displayName}</h3>
               <Badge variant="outline" className="text-xs shrink-0">
-                {teammate.person_type || 'Staff'}
+                {teammate.title || teammate.person_type || 'Staff'}
               </Badge>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               {teammate.email && (
-                <a 
-                  href={`mailto:${teammate.email}`} 
+                <a
+                  href={`mailto:${teammate.email}`}
                   className="flex items-center gap-1 hover:text-primary transition-colors"
                 >
                   <Mail className="h-3.5 w-3.5" />
@@ -41,7 +41,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
               {teammate.campus && (
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" />
-                  {teammate.campus}
+                  {teammate.campus.name}
                 </span>
               )}
             </div>

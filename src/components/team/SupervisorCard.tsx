@@ -33,13 +33,13 @@ export function SupervisorCard({ supervisor, onScheduleMeeting }: SupervisorCard
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
                 <h3 className="font-semibold text-base md:text-lg truncate">{displayName}</h3>
                 <Badge variant="secondary" className="text-xs w-fit shrink-0">
-                  {supervisor.person_type || 'Staff'}
+                  {supervisor.title || supervisor.person_type || 'Staff'}
                 </Badge>
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-sm text-muted-foreground">
                 {supervisor.email && (
-                  <a 
-                    href={`mailto:${supervisor.email}`} 
+                  <a
+                    href={`mailto:${supervisor.email}`}
                     className="flex items-center gap-1.5 hover:text-primary transition-colors truncate"
                   >
                     <Mail className="h-3.5 w-3.5 shrink-0" />
@@ -47,8 +47,8 @@ export function SupervisorCard({ supervisor, onScheduleMeeting }: SupervisorCard
                   </a>
                 )}
                 {supervisor.phone && (
-                  <a 
-                    href={`tel:${supervisor.phone}`} 
+                  <a
+                    href={`tel:${supervisor.phone}`}
                     className="flex items-center gap-1.5 hover:text-primary transition-colors"
                   >
                     <Phone className="h-3.5 w-3.5 shrink-0" />
@@ -58,7 +58,7 @@ export function SupervisorCard({ supervisor, onScheduleMeeting }: SupervisorCard
                 {supervisor.campus && (
                   <span className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    {supervisor.campus}
+                    {supervisor.campus.name}
                   </span>
                 )}
               </div>

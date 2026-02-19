@@ -21,6 +21,7 @@ import Surveys from "./pages/Surveys";
 import Analytics from "./pages/Analytics";
 import Administration from "./pages/Administration";
 import Profile from "./pages/Profile";
+import PersonProfile from "./pages/PersonProfile";
 import Learning from "./pages/Learning";
 import NotFound from "./pages/NotFound";
 
@@ -82,6 +83,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/team" element={<Navigate to="/people" replace />} />
       <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+      <Route path="/people/:id" element={<ProtectedRoute><PersonProfile /></ProtectedRoute>} />
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />

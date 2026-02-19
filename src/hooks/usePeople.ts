@@ -15,6 +15,11 @@ export interface Person extends Omit<PersonRow, 'supervisor_id'> {
     first_name: string;
     last_name: string;
   } | null;
+  campus?: {
+    id: string;
+    name: string;
+    code: string | null;
+  } | null;
 }
 
 export interface PersonFilters {
@@ -32,9 +37,10 @@ export function usePeople(filters?: PersonFilters) {
       // The database does not currently expose a self-referencing FK relationship
       // that PostgREST can use (requests were returning 400 with schema cache errors).
       // Instead, we fetch people normally and resolve supervisor info client-side.
+      // Campus relationship is fetched via PostgREST embedded join.
       let query = supabase
         .from('people')
-        .select('*')
+        .select('*, campus:campuses(id, name, code)')
         .order('last_name', { ascending: true });
 
       if (filters?.search) {
@@ -53,7 +59,7 @@ export function usePeople(filters?: PersonFilters) {
 
       if (error) throw error;
 
-      const people = (data || []) as PersonRow[];
+      const people = (data || []) as (PersonRow & { campus: { id: string; name: string; code: string | null } | null })[];
       const byId: Record<string, PersonRow> = {};
       for (const p of people) byId[p.id] = p;
 
@@ -69,6 +75,7 @@ export function usePeople(filters?: PersonFilters) {
                 last_name: supervisorRow.last_name,
               }
             : null,
+          campus: item.campus || null,
         } as Person;
       });
     },
@@ -83,7 +90,7 @@ export function usePerson(id: string | undefined) {
 
       const { data, error } = await supabase
         .from('people')
-        .select('*')
+        .select('*, campus:campuses(id, name, code)')
         .eq('id', id)
         .maybeSingle();
 
@@ -111,6 +118,7 @@ export function usePerson(id: string | undefined) {
       return {
         ...(data as any),
         supervisor,
+        campus: data.campus || null,
       } as Person;
     },
     enabled: !!id,

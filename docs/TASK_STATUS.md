@@ -24,15 +24,89 @@ The MVP is feature-complete and deployed. Currently in testing phase with focus 
 
 ---
 
+## Feature Gap Analysis Progress
+
+Reviewing each major feature against PRD to identify gaps and improvements.
+
+| Feature | Status | Gaps Found | Session |
+|---------|--------|------------|---------|
+| Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
+| People/Directory | 🔄 Implementing | 4/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅), 5 remaining | 2026-02-18 |
+| Ministries | ⏳ Pending | — | — |
+| Goals | ⏳ Pending | — | — |
+| Meetings | ⏳ Pending | — | — |
+| PDPs | ⏳ Pending | — | — |
+| Feedback | ⏳ Pending | — | — |
+| Reviews | ⏳ Pending | — | — |
+| Learning | ⏳ Pending | — | — |
+| Admin | ⏳ Pending | — | — |
+
+### People/Directory - Gap Analysis (2026-02-18)
+
+**Current Implementation:**
+- 4 tabs: Directory, My Team, Peers, Supervisor
+- PersonFormDialog with 3 tabs (Basic, Ministry, Development)
+- Hooks: usePeople, useDirectReports, useTeammates, useSupervisor, etc.
+- Search/filter by name, person_type, status
+- Supervisor hierarchy via self-referencing supervisor_id
+
+**Confirmed Gaps (user approved):**
+
+| # | Gap | Priority | Complexity | Status |
+|---|-----|----------|------------|--------|
+| 1 | Add `title` field to people schema | High | Low | ✅ Done |
+| 2 | Change `campus` text → `campus_id` FK | High | Medium | ✅ Done |
+| 3 | Add profile page (`/people/:id`) with full stats | High | Medium | ✅ Done |
+| 4 | Add profile photo upload (Supabase Storage) | Medium | Medium | ⏳ Pending |
+| 5 | Add ministry assignment UI (both directions) | High | Medium | ✅ Done |
+| 6 | Add org chart visualization | Medium | High | ⏳ Pending |
+| 7 | Add user invite flow (create auth + person) | Medium | High | ⏳ Pending |
+| 8 | Add bulk import/export (CSV) | Low | High | ⏳ Pending |
+| 9 | Add infinite scroll to directory | Low | Low | ⏳ Pending |
+
+**Profile Page Design Decisions:**
+- Sections: Basic info, Ministry memberships, Development (strengths/calling), Stats (goals, meetings, courses)
+- Access: Basic info visible to all authenticated users; Development + Stats visible to self + supervisors + admins only
+- Photo: Users can upload their own photo freely (no approval required)
+
+**Ministry Assignment UI:**
+- Add to PersonFormDialog (multi-select ministries)
+- Also allow from Ministry detail page (add/remove members)
+
+**Implementation Order (recommended):**
+1. Schema changes: Add `title`, change `campus` → `campus_id`
+2. Update PersonFormDialog with title field + campus dropdown
+3. Add ministry assignment UI to PersonFormDialog
+4. Create profile page with access controls
+5. Add photo upload
+6. Add infinite scroll
+7. Add org chart
+8. Add invite flow
+9. Add bulk import/export
+
+---
+
 ## Files Modified This Phase
 
 ```
 src/
   hooks/useEvents.ts                    ✅ Updated - added campus_id, organizer_id, removed recurrence_pattern
   hooks/useRecurringEvents.ts           ✅ Updated - removed recurrence_pattern reference
-  integrations/supabase/types.ts        ✅ Updated - events table types with new fields
+  hooks/usePeople.ts                    ✅ Updated - campus_id FK with embedded join, title field
+  hooks/useTeammates.ts                 ✅ Updated - campus_id FK with embedded join, title field
+  hooks/useSupervisor.ts                ✅ Updated - campus_id FK with embedded join, title field
+  hooks/usePersonStats.ts               ✅ Created - fetches goals/meetings/courses/feedback counts
+  hooks/usePersonMinistries.ts          ✅ Created - fetches ministry memberships + sync mutation for person
+  integrations/supabase/types.ts        ✅ Updated - people table: campus → campus_id, added title
+  components/people/PersonFormDialog.tsx ✅ Updated - title field, campus dropdown, ministry multi-select
+  components/people/DirectoryTab.tsx    ✅ Updated - displays title and campus, links to profile page
+  components/team/TeammateCard.tsx      ✅ Updated - displays title and campus.name
+  components/team/SupervisorCard.tsx    ✅ Updated - displays title and campus.name
+  contexts/LanguageContext.tsx          ✅ Updated - added people.*, personProfile.* translations
   pages/calendar/EventEditor.tsx        ✅ Updated - added campus_id, organizer_id dropdowns, auto-sets organizer
   pages/calendar/EventDetail.tsx        ✅ Updated - displays campus and organizer info
+  pages/PersonProfile.tsx               ✅ Created - profile page with contact, ministries, development, stats
+  App.tsx                               ✅ Updated - added /people/:id route
 
 e2e/
   auth.spec.ts                  ✅ Complete
@@ -41,7 +115,8 @@ e2e/
   role-access.spec.ts           ✅ Complete
 
 supabase/migrations/
-  20260217180000_fix_events_schema.sql  ✅ NEW - adds organizer_id, campus_id, drops recurrence_pattern
+  20260217180000_fix_events_schema.sql  ✅ Applied - adds organizer_id, campus_id, drops recurrence_pattern
+  20260218100000_people_add_title_and_campus_fk.sql  ✅ Applied - adds title, campus_id FK, drops campus text
 ```
 
 ---
@@ -111,6 +186,7 @@ Test user setup (password: testpassword@123):
 - [x] TypeScript types mismatch with DB schema for events — **FIXED** (types.ts updated)
 - [x] EventEditor missing campus/organizer UI fields — **FIXED** (dropdowns added)
 - [x] EventDetail not displaying campus/organizer — **FIXED** (display sections added)
+- [x] Migration `20260218100000_people_add_title_and_campus_fk.sql` applied — **DONE**
 
 ---
 
@@ -166,6 +242,35 @@ Test user setup (password: testpassword@123):
 
 ## Session Log
 
+### 2026-02-18 Session
+**Focus:** People/Directory feature gap analysis and implementation
+
+**Completed:**
+1. Conducted gap analysis interview for People/Directory feature
+2. Identified 9 gaps against PRD (user approved all):
+   - title field, campus FK, profile page, photos, ministry UI, org chart, invite, bulk ops, infinite scroll
+3. Created migration `20260218100000_people_add_title_and_campus_fk.sql`:
+   - Adds `title` text field for job title/position
+   - Adds `campus_id` FK to campuses table
+   - Migrates existing `campus` text data to `campus_id`
+   - Drops old `campus` text column
+4. Updated TypeScript types in `types.ts` (campus → campus_id, added title)
+5. Updated hooks to use campus FK with embedded joins:
+   - `usePeople.ts` - fetches campus relationship
+   - `useTeammates.ts` - fetches campus and title
+   - `useSupervisor.ts` - fetches campus and title
+6. Updated UI components:
+   - `PersonFormDialog.tsx` - added title input + campus dropdown
+   - `DirectoryTab.tsx` - displays title (falls back to person_type), shows campus
+   - `TeammateCard.tsx` - displays title in badge, campus.name
+   - `SupervisorCard.tsx` - displays title in badge, campus.name
+7. Added translations: `people.title`, `people.campus`, `people.selectCampus`
+8. TypeScript compiles without errors
+
+**Pending:**
+- Migration needs to be applied (requires `npx supabase login` first)
+- Remaining 7 People gaps to implement
+
 ### 2026-02-17 Session (continued)
 **Focus:** Calendar/Events UI implementation for campus and organizer fields
 
@@ -214,10 +319,12 @@ Test user setup (password: testpassword@123):
 ## Resume Prompt (copy-paste to start next session)
 
 ```
-Read @docs/TASK_STATUS.md. Xpandify MVP is feature-complete and currently in
-testing phase. The events schema migration has been applied. EventEditor now
-has Campus and Organizer dropdowns, and EventDetail displays these fields.
-Check the Testing Checklist section to see what still needs validation.
+Read @docs/TASK_STATUS.md. Working on People/Directory feature gaps.
+Completed: title field + campus_id FK (migration + types + hooks + UI).
+Migration `20260218100000_people_add_title_and_campus_fk.sql` needs to be
+applied (run `npx supabase login` then `npx supabase db push`).
+Next: Implement remaining 7 gaps (profile page, photos, ministry UI, org chart,
+invite flow, bulk import/export, infinite scroll).
 ```
 
 ---

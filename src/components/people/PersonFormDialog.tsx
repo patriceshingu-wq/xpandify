@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Person, useCreatePerson, useUpdatePerson, useDeletePerson, usePeople } from '@/hooks/usePeople';
+import { useCampuses } from '@/hooks/useCampuses';
+import { useMinistries } from '@/hooks/useMinistries';
+import { usePersonMinistries, useSyncPersonMinistries } from '@/hooks/usePersonMinistries';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
@@ -18,13 +22,20 @@ interface PersonFormDialogProps {
 }
 
 export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const createPerson = useCreatePerson();
   const updatePerson = useUpdatePerson();
   const deletePerson = useDeletePerson();
   const { data: allPeople } = usePeople();
-  
+  const { data: campuses } = useCampuses();
+  const { data: ministries } = useMinistries();
+  const { data: personMinistries } = usePersonMinistries(person?.id);
+  const syncMinistries = useSyncPersonMinistries();
+
   const isEditing = !!person;
+
+  // Track selected ministry IDs
+  const [selectedMinistryIds, setSelectedMinistryIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -39,7 +50,8 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
     status: 'active' as 'active' | 'inactive' | 'on_leave',
     supervisor_id: '',
     start_date: '',
-    campus: '',
+    campus_id: '',
+    title: '',
     notes: '',
     calling_description: '',
     strengths: '',
@@ -61,7 +73,8 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
         status: person.status || 'active',
         supervisor_id: person.supervisor_id || '',
         start_date: person.start_date || '',
-        campus: person.campus || '',
+        campus_id: person.campus_id || '',
+        title: person.title || '',
         notes: person.notes || '',
         calling_description: person.calling_description || '',
         strengths: person.strengths || '',
@@ -81,7 +94,8 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
         status: 'active',
         supervisor_id: '',
         start_date: '',
-        campus: '',
+        campus_id: '',
+        title: '',
         notes: '',
         calling_description: '',
         strengths: '',
@@ -90,22 +104,43 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
     }
   }, [person, open]);
 
+  // Initialize selected ministries when editing
+  useEffect(() => {
+    if (personMinistries) {
+      setSelectedMinistryIds(personMinistries.map(m => m.ministry_id));
+    } else {
+      setSelectedMinistryIds([]);
+    }
+  }, [personMinistries]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const payload = {
       ...formData,
       gender: formData.gender || null,
       supervisor_id: formData.supervisor_id || null,
       date_of_birth: formData.date_of_birth || null,
       start_date: formData.start_date || null,
+      campus_id: formData.campus_id || null,
+      title: formData.title || null,
     };
+
+    let personId: string;
 
     if (isEditing && person) {
       await updatePerson.mutateAsync({ id: person.id, ...payload });
+      personId = person.id;
     } else {
-      await createPerson.mutateAsync(payload);
+      const newPerson = await createPerson.mutateAsync(payload);
+      personId = newPerson.id;
     }
+
+    // Sync ministry memberships
+    if (selectedMinistryIds.length > 0 || (personMinistries && personMinistries.length > 0)) {
+      await syncMinistries.mutateAsync({ personId, ministryIds: selectedMinistryIds });
+    }
+
     onOpenChange(false);
   };
 
@@ -116,9 +151,17 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
     }
   };
 
-  const isLoading = createPerson.isPending || updatePerson.isPending;
+  const isLoading = createPerson.isPending || updatePerson.isPending || syncMinistries.isPending;
 
   const supervisorOptions = allPeople?.filter(p => p.id !== person?.id && (p.person_type === 'staff' || p.person_type === 'volunteer')) || [];
+
+  const toggleMinistry = (ministryId: string) => {
+    setSelectedMinistryIds(prev =>
+      prev.includes(ministryId)
+        ? prev.filter(id => id !== ministryId)
+        : [...prev, ministryId]
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -279,6 +322,15 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label>{t('people.title')}</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Worship Pastor, Youth Coordinator"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Supervisor</Label>
@@ -299,22 +351,62 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Start Date</Label>
-                  <Input
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  />
+                  <Label>{t('people.campus')}</Label>
+                  <Select
+                    value={formData.campus_id}
+                    onValueChange={(value) => setFormData({ ...formData, campus_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('people.selectCampus')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campuses?.filter(c => c.is_active).map((campus) => (
+                        <SelectItem key={campus.id} value={campus.id}>
+                          {campus.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Campus</Label>
+                <Label>Start Date</Label>
                 <Input
-                  value={formData.campus}
-                  onChange={(e) => setFormData({ ...formData, campus: e.target.value })}
-                  placeholder="Main Campus"
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('people.ministryAssignments')}</Label>
+                <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+                  {ministries && ministries.length > 0 ? (
+                    ministries.map((ministry) => (
+                      <div key={ministry.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`ministry-${ministry.id}`}
+                          checked={selectedMinistryIds.includes(ministry.id)}
+                          onCheckedChange={() => toggleMinistry(ministry.id)}
+                        />
+                        <label
+                          htmlFor={`ministry-${ministry.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {ministry[`name_${language}`] || ministry.name_en}
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t('people.noMinistriesAvailable')}</p>
+                  )}
+                </div>
+                {selectedMinistryIds.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {selectedMinistryIds.length} {t('people.ministriesSelected')}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

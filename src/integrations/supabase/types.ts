@@ -1636,7 +1636,7 @@ export type Database = {
       people: {
         Row: {
           calling_description: string | null
-          campus: string | null
+          campus_id: string | null
           created_at: string | null
           date_of_birth: string | null
           email: string | null
@@ -1656,12 +1656,13 @@ export type Database = {
           status: Database["public"]["Enums"]["person_status"] | null
           strengths: string | null
           supervisor_id: string | null
+          title: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           calling_description?: string | null
-          campus?: string | null
+          campus_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
@@ -1683,12 +1684,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["person_status"] | null
           strengths?: string | null
           supervisor_id?: string | null
+          title?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           calling_description?: string | null
-          campus?: string | null
+          campus_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
@@ -1710,10 +1712,18 @@ export type Database = {
           status?: Database["public"]["Enums"]["person_status"] | null
           strengths?: string | null
           supervisor_id?: string | null
+          title?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "people_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "people_supervisor_id_fkey"
             columns: ["supervisor_id"]

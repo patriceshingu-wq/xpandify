@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePeople, Person } from '@/hooks/usePeople';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Plus, Search, Users, Mail, Phone } from 'lucide-react';
+import { Plus, Search, Users, Mail, Phone, Building } from 'lucide-react';
 import { PersonFormDialog } from '@/components/people/PersonFormDialog';
 
 export function DirectoryTab() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [personType, setPersonType] = useState('all');
   const [status, setStatus] = useState('all');
@@ -24,6 +26,10 @@ export function DirectoryTab() {
     person_type: personType,
     status: status,
   });
+
+  const handleViewProfile = (person: Person) => {
+    navigate(`/people/${person.id}`);
+  };
 
   const handleEdit = (person: Person) => {
     setEditingPerson(person);
@@ -99,7 +105,7 @@ export function DirectoryTab() {
             <Card
               key={person.id}
               className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
-              onClick={() => handleEdit(person)}
+              onClick={() => handleViewProfile(person)}
             >
               <CardContent className="p-3 md:p-4">
                 <div className="flex items-start gap-3 md:gap-4">
@@ -114,9 +120,15 @@ export function DirectoryTab() {
                         <h3 className="font-medium text-foreground truncate text-sm md:text-base">
                           {person.preferred_name || person.first_name} {person.last_name}
                         </h3>
-                        <p className="text-xs md:text-sm text-muted-foreground capitalize">
-                          {person.person_type}
-                        </p>
+                        {person.title ? (
+                          <p className="text-xs md:text-sm text-muted-foreground truncate">
+                            {person.title}
+                          </p>
+                        ) : (
+                          <p className="text-xs md:text-sm text-muted-foreground capitalize">
+                            {person.person_type}
+                          </p>
+                        )}
                       </div>
                       <StatusBadge status={person.status} className="shrink-0 text-xs" />
                     </div>
@@ -131,6 +143,12 @@ export function DirectoryTab() {
                         <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
                           <Phone className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
                           <span>{person.phone}</span>
+                        </div>
+                      )}
+                      {person.campus && (
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                          <Building className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                          <span className="truncate">{person.campus.name}</span>
                         </div>
                       )}
                     </div>
