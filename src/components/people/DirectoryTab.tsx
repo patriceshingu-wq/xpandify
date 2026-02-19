@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { usePeople, Person } from '@/hooks/usePeople';
+import { usePeopleInfinite, Person } from '@/hooks/usePeople';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Plus, Search, Users, Mail, Phone, Building } from 'lucide-react';
+import { Plus, Search, Users, Mail, Phone, Building, Loader2 } from 'lucide-react';
 import { PersonFormDialog } from '@/components/people/PersonFormDialog';
 
 export function DirectoryTab() {
@@ -20,12 +20,50 @@ export function DirectoryTab() {
   const [status, setStatus] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data: people, isLoading } = usePeople({
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = usePeopleInfinite({
     search: search || undefined,
     person_type: personType,
     status: status,
   });
+
+  const people = data?.pages.flatMap((page) => page.items) ?? [];
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
+
+  // Intersection Observer for infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0,
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [handleObserver]);
 
   const handleViewProfile = (person: Person) => {
     navigate(`/people/${person.id}`);
@@ -99,65 +137,82 @@ export function DirectoryTab() {
         <div className="flex items-center justify-center py-12">
           <div className="spinner" />
         </div>
-      ) : people && people.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          {people.map((person) => (
-            <Card
-              key={person.id}
-              className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
-              onClick={() => handleViewProfile(person)}
-            >
-              <CardContent className="p-3 md:p-4">
-                <div className="flex items-start gap-3 md:gap-4">
-                  <Avatar className="h-11 w-11 md:h-12 md:w-12 flex-shrink-0">
-                    <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm md:text-base">
-                      {getInitials(person)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3 className="font-medium text-foreground truncate text-sm md:text-base">
-                          {person.preferred_name || person.first_name} {person.last_name}
-                        </h3>
-                        {person.title ? (
-                          <p className="text-xs md:text-sm text-muted-foreground truncate">
-                            {person.title}
-                          </p>
-                        ) : (
-                          <p className="text-xs md:text-sm text-muted-foreground capitalize">
-                            {person.person_type}
-                          </p>
+      ) : people.length > 0 ? (
+        <>
+          {totalCount > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {t('common.showing')} {people.length} {t('common.of')} {totalCount}
+            </p>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            {people.map((person) => (
+              <Card
+                key={person.id}
+                className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
+                onClick={() => handleViewProfile(person)}
+              >
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex items-start gap-3 md:gap-4">
+                    <Avatar className="h-11 w-11 md:h-12 md:w-12 flex-shrink-0">
+                      <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm md:text-base">
+                        {getInitials(person)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="font-medium text-foreground truncate text-sm md:text-base">
+                            {person.preferred_name || person.first_name} {person.last_name}
+                          </h3>
+                          {person.title ? (
+                            <p className="text-xs md:text-sm text-muted-foreground truncate">
+                              {person.title}
+                            </p>
+                          ) : (
+                            <p className="text-xs md:text-sm text-muted-foreground capitalize">
+                              {person.person_type}
+                            </p>
+                          )}
+                        </div>
+                        <StatusBadge status={person.status} className="shrink-0 text-xs" />
+                      </div>
+                      <div className="mt-2 space-y-0.5">
+                        {person.email && (
+                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                            <Mail className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                            <span className="truncate">{person.email}</span>
+                          </div>
+                        )}
+                        {person.phone && (
+                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                            <Phone className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                            <span>{person.phone}</span>
+                          </div>
+                        )}
+                        {person.campus && (
+                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                            <Building className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                            <span className="truncate">{person.campus.name}</span>
+                          </div>
                         )}
                       </div>
-                      <StatusBadge status={person.status} className="shrink-0 text-xs" />
-                    </div>
-                    <div className="mt-2 space-y-0.5">
-                      {person.email && (
-                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                          <Mail className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
-                          <span className="truncate">{person.email}</span>
-                        </div>
-                      )}
-                      {person.phone && (
-                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                          <Phone className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
-                          <span>{person.phone}</span>
-                        </div>
-                      )}
-                      {person.campus && (
-                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-                          <Building className="h-3 w-3 md:h-3.5 md:w-3.5 shrink-0" />
-                          <span className="truncate">{person.campus.name}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Infinite scroll trigger */}
+          <div ref={loadMoreRef} className="py-4 flex justify-center">
+            {isFetchingNextPage && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">{t('common.loading')}</span>
+              </div>
+            )}
+          </div>
+        </>
       ) : (
         <EmptyState
           icon={<Users className="h-16 w-16" />}

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -28,6 +28,8 @@ export interface PersonFilters {
   status?: string;
   ministry_id?: string;
 }
+
+const PAGE_SIZE = 20;
 
 export function usePeople(filters?: PersonFilters) {
   return useQuery({
@@ -79,6 +81,65 @@ export function usePeople(filters?: PersonFilters) {
         } as Person;
       });
     },
+  });
+}
+
+export function usePeopleInfinite(filters?: PersonFilters) {
+  return useInfiniteQuery({
+    queryKey: ['people', 'infinite', filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      const from = pageParam * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let query = supabase
+        .from('people')
+        .select('*, campus:campuses(id, name, code)', { count: 'exact' })
+        .order('last_name', { ascending: true })
+        .range(from, to);
+
+      if (filters?.search) {
+        query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
+      }
+
+      if (filters?.person_type && filters.person_type !== 'all') {
+        query = query.eq('person_type', filters.person_type as PersonRow['person_type']);
+      }
+
+      if (filters?.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status as PersonRow['status']);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) throw error;
+
+      const people = (data || []) as (PersonRow & { campus: { id: string; name: string; code: string | null } | null })[];
+      const byId: Record<string, PersonRow> = {};
+      for (const p of people) byId[p.id] = p;
+
+      const items = people.map((item) => {
+        const supervisorRow = item.supervisor_id ? byId[item.supervisor_id] : undefined;
+        return {
+          ...(item as any),
+          supervisor: supervisorRow
+            ? {
+                id: supervisorRow.id,
+                first_name: supervisorRow.first_name,
+                last_name: supervisorRow.last_name,
+              }
+            : null,
+          campus: item.campus || null,
+        } as Person;
+      });
+
+      return {
+        items,
+        nextPage: items.length === PAGE_SIZE ? pageParam + 1 : undefined,
+        totalCount: count ?? 0,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 }
 

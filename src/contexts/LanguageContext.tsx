@@ -417,7 +417,9 @@ const translations: Translations = {
   'common.saving': { en: 'Saving...', fr: 'Enregistrement...' },
   'common.back': { en: 'Back', fr: 'Retour' },
   'common.confirmDelete': { en: 'Confirm Delete', fr: 'Confirmer la suppression' },
-  
+  'common.showing': { en: 'Showing', fr: 'Affichage de' },
+  'common.of': { en: 'of', fr: 'sur' },
+
   // Calendar & Events
   'calendar.quarters': { en: 'Quarters', fr: 'Trimestres' },
   'calendar.quartersDescription': { en: 'Manage quarterly themes and planning', fr: 'Gérer les thèmes et la planification trimestriels' },

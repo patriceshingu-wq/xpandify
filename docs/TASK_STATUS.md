@@ -31,7 +31,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | Feature | Status | Gaps Found | Session |
 |---------|--------|------------|---------|
 | Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
-| People/Directory | 🔄 Implementing | 4/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅), 5 remaining | 2026-02-18 |
+| People/Directory | 🔄 Implementing | 5/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅), 4 remaining | 2026-02-18 |
 | Ministries | ⏳ Pending | — | — |
 | Goals | ⏳ Pending | — | — |
 | Meetings | ⏳ Pending | — | — |
@@ -62,7 +62,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | 6 | Add org chart visualization | Medium | High | ⏳ Pending |
 | 7 | Add user invite flow (create auth + person) | Medium | High | ⏳ Pending |
 | 8 | Add bulk import/export (CSV) | Low | High | ⏳ Pending |
-| 9 | Add infinite scroll to directory | Low | Low | ⏳ Pending |
+| 9 | Add infinite scroll to directory | Low | Low | ✅ Done |
 
 **Profile Page Design Decisions:**
 - Sections: Basic info, Ministry memberships, Development (strengths/calling), Stats (goals, meetings, courses)
@@ -92,14 +92,14 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 src/
   hooks/useEvents.ts                    ✅ Updated - added campus_id, organizer_id, removed recurrence_pattern
   hooks/useRecurringEvents.ts           ✅ Updated - removed recurrence_pattern reference
-  hooks/usePeople.ts                    ✅ Updated - campus_id FK with embedded join, title field
+  hooks/usePeople.ts                    ✅ Updated - campus_id FK with embedded join, title field, usePeopleInfinite hook
   hooks/useTeammates.ts                 ✅ Updated - campus_id FK with embedded join, title field
   hooks/useSupervisor.ts                ✅ Updated - campus_id FK with embedded join, title field
   hooks/usePersonStats.ts               ✅ Created - fetches goals/meetings/courses/feedback counts
   hooks/usePersonMinistries.ts          ✅ Created - fetches ministry memberships + sync mutation for person
   integrations/supabase/types.ts        ✅ Updated - people table: campus → campus_id, added title
   components/people/PersonFormDialog.tsx ✅ Updated - title field, campus dropdown, ministry multi-select
-  components/people/DirectoryTab.tsx    ✅ Updated - displays title and campus, links to profile page
+  components/people/DirectoryTab.tsx    ✅ Updated - displays title and campus, links to profile page, infinite scroll
   components/team/TeammateCard.tsx      ✅ Updated - displays title and campus.name
   components/team/SupervisorCard.tsx    ✅ Updated - displays title and campus.name
   contexts/LanguageContext.tsx          ✅ Updated - added people.*, personProfile.* translations
@@ -266,10 +266,16 @@ Test user setup (password: testpassword@123):
    - `SupervisorCard.tsx` - displays title in badge, campus.name
 7. Added translations: `people.title`, `people.campus`, `people.selectCampus`
 8. TypeScript compiles without errors
+9. Implemented infinite scroll for directory:
+   - Created `usePeopleInfinite` hook using React Query's `useInfiniteQuery`
+   - Uses Supabase `range()` for pagination (20 items per page)
+   - Intersection Observer triggers loading more when scrolling to bottom
+   - Shows "Showing X of Y" count and loading spinner
+   - Added `common.showing` and `common.of` translations
 
 **Pending:**
 - Migration needs to be applied (requires `npx supabase login` first)
-- Remaining 7 People gaps to implement
+- Remaining 4 People gaps to implement (photos, org chart, invite flow, bulk import/export)
 
 ### 2026-02-17 Session (continued)
 **Focus:** Calendar/Events UI implementation for campus and organizer fields
@@ -323,8 +329,7 @@ Read @docs/TASK_STATUS.md. Working on People/Directory feature gaps.
 Completed: title field + campus_id FK (migration + types + hooks + UI).
 Migration `20260218100000_people_add_title_and_campus_fk.sql` needs to be
 applied (run `npx supabase login` then `npx supabase db push`).
-Next: Implement remaining 7 gaps (profile page, photos, ministry UI, org chart,
-invite flow, bulk import/export, infinite scroll).
+Next: Implement remaining 4 gaps (photos, org chart, invite flow, bulk import/export).
 ```
 
 ---
