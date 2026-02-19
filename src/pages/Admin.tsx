@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateManagement';
+import { MinistryRolesManagement } from '@/components/admin/MinistryRolesManagement';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
-import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus } from 'lucide-react';
+import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus, Tag } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function Admin() {
@@ -96,7 +97,7 @@ export default function Admin() {
 
         {/* Tabs - Full width grid on mobile */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
+          <TabsList className="grid w-full grid-cols-5 md:w-auto md:inline-flex">
             <TabsTrigger value="users" className="gap-1.5 touch-target">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.userManagement')}</span>
@@ -106,6 +107,11 @@ export default function Admin() {
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.roleManagement')}</span>
               <span className="sm:hidden">Roles</span>
+            </TabsTrigger>
+            <TabsTrigger value="ministry-roles" className="gap-1.5 touch-target">
+              <Tag className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('admin.ministryRoles')}</span>
+              <span className="sm:hidden">M. Roles</span>
             </TabsTrigger>
             <TabsTrigger value="templates" className="gap-1.5 touch-target">
               <FileText className="h-4 w-4" />
@@ -191,6 +197,10 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="ministry-roles" className="mt-6">
+            <MinistryRolesManagement />
           </TabsContent>
 
           <TabsContent value="templates" className="mt-6">

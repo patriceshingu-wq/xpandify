@@ -85,6 +85,7 @@ function AppRoutes() {
       <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
       <Route path="/people/:id" element={<ProtectedRoute><PersonProfile /></ProtectedRoute>} />
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
+      <Route path="/ministries/:id" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<Navigate to="/goals" replace />} />

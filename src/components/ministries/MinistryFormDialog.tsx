@@ -104,26 +104,26 @@ export function MinistryFormDialog({ open, onOpenChange, ministry, ministries = 
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif">
-            {isEditing ? 'Edit Ministry' : 'Add Ministry'}
+            {isEditing ? t('ministries.editMinistry') : t('ministries.addMinistry')}
           </DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update ministry details' : 'Create a new ministry or department'}
+            {isEditing ? t('ministries.updateDetails') : t('ministries.createNew')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Parent Ministry */}
           <div className="space-y-2">
-            <Label>Parent Ministry</Label>
+            <Label>{t('ministries.parentMinistry')}</Label>
             <Select
               value={formData.parent_ministry_id}
               onValueChange={(value) => setFormData({ ...formData, parent_ministry_id: value === '__none__' ? '' : value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="None (top-level ministry)" />
+                <SelectValue placeholder={t('ministries.noneTopLevel')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">None (top-level ministry)</SelectItem>
+                <SelectItem value="__none__">{t('ministries.noneTopLevel')}</SelectItem>
                 {parentOptions.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
                     {getLocalizedField(m, 'name')}
@@ -136,55 +136,55 @@ export function MinistryFormDialog({ open, onOpenChange, ministry, ministries = 
           {/* Name */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name_en">Name (English) *</Label>
+              <Label htmlFor="name_en">{t('ministries.nameEnglish')} *</Label>
               <Input
                 id="name_en"
                 value={formData.name_en}
                 onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                placeholder="Ministry name"
+                placeholder={t('ministries.ministryName')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name_fr">Name (Français)</Label>
+              <Label htmlFor="name_fr">{t('ministries.nameFrench')}</Label>
               <Input
                 id="name_fr"
                 value={formData.name_fr}
                 onChange={(e) => setFormData({ ...formData, name_fr: e.target.value })}
-                placeholder="Nom du ministère"
+                placeholder={t('ministries.ministryName')}
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label>Description (English)</Label>
+            <Label>{t('ministries.descriptionEnglish')}</Label>
             <Textarea
               value={formData.description_en}
               onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-              placeholder="Ministry description..."
+              placeholder={t('ministries.ministryDescription')}
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label>Description (Français)</Label>
+            <Label>{t('ministries.descriptionFrench')}</Label>
             <Textarea
               value={formData.description_fr}
               onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
-              placeholder="Description du ministère..."
+              placeholder={t('ministries.ministryDescription')}
               rows={3}
             />
           </div>
 
           {/* Leader */}
           <div className="space-y-2">
-            <Label>Ministry Leader</Label>
+            <Label>{t('ministries.ministryLeader')}</Label>
             <Select
               value={formData.leader_id}
               onValueChange={(value) => setFormData({ ...formData, leader_id: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select leader" />
+                <SelectValue placeholder={t('ministries.selectLeader')} />
               </SelectTrigger>
               <SelectContent>
                 {leaderOptions.map((p) => (
@@ -207,9 +207,9 @@ export function MinistryFormDialog({ open, onOpenChange, ministry, ministries = 
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Ministry</AlertDialogTitle>
+                    <AlertDialogTitle>{t('ministries.deleteMinistry')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you sure you want to delete this ministry? This action cannot be undone.
+                      {t('ministries.deleteConfirm')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

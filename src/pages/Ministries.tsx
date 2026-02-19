@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,11 +28,13 @@ function MinistryTreeItem({
   node,
   onSelect,
   getLocalizedField,
+  t,
   depth = 0,
 }: {
   node: MinistryTreeNode;
   onSelect: (m: Ministry) => void;
   getLocalizedField: (obj: Record<string, unknown>, field: string) => string;
+  t: (key: string) => string;
   depth?: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +86,7 @@ function MinistryTreeItem({
                     )}
                     {hasChildren && (
                       <span className="text-xs">
-                        {node.children.length} {node.children.length === 1 ? 'department' : 'departments'}
+                        {node.children.length} {node.children.length === 1 ? t('ministries.department') : t('ministries.departments')}
                       </span>
                     )}
                   </div>
@@ -101,6 +104,7 @@ function MinistryTreeItem({
                 node={child}
                 onSelect={onSelect}
                 getLocalizedField={getLocalizedField}
+                t={t}
                 depth={depth + 1}
               />
             ))}
@@ -112,14 +116,21 @@ function MinistryTreeItem({
 }
 
 export default function Ministries() {
+  const { id: ministryId } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
   const { t, getLocalizedField } = useLanguage();
   const { isAdminOrSuper, person } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMinistry, setEditingMinistry] = useState<Ministry | null>(null);
-  const [selectedMinistry, setSelectedMinistry] = useState<Ministry | null>(null);
   const [parentForNewMinistry, setParentForNewMinistry] = useState<string | undefined>();
 
   const { data: ministries, isLoading } = useMinistries();
+
+  // Find the selected ministry from URL param
+  const selectedMinistry = ministryId && ministries
+    ? ministries.find(m => m.id === ministryId) || null
+    : null;
+
   const { data: members = [], isLoading: membersLoading } = useMinistryMembers(selectedMinistry?.id);
 
   const isLeaderOfSelected = selectedMinistry?.leader_id && person?.id === selectedMinistry.leader_id;
@@ -147,7 +158,11 @@ export default function Ministries() {
   };
 
   const handleBreadcrumbNavigate = (ministry: Ministry | null) => {
-    setSelectedMinistry(ministry);
+    if (ministry) {
+      navigate(`/ministries/${ministry.id}`);
+    } else {
+      navigate('/ministries');
+    }
   };
 
   // Detail view
@@ -155,7 +170,7 @@ export default function Ministries() {
     const ancestors = ministries ? getAncestorChain(ministries, selectedMinistry.id) : [];
 
     return (
-      <MainLayout title={getLocalizedField(selectedMinistry, 'name')} subtitle="Ministry details">
+      <MainLayout title={getLocalizedField(selectedMinistry, 'name')} subtitle={t('ministries.ministryDetails')}>
         <div className="space-y-6 animate-fade-in">
           {/* Breadcrumbs */}
           <Breadcrumb>
@@ -192,10 +207,9 @@ export default function Ministries() {
             <Button variant="ghost" size="icon" onClick={() => {
               // Go to parent or list
               if (selectedMinistry.parent_ministry_id) {
-                const parent = ministries?.find(m => m.id === selectedMinistry.parent_ministry_id);
-                setSelectedMinistry(parent || null);
+                navigate(`/ministries/${selectedMinistry.parent_ministry_id}`);
               } else {
-                setSelectedMinistry(null);
+                navigate('/ministries');
               }
             }}>
               <ArrowLeft className="h-5 w-5" />
@@ -209,7 +223,7 @@ export default function Ministries() {
             {isAdminOrSuper && (
               <Button variant="outline" size="sm" onClick={() => handleEdit(selectedMinistry)} className="gap-2">
                 <Pencil className="h-4 w-4" />
-                Edit
+                {t('common.edit')}
               </Button>
             )}
           </div>
@@ -217,7 +231,7 @@ export default function Ministries() {
           {selectedMinistry.leader && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <User className="h-4 w-4" />
-              <span>Led by {selectedMinistry.leader.first_name} {selectedMinistry.leader.last_name}</span>
+              <span>{t('ministries.ledBy')} {selectedMinistry.leader.first_name} {selectedMinistry.leader.last_name}</span>
             </div>
           )}
 
@@ -227,7 +241,7 @@ export default function Ministries() {
           {(childMinistries.length > 0 || isAdminOrSuper) && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold font-serif">Sub-Ministries / Departments</h2>
+                <h2 className="text-lg font-semibold font-serif">{t('ministries.subMinistries')}</h2>
                 {isAdminOrSuper && (
                   <Button
                     variant="outline"
@@ -236,7 +250,7 @@ export default function Ministries() {
                     className="gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Add Department
+                    {t('ministries.addDepartment')}
                   </Button>
                 )}
               </div>
@@ -246,7 +260,7 @@ export default function Ministries() {
                     <Card
                       key={child.id}
                       className="transition-all hover:shadow-md cursor-pointer hover:-translate-y-0.5"
-                      onClick={() => setSelectedMinistry(child)}
+                      onClick={() => navigate(`/ministries/${child.id}`)}
                     >
                       <CardContent className="p-4 flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-accent/10">
@@ -269,7 +283,7 @@ export default function Ministries() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No departments yet.</p>
+                <p className="text-sm text-muted-foreground">{t('ministries.noDepartments')}</p>
               )}
               <Separator />
             </div>
@@ -298,16 +312,16 @@ export default function Ministries() {
 
   // List view
   return (
-    <MainLayout title={t('nav.ministries')} subtitle="Manage church ministries and departments">
+    <MainLayout title={t('nav.ministries')} subtitle={t('ministries.subtitle')}>
       <div className="space-y-6 animate-fade-in">
         <PageHeader
           title={t('nav.ministries')}
-          subtitle="Manage church ministries and departments"
+          subtitle={t('ministries.subtitle')}
           actions={
             isAdminOrSuper && (
               <Button onClick={() => { setParentForNewMinistry(undefined); setIsFormOpen(true); }} className="gap-2">
                 <Plus className="h-4 w-4" />
-                Add Ministry
+                {t('ministries.addMinistry')}
               </Button>
             )
           }
@@ -323,8 +337,9 @@ export default function Ministries() {
               <MinistryTreeItem
                 key={node.id}
                 node={node}
-                onSelect={(m) => setSelectedMinistry(m)}
+                onSelect={(m) => navigate(`/ministries/${m.id}`)}
                 getLocalizedField={getLocalizedField}
+                t={t}
               />
             ))}
           </div>
@@ -332,9 +347,9 @@ export default function Ministries() {
           <EmptyState
             icon={<Church className="h-16 w-16" />}
             title={t('common.noResults')}
-            description="No ministries have been created yet"
+            description={t('ministries.noMinistries')}
             action={isAdminOrSuper ? {
-              label: 'Add Ministry',
+              label: t('ministries.addMinistry'),
               onClick: () => setIsFormOpen(true),
             } : undefined}
           />

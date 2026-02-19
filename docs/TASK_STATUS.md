@@ -32,7 +32,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 |---------|--------|------------|---------|
 | Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
 | People/Directory | ✅ Complete | 9/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅, invite flow ✅, bulk import/export ✅) | 2026-02-18 |
-| Ministries | ⏳ Pending | — | — |
+| Ministries | ✅ Complete | 4 gaps fixed (translations ✅, URL routing ✅, RLS ✅, ministry roles UI ✅) | 2026-02-18 |
 | Goals | ⏳ Pending | — | — |
 | Meetings | ⏳ Pending | — | — |
 | PDPs | ⏳ Pending | — | — |
@@ -84,6 +84,35 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 8. Add invite flow
 9. Add bulk import/export
 
+### Ministries - Gap Analysis (2026-02-18)
+
+**Current Implementation:**
+- Hierarchical ministry tree with parent-child relationships
+- CRUD operations (admin only)
+- Ministry members management via `people_ministries` junction
+- Ministry leader assignment
+- Bilingual support (name_en/fr, description_en/fr)
+- Breadcrumb navigation for hierarchy
+
+**Confirmed Gaps (user approved):**
+
+| # | Gap | Priority | Complexity | Status |
+|---|-----|----------|------------|--------|
+| 1 | Hardcoded English strings in UI | High | Low | ✅ Done |
+| 2 | Ministry roles UI (`ministry_roles`, `people_roles`) | Medium | Medium | ✅ Done |
+| 3 | No ministry detail URL routing | Low | Low | ✅ Done |
+| 4 | RLS gap for ministry leaders (already fixed) | Medium | Low | ✅ Confirmed |
+
+**Implementation Details:**
+- Added 40+ ministry translations to LanguageContext
+- Created URL routing `/ministries/:id` for shareable links
+- Created `useMinistryRoles` hook for CRUD on ministry_roles table
+- Created `usePersonRoles` hook for assigning roles to people
+- Added `MemberRolesBadge` component to show roles on member cards
+- Added `ManageMemberRolesDialog` for role assignment
+- Added `MinistryRolesManagement` admin component for role definitions
+- Added Ministry Roles tab to Admin page
+
 ---
 
 ## Files Modified This Phase
@@ -115,6 +144,15 @@ src/
   pages/Admin.tsx                       ✅ Updated - added Invite User button + dialog
   components/admin/InviteUserDialog.tsx ✅ Created - user invite form with person info + role selection
   components/people/BulkImportDialog.tsx ✅ Created - CSV import wizard with validation preview
+  hooks/useMinistryRoles.ts             ✅ Created - CRUD for ministry_roles table
+  hooks/usePersonRoles.ts               ✅ Created - CRUD for people_roles junction + sync mutation
+  pages/Ministries.tsx                  ✅ Updated - URL routing /ministries/:id, translations
+  components/ministries/MinistryFormDialog.tsx ✅ Updated - translations
+  components/ministries/MinistryMembersList.tsx ✅ Updated - roles badge + manage roles dialog
+  components/ministries/MemberRolesBadge.tsx ✅ Created - displays person's ministry roles
+  components/ministries/ManageMemberRolesDialog.tsx ✅ Created - assign/remove roles from person
+  components/admin/MinistryRolesManagement.tsx ✅ Created - CRUD UI for ministry_roles
+  pages/Admin.tsx                       ✅ Updated - added Ministry Roles tab
 
 e2e/
   auth.spec.ts                  ✅ Complete
@@ -331,6 +369,37 @@ Test user setup (password: testpassword@123):
 - Migration `20260218150000_add_profile_photos.sql` needs to be applied
 - Deploy Edge Function `invite-user` to Supabase (`npx supabase functions deploy invite-user`)
 
+### 2026-02-18 Session (continued)
+**Focus:** Ministries feature gap analysis and implementation
+
+**Completed:**
+1. Conducted gap analysis for Ministries feature
+2. Identified 4 gaps (user approved all):
+   - Hardcoded English strings (need translations)
+   - Ministry roles UI not implemented (ministry_roles, people_roles tables exist but unused)
+   - No URL routing for ministry detail page
+   - RLS policies confirmed already in place
+3. Added 40+ ministry translations to LanguageContext:
+   - `ministries.title`, `ministries.subtitle`, form labels, error messages
+   - Role category translations (pastoral, worship, children, youth, media, admin, other)
+   - Admin translations for ministry roles management
+4. Implemented URL routing for ministries:
+   - Added `/ministries/:id` route to App.tsx
+   - Updated Ministries.tsx to use `useParams` and `useNavigate`
+   - All navigation now uses shareable URLs
+5. Confirmed RLS policies already exist:
+   - Migration `20260210150457` adds `is_ministry_leader` function
+   - Policy allows leaders to manage members of their ministry
+6. Implemented ministry roles UI:
+   - Created `useMinistryRoles.ts` hook (CRUD for ministry_roles)
+   - Created `usePersonRoles.ts` hook (CRUD + sync for people_roles)
+   - Created `MemberRolesBadge.tsx` component (shows roles on member cards)
+   - Created `ManageMemberRolesDialog.tsx` (assign/remove roles per person)
+   - Updated `MinistryMembersList.tsx` to include roles badge + manage button
+   - Created `MinistryRolesManagement.tsx` admin component for role definitions
+   - Added Ministry Roles tab to Admin page
+7. TypeScript compiles without errors
+
 ### 2026-02-17 Session (continued)
 **Focus:** Calendar/Events UI implementation for campus and organizer fields
 
@@ -379,11 +448,11 @@ Test user setup (password: testpassword@123):
 ## Resume Prompt (copy-paste to start next session)
 
 ```
-Read @docs/TASK_STATUS.md. People/Directory feature gap analysis COMPLETE (9/9 gaps done).
+Read @docs/TASK_STATUS.md. Ministries feature gap analysis COMPLETE (4/4 gaps done).
 Pending deployments:
 - Migration: `20260218150000_add_profile_photos.sql`
 - Edge Function: `invite-user`
-Next: Move to gap analysis for next feature (Ministries, Goals, etc.)
+Next: Move to gap analysis for next feature (Goals, Meetings, PDPs, etc.)
 ```
 
 ---
@@ -395,7 +464,7 @@ Next: Move to gap analysis for next feature (Ministries, Goals, etc.)
 | Auth | ✅ Complete | Email/password with confirmation |
 | Dashboard | ✅ Complete | Role-adaptive (staff vs supervisor) |
 | People | ✅ Complete | Directory, team, peers, supervisor tabs |
-| Ministries | ✅ Complete | Hierarchy, members, leadership |
+| Ministries | ✅ Complete | Hierarchy, members, leadership, roles, URL routing |
 | Goals | ✅ Complete | Church/ministry/individual cascade |
 | Meetings | ✅ Complete | Calendar, templates, agenda linking |
 | Development (PDPs) | ✅ Complete | PDP container + goals with `pdp_id` |

@@ -35,9 +35,9 @@ export function AddMinistryMemberDialog({ open, onOpenChange, ministryId, existi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Member</DialogTitle>
+          <DialogTitle>{t('ministries.addMember')}</DialogTitle>
           <DialogDescription>
-            Search for a person to add to this ministry
+            {t('ministries.searchToAdd')}
           </DialogDescription>
         </DialogHeader>
 
@@ -73,7 +73,7 @@ export function AddMinistryMemberDialog({ open, onOpenChange, ministryId, existi
                         <p className="font-medium">
                           {person.preferred_name || person.first_name} {person.last_name}
                         </p>
-                        <p className="text-sm text-muted-foreground">{person.email || 'No email'}</p>
+                        <p className="text-sm text-muted-foreground">{person.email || t('ministries.noEmail')}</p>
                       </div>
                     </div>
                     <Button size="sm" variant="ghost" disabled={addMember.isPending}>
@@ -86,7 +86,7 @@ export function AddMinistryMemberDialog({ open, onOpenChange, ministryId, existi
               <div className="flex flex-col items-center justify-center h-full text-center p-4">
                 <User className="h-10 w-10 text-muted-foreground/50 mb-2" />
                 <p className="text-sm text-muted-foreground">
-                  {search ? t('common.noResults') : 'No people available to add'}
+                  {search ? t('common.noResults') : t('ministries.noAvailable')}
                 </p>
               </div>
             )}
