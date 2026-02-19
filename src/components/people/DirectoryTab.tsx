@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Search, Users, Mail, Phone, Building, Loader2 } from 'lucide-react';
 import { PersonFormDialog } from '@/components/people/PersonFormDialog';
 
@@ -154,6 +154,9 @@ export function DirectoryTab() {
                 <CardContent className="p-3 md:p-4">
                   <div className="flex items-start gap-3 md:gap-4">
                     <Avatar className="h-11 w-11 md:h-12 md:w-12 flex-shrink-0">
+                      {person.photo_url && (
+                        <AvatarImage src={person.photo_url} alt={`${person.first_name} ${person.last_name}`} />
+                      )}
                       <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm md:text-base">
                         {getInitials(person)}
                       </AvatarFallback>

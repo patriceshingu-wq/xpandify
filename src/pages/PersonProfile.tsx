@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -5,11 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePerson } from '@/hooks/usePeople';
 import { usePersonStats } from '@/hooks/usePersonStats';
 import { usePersonMinistries } from '@/hooks/usePersonMinistries';
-import { PageHeader } from '@/components/ui/page-header';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
@@ -26,7 +27,10 @@ import {
   Heart,
   Sparkles,
   TrendingUp,
-  UserCog
+  UserCog,
+  Camera,
+  Trash2,
+  Loader2
 } from 'lucide-react';
 
 export default function PersonProfile() {
@@ -38,12 +42,36 @@ export default function PersonProfile() {
   const { data: person, isLoading: isLoadingPerson } = usePerson(id);
   const { data: stats, isLoading: isLoadingStats } = usePersonStats(id);
   const { data: ministries, isLoading: isLoadingMinistries } = usePersonMinistries(id);
+  const { uploadPhoto, deletePhoto, isUploading, isDeleting } = useProfilePhoto();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Access control: Basic info visible to all authenticated users
   // Development + Stats visible to self + supervisors + admins only
   const isOwnProfile = currentPerson?.id === id;
   const isSupervisorOfPerson = currentPerson?.id === person?.supervisor_id;
   const canViewPrivateInfo = isOwnProfile || isSupervisorOfPerson || isAdminOrSuper;
+  const canEditPhoto = isOwnProfile || isAdminOrSuper;
+
+  const handlePhotoClick = () => {
+    if (canEditPhoto) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && id) {
+      uploadPhoto({ personId: id, file });
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleDeletePhoto = () => {
+    if (id && person?.photo_url) {
+      deletePhoto(id);
+    }
+  };
 
   if (isLoadingPerson) {
     return (
@@ -101,11 +129,58 @@ export default function PersonProfile() {
         <Card>
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarFallback className="bg-accent/10 text-accent text-3xl font-medium">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
+              {/* Photo Upload */}
+              <div className="relative group">
+                <Avatar className="h-24 w-24">
+                  {person.photo_url && (
+                    <AvatarImage src={person.photo_url} alt={displayName} />
+                  )}
+                  <AvatarFallback className="bg-accent/10 text-accent text-3xl font-medium">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+
+                {canEditPhoto && (
+                  <>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {(isUploading || isDeleting) ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                          <Loader2 className="h-6 w-6 text-white animate-spin" />
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-white hover:text-white hover:bg-white/20"
+                            onClick={handlePhotoClick}
+                          >
+                            <Camera className="h-5 w-5" />
+                          </Button>
+                          {person.photo_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-white hover:text-red-400 hover:bg-white/20"
+                              onClick={handleDeletePhoto}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                   <h1 className="text-2xl font-semibold text-foreground">{displayName}</h1>

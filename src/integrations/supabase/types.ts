@@ -1650,6 +1650,7 @@ export type Database = {
           other_languages: Database["public"]["Enums"]["language_code"][] | null
           person_type: Database["public"]["Enums"]["person_type"] | null
           phone: string | null
+          photo_url: string | null
           preferred_name: string | null
           primary_language: Database["public"]["Enums"]["language_code"] | null
           start_date: string | null
@@ -1678,6 +1679,7 @@ export type Database = {
             | null
           person_type?: Database["public"]["Enums"]["person_type"] | null
           phone?: string | null
+          photo_url?: string | null
           preferred_name?: string | null
           primary_language?: Database["public"]["Enums"]["language_code"] | null
           start_date?: string | null
@@ -1706,6 +1708,7 @@ export type Database = {
             | null
           person_type?: Database["public"]["Enums"]["person_type"] | null
           phone?: string | null
+          photo_url?: string | null
           preferred_name?: string | null
           primary_language?: Database["public"]["Enums"]["language_code"] | null
           start_date?: string | null

@@ -5,7 +5,7 @@ import { usePeople, Person } from '@/hooks/usePeople';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -94,6 +94,9 @@ function OrgNodeCard({ node, isExpanded, onToggle, onClick, zoom }: OrgNodeCardP
       <CardContent className="p-3">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 shrink-0">
+            {person.photo_url && (
+              <AvatarImage src={person.photo_url} alt={`${person.first_name} ${person.last_name}`} />
+            )}
             <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm">
               {getInitials()}
             </AvatarFallback>

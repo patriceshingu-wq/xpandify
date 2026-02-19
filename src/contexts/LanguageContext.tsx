@@ -105,6 +105,12 @@ const translations: Translations = {
   'people.noOrgDataDescription': { en: 'No people found to display in the org chart', fr: 'Aucune personne trouvée pour afficher dans l\'organigramme' },
   'people.noOrgSearchResults': { en: 'No people match your search criteria', fr: 'Aucune personne ne correspond à vos critères de recherche' },
 
+  // Profile Photo
+  'profilePhoto.uploadSuccess': { en: 'Profile photo updated', fr: 'Photo de profil mise à jour' },
+  'profilePhoto.deleteSuccess': { en: 'Profile photo removed', fr: 'Photo de profil supprimée' },
+  'profilePhoto.fileTooLarge': { en: 'File is too large. Maximum size is 5MB', fr: 'Le fichier est trop volumineux. Taille maximale: 5 Mo' },
+  'profilePhoto.invalidFileType': { en: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP', fr: 'Type de fichier invalide. Autorisés: JPEG, PNG, GIF, WebP' },
+
   // Person Profile
   'personProfile.loading': { en: 'Loading...', fr: 'Chargement...' },
   'personProfile.notFound': { en: 'Not Found', fr: 'Non trouvé' },

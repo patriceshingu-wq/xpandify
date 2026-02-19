@@ -31,7 +31,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | Feature | Status | Gaps Found | Session |
 |---------|--------|------------|---------|
 | Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
-| People/Directory | 🔄 Implementing | 6/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅), 3 remaining | 2026-02-18 |
+| People/Directory | 🔄 Implementing | 7/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅), 2 remaining | 2026-02-18 |
 | Ministries | ⏳ Pending | — | — |
 | Goals | ⏳ Pending | — | — |
 | Meetings | ⏳ Pending | — | — |
@@ -57,7 +57,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | 1 | Add `title` field to people schema | High | Low | ✅ Done |
 | 2 | Change `campus` text → `campus_id` FK | High | Medium | ✅ Done |
 | 3 | Add profile page (`/people/:id`) with full stats | High | Medium | ✅ Done |
-| 4 | Add profile photo upload (Supabase Storage) | Medium | Medium | ⏳ Pending |
+| 4 | Add profile photo upload (Supabase Storage) | Medium | Medium | ✅ Done |
 | 5 | Add ministry assignment UI (both directions) | High | Medium | ✅ Done |
 | 6 | Add org chart visualization | Medium | High | ✅ Done |
 | 7 | Add user invite flow (create auth + person) | Medium | High | ⏳ Pending |
@@ -101,12 +101,13 @@ src/
   components/people/PersonFormDialog.tsx ✅ Updated - title field, campus dropdown, ministry multi-select
   components/people/DirectoryTab.tsx    ✅ Updated - displays title and campus, links to profile page, infinite scroll
   components/people/OrgChartTab.tsx     ✅ Created - hierarchical org chart with expand/collapse, zoom, search
+  hooks/useProfilePhoto.ts              ✅ Created - upload/delete profile photos to Supabase Storage
   components/team/TeammateCard.tsx      ✅ Updated - displays title and campus.name
   components/team/SupervisorCard.tsx    ✅ Updated - displays title and campus.name
   contexts/LanguageContext.tsx          ✅ Updated - added people.*, personProfile.* translations
   pages/calendar/EventEditor.tsx        ✅ Updated - added campus_id, organizer_id dropdowns, auto-sets organizer
   pages/calendar/EventDetail.tsx        ✅ Updated - displays campus and organizer info
-  pages/PersonProfile.tsx               ✅ Created - profile page with contact, ministries, development, stats
+  pages/PersonProfile.tsx               ✅ Created - profile page with contact, ministries, development, stats, photo upload
   App.tsx                               ✅ Updated - added /people/:id route
   pages/People.tsx                      ✅ Updated - added Org Chart tab
 
@@ -119,6 +120,7 @@ e2e/
 supabase/migrations/
   20260217180000_fix_events_schema.sql  ✅ Applied - adds organizer_id, campus_id, drops recurrence_pattern
   20260218100000_people_add_title_and_campus_fk.sql  ✅ Applied - adds title, campus_id FK, drops campus text
+  20260218150000_add_profile_photos.sql ⏳ Pending - adds photo_url column, creates storage bucket + RLS policies
 ```
 
 ---
@@ -281,10 +283,19 @@ Test user setup (password: testpassword@123):
     - Shows direct reports count on each node
     - Clicking a node navigates to profile page
     - Added 12 new translations for org chart UI
+11. Implemented profile photo upload:
+    - Created migration `20260218150000_add_profile_photos.sql`:
+      - Adds `photo_url` column to people table
+      - Creates `profile-photos` public storage bucket (5MB limit)
+      - RLS policies: users upload their own, admins manage all
+    - Created `useProfilePhoto.ts` hook for upload/delete operations
+    - Updated `PersonProfile.tsx` with photo upload overlay (camera icon on hover)
+    - Updated `DirectoryTab.tsx` and `OrgChartTab.tsx` to display photos
+    - Added 4 translations for photo upload/delete feedback
 
 **Pending:**
-- Migration needs to be applied (requires `npx supabase login` first)
-- Remaining 3 People gaps to implement (photos, invite flow, bulk import/export)
+- Migration `20260218150000_add_profile_photos.sql` needs to be applied
+- Remaining 2 People gaps to implement (invite flow, bulk import/export)
 
 ### 2026-02-17 Session (continued)
 **Focus:** Calendar/Events UI implementation for campus and organizer fields
@@ -338,7 +349,8 @@ Read @docs/TASK_STATUS.md. Working on People/Directory feature gaps.
 Completed: title field + campus_id FK (migration + types + hooks + UI).
 Migration `20260218100000_people_add_title_and_campus_fk.sql` needs to be
 applied (run `npx supabase login` then `npx supabase db push`).
-Next: Implement remaining 3 gaps (photos, invite flow, bulk import/export).
+Next: Implement remaining 2 gaps (invite flow, bulk import/export).
+Migration `20260218150000_add_profile_photos.sql` needs to be applied.
 ```
 
 ---
