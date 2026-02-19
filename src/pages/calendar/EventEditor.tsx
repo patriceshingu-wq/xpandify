@@ -90,6 +90,10 @@ export default function EventEditorPage() {
     related_course_id: null as string | null,
     campus_id: null as string | null,
     organizer_id: null as string | null,
+    recurrence_rule_id: null as string | null,
+    recurring_series_id: null as string | null,
+    is_recurrence_exception: false,
+    original_date: null as string | null,
   });
 
   useEffect(() => {
@@ -116,8 +120,11 @@ export default function EventEditorPage() {
         related_course_id: existingEvent.related_course_id,
         campus_id: existingEvent.campus_id,
         organizer_id: existingEvent.organizer_id,
+        recurrence_rule_id: existingEvent.recurrence_rule_id,
+        recurring_series_id: existingEvent.recurring_series_id,
+        is_recurrence_exception: existingEvent.is_recurrence_exception ?? false,
+        original_date: existingEvent.original_date,
       });
-    } else if (!isEditing && person?.id) {
       // Auto-set organizer to current user when creating new event
       setFormData(prev => ({ ...prev, organizer_id: person.id }));
     }
@@ -163,11 +170,23 @@ export default function EventEditorPage() {
   };
 
   const doSubmit = async (saveAndNew = false, scope?: EditScope) => {
+    // Sanitize empty strings to null for optional UUID/nullable fields
+    const sanitized = { ...formData };
+    const nullableFields: (keyof typeof sanitized)[] = [
+      'quarter_id', 'program_id', 'ministry_id', 'activity_category_id',
+      'related_course_id', 'campus_id', 'organizer_id',
+      'recurrence_rule_id', 'recurring_series_id', 'original_date',
+    ];
+    for (const field of nullableFields) {
+      if ((sanitized as any)[field] === '') {
+        (sanitized as any)[field] = null;
+      }
+    }
     const eventData = {
-      ...formData,
-      end_date: formData.end_date || formData.date,
-      start_time: formData.is_all_day ? null : formData.start_time || null,
-      end_time: formData.is_all_day ? null : formData.end_time || null,
+      ...sanitized,
+      end_date: sanitized.end_date || sanitized.date,
+      start_time: sanitized.is_all_day ? null : sanitized.start_time || null,
+      end_time: sanitized.is_all_day ? null : sanitized.end_time || null,
     };
 
     if (isEditing) {
