@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEvents, type EventFilters, type EventStatus } from '@/hooks/useEvents';
 import { useMinistries } from '@/hooks/useMinistries';
 import { usePrograms } from '@/hooks/usePrograms';
@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addYears, subYears, startOfWeek, endOfWeek, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addYears, subYears, startOfWeek, endOfWeek, parseISO, parse, isValid } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventsListView from '@/components/calendar/EventsListView';
 import EventsWeekView from '@/components/calendar/EventsWeekView';
@@ -34,6 +34,7 @@ type ViewMode = 'list' | 'week' | 'month';
 
 export default function EventsCalendarPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { getLocalizedField, t } = useLanguage();
   const { isAdminOrSuper } = useAuth();
   const { data: ministries } = useMinistries();
@@ -41,7 +42,14 @@ export default function EventsCalendarPage() {
   const { data: categories } = useActivityCategories();
 
   const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+    const monthParam = searchParams.get('month');
+    if (monthParam) {
+      const parsed = parse(monthParam, 'yyyy-MM', new Date());
+      if (isValid(parsed)) return parsed;
+    }
+    return new Date();
+  });
   const [filters, setFilters] = useState<EventFilters>({});
 
   // Date range calculations based on view mode
@@ -146,7 +154,7 @@ export default function EventsCalendarPage() {
           subtitle={t('calendar.eventsCalendarDescription') || 'View and manage all events'}
           actions={
             isAdminOrSuper && (
-              <Button onClick={() => navigate('/calendar/events/new')}>
+              <Button onClick={() => navigate(`/calendar/events/new?month=${format(currentDate, 'yyyy-MM')}`)}>
                 <Plus className="h-4 w-4 mr-2" />
                 {t('calendar.addEvent') || 'Add Event'}
               </Button>
@@ -224,7 +232,7 @@ export default function EventsCalendarPage() {
 
         {/* Views */}
         {viewMode === 'list' && (
-          <EventsListView events={events} isLoading={isLoading} />
+          <EventsListView events={events} isLoading={isLoading} monthParam={format(currentDate, 'yyyy-MM')} />
         )}
 
         {viewMode === 'week' && (
@@ -238,6 +246,7 @@ export default function EventsCalendarPage() {
                 isLoading={isLoading}
                 weekDays={weekDays}
                 ministryColorMap={ministryColorMap}
+                monthParam={format(currentDate, 'yyyy-MM')}
               />
             </div>
           </div>
@@ -273,7 +282,7 @@ export default function EventsCalendarPage() {
                           className={`min-h-[100px] border-b border-r p-1 cursor-pointer hover:bg-accent/30 transition-colors ${!isCurrentMonth ? 'bg-muted/30' : ''}`}
                           onClick={(e) => {
                             if ((e.target as HTMLElement).closest('[data-event]')) return;
-                            navigate(`/calendar/events/new?date=${dateKey}`);
+                            navigate(`/calendar/events/new?date=${dateKey}&month=${format(currentDate, 'yyyy-MM')}`);
                           }}
                         >
                           <div
@@ -293,7 +302,7 @@ export default function EventsCalendarPage() {
                                       className={`text-xs p-1 rounded cursor-pointer truncate ${
                                         getTeamColorClass(event.language)
                                       } text-white`}
-                                      onClick={() => navigate(`/calendar/events/${event.id}`)}
+                                      onClick={() => navigate(`/calendar/events/${event.id}?month=${format(currentDate, 'yyyy-MM')}`)}
                                     >
                                       {getLocalizedField(event, 'title')}
                                     </div>

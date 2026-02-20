@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useRecurrenceRule, useDeleteRecurringEvent } from '@/hooks/useRecurringEvents';
 import EditScopeDialog, { type EditScope } from '@/components/calendar/EditScopeDialog';
@@ -25,6 +25,8 @@ import EventGoalDialog from '@/components/calendar/EventGoalDialog';
 export default function EventDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const monthParam = searchParams.get('month');
   const { getLocalizedField, t, language } = useLanguage();
   const { isAdminOrSuper } = useAuth();
   const { data: event, isLoading } = useEvent(id);
@@ -49,7 +51,7 @@ export default function EventDetailPage() {
       return;
     }
     await deleteEvent.mutateAsync(id!);
-    navigate('/calendar/events');
+    navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`);
   };
 
   const handleDeleteScope = async (scope: EditScope) => {
@@ -60,7 +62,7 @@ export default function EventDetailPage() {
       seriesId: recurringSeriesId,
       eventDate: event!.date,
     });
-    navigate('/calendar/events');
+    navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`);
   };
 
   const handleMarkComplete = async () => {
@@ -87,7 +89,7 @@ export default function EventDetailPage() {
       <MainLayout>
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold">{t('calendar.eventNotFound') || 'Event not found'}</h2>
-          <Button onClick={() => navigate('/calendar/events')} className="mt-4">
+          <Button onClick={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)} className="mt-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t('common.back')}
           </Button>
@@ -115,7 +117,7 @@ export default function EventDetailPage() {
                       {t('calendar.markComplete') || 'Mark Complete'}
                     </Button>
                   )}
-                  <Button variant="outline" onClick={() => navigate(`/calendar/events/${id}/edit`)}>
+                  <Button variant="outline" onClick={() => navigate(`/calendar/events/${id}/edit${monthParam ? `?month=${monthParam}` : ''}`)}>
                     <Edit className="h-4 w-4 mr-2" />
                     {t('common.edit')}
                   </Button>
