@@ -67,6 +67,7 @@ export default function EventEditorPage() {
 
   // Pre-fill date from query param (e.g. when clicking a day cell)
   const initialDate = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
+  const monthParam = searchParams.get('month');
 
   const [formData, setFormData] = useState({
     date: initialDate,
@@ -237,10 +238,10 @@ export default function EventEditorPage() {
             }
           }
         }
-        navigate(`/calendar/events`);
+        navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`);
       } else {
         await updateEvent.mutateAsync({ id, ...eventData });
-        navigate(`/calendar/events/${id}`);
+        navigate(`/calendar/events/${id}${monthParam ? `?month=${monthParam}` : ''}`);
       }
     } else {
       // Creating new event
@@ -257,7 +258,7 @@ export default function EventEditorPage() {
           });
           setRecurrenceRule(null);
         } else {
-          navigate(`/calendar/events`);
+          navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`);
         }
       } else {
         const result = await createEvent.mutateAsync(eventData);
@@ -271,7 +272,7 @@ export default function EventEditorPage() {
             notes_internal: '',
           });
         } else {
-          navigate(`/calendar/events/${result.id}`);
+          navigate(`/calendar/events/${result.id}${monthParam ? `?month=${monthParam}` : ''}`);
         }
       }
     }

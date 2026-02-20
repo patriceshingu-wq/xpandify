@@ -13,11 +13,12 @@ interface EventsWeekViewProps {
   isLoading: boolean;
   weekDays: Date[];
   ministryColorMap?: Record<string, string>;
+  monthParam?: string;
 }
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 7); // 7 AM – 6 PM
 
-export default function EventsWeekView({ events, isLoading, weekDays, ministryColorMap }: EventsWeekViewProps) {
+export default function EventsWeekView({ events, isLoading, weekDays, ministryColorMap, monthParam }: EventsWeekViewProps) {
   const navigate = useNavigate();
   const { getLocalizedField } = useLanguage();
 
@@ -97,7 +98,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                             className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white ${
                             getTeamColorClass(event.language)
                             }`}
-                            onClick={() => navigate(`/calendar/events/${event.id}`)}
+                            onClick={() => navigate(`/calendar/events/${event.id}${monthParam ? `?month=${monthParam}` : ''}`)}
                           >
                             {getLocalizedField(event, 'title')}
                           </div>
@@ -138,7 +139,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                     className={`border-l min-h-[48px] p-0.5 relative cursor-pointer hover:bg-accent/30 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
                     onClick={(e) => {
                       if ((e.target as HTMLElement).closest('[data-event]')) return;
-                      navigate(`/calendar/events/new?date=${key}`);
+                      navigate(`/calendar/events/new?date=${key}${monthParam ? `&month=${monthParam}` : ''}`);
                     }}
                   >
                     {hourEvents.map((event) => (
@@ -150,7 +151,7 @@ export default function EventsWeekView({ events, isLoading, weekDays, ministryCo
                               className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer text-white mb-0.5 ${
                                 getTeamColorClass(event.language)
                               }`}
-                              onClick={() => navigate(`/calendar/events/${event.id}`)}
+                              onClick={() => navigate(`/calendar/events/${event.id}${monthParam ? `?month=${monthParam}` : ''}`)}
                             >
                               {event.start_time?.slice(0, 5)} {getLocalizedField(event, 'title')}
                             </div>

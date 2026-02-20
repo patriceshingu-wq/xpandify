@@ -12,9 +12,10 @@ import type { CalendarEvent } from '@/hooks/useEvents';
 interface EventsListViewProps {
   events: CalendarEvent[] | undefined;
   isLoading: boolean;
+  monthParam?: string;
 }
 
-export default function EventsListView({ events, isLoading }: EventsListViewProps) {
+export default function EventsListView({ events, isLoading, monthParam }: EventsListViewProps) {
   const navigate = useNavigate();
   const { getLocalizedField, t } = useLanguage();
 
@@ -62,7 +63,7 @@ export default function EventsListView({ events, isLoading }: EventsListViewProp
               <Card
                 key={event.id}
                 className="cursor-pointer hover:bg-muted/50 transition-colors overflow-hidden"
-                onClick={() => navigate(`/calendar/events/${event.id}`)}
+                onClick={() => navigate(`/calendar/events/${event.id}${monthParam ? `?month=${monthParam}` : ''}`)}
               >
                 <CardContent className="p-3 flex items-start gap-3">
                   <div className={`shrink-0 w-1 self-stretch rounded-full ${getTeamColorClass(event.language)}`} />
