@@ -219,7 +219,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
           </div>
 
           <div className="space-y-2">
-            <Label>{t('people.title')}</Label>
+            <Label>{t('people.jobTitle')}</Label>
             <Input
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
