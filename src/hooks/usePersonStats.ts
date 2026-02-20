@@ -40,7 +40,7 @@ export function usePersonStats(personId: string | undefined) {
         supabase
           .from('feedback')
           .select('id', { count: 'exact', head: true })
-          .eq('receiver_id', personId),
+          .eq('person_id', personId),
       ]);
 
       return {

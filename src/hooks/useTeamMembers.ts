@@ -12,7 +12,7 @@ export interface TeamMemberDetail {
   person_type: string | null;
   status: string | null;
   start_date: string | null;
-  campus: string | null;
+  campus_id: string | null;
   calling_description: string | null;
   strengths: string | null;
   growth_areas: string | null;
@@ -63,7 +63,7 @@ export function useTeamMembersWithDetails() {
       // Get direct reports with full details
       const { data: members, error: membersError } = await supabase
         .from('people')
-        .select('id, first_name, last_name, preferred_name, email, phone, person_type, status, start_date, campus, calling_description, strengths, growth_areas')
+        .select('id, first_name, last_name, preferred_name, email, phone, person_type, status, start_date, campus_id, calling_description, strengths, growth_areas')
         .eq('supervisor_id', person.id)
         .eq('status', 'active')
         .order('first_name');

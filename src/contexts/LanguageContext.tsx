@@ -86,7 +86,7 @@ const translations: Translations = {
   'people.active': { en: 'Active', fr: 'Actif' },
   'people.inactive': { en: 'Inactive', fr: 'Inactif' },
   'people.onLeave': { en: 'On Leave', fr: 'En congé' },
-  'people.title': { en: 'Job Title', fr: 'Titre du poste' },
+  'people.jobTitle': { en: 'Job Title', fr: 'Titre du poste' },
   'people.campus': { en: 'Campus', fr: 'Campus' },
   'people.selectCampus': { en: 'Select campus', fr: 'Sélectionner le campus' },
   'people.ministryAssignments': { en: 'Ministry Assignments', fr: 'Affectations ministérielles' },

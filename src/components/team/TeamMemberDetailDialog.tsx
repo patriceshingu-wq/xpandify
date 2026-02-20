@@ -85,10 +85,10 @@ export function TeamMemberDetailDialog({
                         {member.member.phone}
                       </a>
                     )}
-                    {member.member.campus && (
+                    {member.member.campus_id && (
                       <span className="flex items-center gap-1.5">
                         <MapPin className="h-4 w-4 shrink-0" />
-                        {member.member.campus}
+                        {member.member.campus_id}
                       </span>
                     )}
                   </DialogDescription>
@@ -375,10 +375,10 @@ export function TeamMemberDetailDialog({
                           <p className="font-medium">{format(new Date(member.member.start_date), 'MMMM d, yyyy')}</p>
                         </div>
                       )}
-                      {member.member.campus && (
+                      {member.member.campus_id && (
                         <div>
                           <p className="text-xs text-muted-foreground mb-1">Campus</p>
-                          <p className="font-medium">{member.member.campus}</p>
+                          <p className="font-medium">{member.member.campus_id}</p>
                         </div>
                       )}
                     </div>
