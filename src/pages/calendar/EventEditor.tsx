@@ -288,17 +288,18 @@ export default function EventEditorPage() {
 
   if (isEditing && eventLoading) {
     return (
-      <MainLayout>
+      <MainLayout onBack={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)}>
+
         <Skeleton className="h-[600px]" />
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout>
+    <MainLayout onBack={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <PageHeader

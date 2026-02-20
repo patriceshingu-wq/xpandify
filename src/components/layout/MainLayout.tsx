@@ -11,12 +11,13 @@ interface MainLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
+  onBack?: () => void;
 }
 
 // Routes that are in the BottomNav (main navigation)
 const bottomNavRoutes = ['/', '/team', '/meetings', '/goals'];
 
-export function MainLayout({ children, title, subtitle }: MainLayoutProps) {
+export function MainLayout({ children, title, subtitle, onBack }: MainLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -28,7 +29,7 @@ export function MainLayout({ children, title, subtitle }: MainLayoutProps) {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        <MobileHeader title={title} subtitle={subtitle} showBackButton={showBackButton} />
+        <MobileHeader title={title} subtitle={subtitle} showBackButton={showBackButton} onBack={onBack} />
         <main className="px-4 py-4 pb-24">
           {children}
         </main>
