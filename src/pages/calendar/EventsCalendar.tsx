@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
+import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useEvents, type EventFilters, type EventStatus } from '@/hooks/useEvents';
 import { useMinistries } from '@/hooks/useMinistries';
@@ -117,6 +119,12 @@ export default function EventsCalendarPage() {
 
   const handleToday = () => setCurrentDate(new Date());
 
+  const { swipeOffset, isSwiping, handlers: swipeHandlers } = useSwipeNavigation({
+    onSwipeLeft: handleNext,
+    onSwipeRight: handlePrev,
+    disabled: viewMode === 'list',
+  });
+
   const handleFilterChange = (key: keyof EventFilters, value: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -220,17 +228,29 @@ export default function EventsCalendarPage() {
         )}
 
         {viewMode === 'week' && (
-          <EventsWeekView
-            events={events}
-            isLoading={isLoading}
-            weekDays={weekDays}
-            ministryColorMap={ministryColorMap}
-          />
+          <div className="touch-pan-y" {...swipeHandlers}>
+            <div
+              className={cn('transition-transform', isSwiping ? 'duration-0' : 'duration-200')}
+              style={{ transform: isSwiping ? `translateX(${swipeOffset}px)` : undefined }}
+            >
+              <EventsWeekView
+                events={events}
+                isLoading={isLoading}
+                weekDays={weekDays}
+                ministryColorMap={ministryColorMap}
+              />
+            </div>
+          </div>
         )}
 
         {viewMode === 'month' && (
           <>
-            <Card>
+            <div className="touch-pan-y" {...swipeHandlers}>
+              <div
+                className={cn('transition-transform', isSwiping ? 'duration-0' : 'duration-200')}
+                style={{ transform: isSwiping ? `translateX(${swipeOffset}px)` : undefined }}
+              >
+                <Card>
               <CardContent className="p-0">
                 {isLoading ? (
                   <Skeleton className="h-[600px]" />
@@ -299,7 +319,9 @@ export default function EventsCalendarPage() {
                   </div>
                 )}
               </CardContent>
-            </Card>
+                </Card>
+              </div>
+            </div>
 
             <TeamColorLegend />
           </>
