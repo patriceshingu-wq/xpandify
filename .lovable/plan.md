@@ -1,35 +1,21 @@
 
+# Add Swipe Gesture Navigation to Events Calendar Month View
 
-# Restore Language Dropdown on Event Editor Page
+## Overview
+Enable left/right swipe gestures on the month view of the Events Calendar so users can navigate between months on mobile devices. Swiping left advances to the next month, swiping right goes to the previous month.
 
-## Problem
-The Language selector (English / French / Bilingual) was removed from the Event Editor form. The `formData.language` field still exists in state (line 80 of `EventEditor.tsx`) and is submitted correctly, but there is no UI control to change it -- it always defaults to "Bilingual".
+## Changes
 
-## Fix
+### 1. `src/pages/calendar/EventsCalendar.tsx`
+- Import `useSwipeNavigation` from `@/hooks/useSwipeNavigation`
+- Initialize the hook with `onSwipeLeft` mapped to `handleNext` and `onSwipeRight` mapped to `handlePrev`, enabled only when `viewMode === 'month'`
+- Wrap the month view `Card` in a `div` that spreads the swipe `handlers` and applies `touch-pan-y` class
+- Apply the `swipeOffset` transform during active swipes for visual feedback
 
-### `src/pages/calendar/EventEditor.tsx`
-Add a Language dropdown (Select) in the "Organization" card section (around line 479-569), alongside Ministry, Quarter, Program, Category, and Course selectors. The dropdown will have three options: English, French, and Bilingual.
+### 2. Week view (bonus)
+- Also attach the same swipe handlers around the week view for consistent mobile navigation between weeks
 
-The select will be inserted as the first field in the Organization card, using the same pattern as the other selects:
-
-```tsx
-<div className="space-y-2">
-  <Label>{t('calendar.language') || 'Language'}</Label>
-  <Select
-    value={formData.language}
-    onValueChange={(v: ProgramLanguage) => setFormData({ ...formData, language: v })}
-  >
-    <SelectTrigger>
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="EN">English</SelectItem>
-      <SelectItem value="FR">Fran&ccedil;ais</SelectItem>
-      <SelectItem value="Bilingual">{t('calendar.bilingual') || 'Bilingual'}</SelectItem>
-    </SelectContent>
-  </Select>
-</div>
-```
-
-No other files need changes -- the `ProgramLanguage` type is already imported and the `formData.language` state is already wired up for submission.
-
+## Technical Details
+- Reuses the existing `useSwipeNavigation` hook already used in `SwipeableTabs`
+- The hook already handles horizontal vs vertical swipe detection and resistance-based visual feedback
+- No new dependencies needed
