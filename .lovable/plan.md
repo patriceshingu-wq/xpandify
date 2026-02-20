@@ -1,21 +1,34 @@
 
-# Add Swipe Gesture Navigation to Events Calendar Month View
 
-## Overview
-Enable left/right swipe gestures on the month view of the Events Calendar so users can navigate between months on mobile devices. Swiping left advances to the next month, swiping right goes to the previous month.
+# Fix: Return to Viewed Month After Event Create/Edit
+
+## Problem
+When creating or editing an event from the calendar, closing/saving navigates back to `/calendar/events`, which remounts the page and resets `currentDate` to `new Date()` (today). The user loses their place.
+
+## Solution
+Pass the current month context as a URL search parameter (e.g., `?month=2026-08`) so the calendar can restore the correct month on load.
 
 ## Changes
 
 ### 1. `src/pages/calendar/EventsCalendar.tsx`
-- Import `useSwipeNavigation` from `@/hooks/useSwipeNavigation`
-- Initialize the hook with `onSwipeLeft` mapped to `handleNext` and `onSwipeRight` mapped to `handlePrev`, enabled only when `viewMode === 'month'`
-- Wrap the month view `Card` in a `div` that spreads the swipe `handlers` and applies `touch-pan-y` class
-- Apply the `swipeOffset` transform during active swipes for visual feedback
+- On mount, read a `month` search parameter from the URL (e.g., `?month=2026-08`) and use it to initialize `currentDate` instead of always defaulting to today.
+- Update the "Add Event" button and day-cell click handlers to include `&month=YYYY-MM` in the navigation URL so the editor knows which month to return to.
 
-### 2. Week view (bonus)
-- Also attach the same swipe handlers around the week view for consistent mobile navigation between weeks
+### 2. `src/pages/calendar/EventEditor.tsx`
+- Read the `month` search parameter from the URL on load.
+- On all `navigate('/calendar/events')` calls, append `?month=YYYY-MM` so the calendar returns to the correct month.
+- For `navigate('/calendar/events/{id}')` calls (going to detail), also pass `month` as a param.
 
-## Technical Details
-- Reuses the existing `useSwipeNavigation` hook already used in `SwipeableTabs`
-- The hook already handles horizontal vs vertical swipe detection and resistance-based visual feedback
-- No new dependencies needed
+### 3. `src/pages/calendar/EventDetail.tsx`
+- Read the `month` search parameter from the URL.
+- On "Back" / "Delete" / navigation back to the calendar list, append `?month=YYYY-MM`.
+- On "Edit" navigation, forward the `month` param.
+
+### 4. `src/components/calendar/EventsWeekView.tsx` and `src/components/calendar/EventsListView.tsx`
+- Accept an optional `monthParam` prop (or similar) and include it in navigation URLs when clicking events or empty cells.
+
+## Technical Notes
+- The `month` param format will be `YYYY-MM` parsed with `parse(param, 'yyyy-MM', new Date())`.
+- If the param is missing or invalid, the calendar falls back to today (current behavior).
+- This approach is stateless (no global state or context needed) and URL-shareable.
+
