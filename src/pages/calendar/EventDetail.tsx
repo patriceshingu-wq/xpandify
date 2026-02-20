@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useRecurrenceRule, useDeleteRecurringEvent } from '@/hooks/useRecurringEvents';
@@ -73,9 +73,11 @@ export default function EventDetailPage() {
     });
   };
 
+  const goBackToCalendar = useCallback(() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`), [navigate, monthParam]);
+
   if (isLoading) {
     return (
-      <MainLayout>
+      <MainLayout onBack={goBackToCalendar}>
         <div className="space-y-6">
           <Skeleton className="h-10 w-64" />
           <Skeleton className="h-48" />
@@ -86,7 +88,7 @@ export default function EventDetailPage() {
 
   if (!event) {
     return (
-      <MainLayout>
+      <MainLayout onBack={goBackToCalendar}>
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold">{t('calendar.eventNotFound') || 'Event not found'}</h2>
           <Button onClick={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)} className="mt-4">
@@ -99,10 +101,10 @@ export default function EventDetailPage() {
   }
 
   return (
-    <MainLayout>
+    <MainLayout onBack={goBackToCalendar}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <PageHeader

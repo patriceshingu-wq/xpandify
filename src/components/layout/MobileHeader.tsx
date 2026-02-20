@@ -15,9 +15,10 @@ interface MobileHeaderProps {
   title?: string;
   subtitle?: string;
   showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-export function MobileHeader({ title, subtitle, showBackButton }: MobileHeaderProps) {
+export function MobileHeader({ title, subtitle, showBackButton, onBack }: MobileHeaderProps) {
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
 
@@ -36,7 +37,7 @@ export function MobileHeader({ title, subtitle, showBackButton }: MobileHeaderPr
               variant="ghost" 
               size="icon" 
               className="h-10 w-10 shrink-0" 
-              onClick={() => navigate(-1)}
+              onClick={() => onBack ? onBack() : navigate(-1)}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
