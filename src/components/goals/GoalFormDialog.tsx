@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Goal, useCreateGoal, useUpdateGoal, useDeleteGoal, useGoals } from '@/hooks/useGoals';
 import { usePeople } from '@/hooks/usePeople';
 import { useMinistries } from '@/hooks/useMinistries';
+import { useGoalEvents, useSyncGoalEvents } from '@/hooks/useEventGoals';
+import { useEvents } from '@/hooks/useEvents';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,17 +13,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Loader2, Trash2, GitBranch, Church, Building2, Users, User } from 'lucide-react';
+import { Loader2, Trash2, GitBranch, Church, Building2, Users, User, CalendarDays, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
 
-const LEVEL_LABELS: Record<string, string> = {
-  church: 'Church',
-  ministry: 'Ministry',
-  department: 'Department',
-  individual: 'Individual',
-};
 
 const getLevelIcon = (level: string) => {
   switch (level) {
@@ -43,7 +39,7 @@ interface GoalFormDialogProps {
 const currentYear = new Date().getFullYear();
 
 export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFormDialogProps) {
-  const { t } = useLanguage();
+  const { t, getLocalizedField } = useLanguage();
   const { person } = useAuth();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
@@ -51,7 +47,11 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
   const { data: people } = usePeople();
   const { data: ministries } = useMinistries();
   const { data: allGoals } = useGoals();
-  
+  const { data: allEvents } = useEvents();
+  const { data: linkedGoalEvents } = useGoalEvents(goal?.id);
+  const syncGoalEvents = useSyncGoalEvents();
+  const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
+
   const isEditing = !!goal;
   const effectiveLevel = presetLevel || goal?.goal_level || 'individual';
 
@@ -133,6 +133,15 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
     }
   }, [goal, open, presetLevel, person?.id]);
 
+  // Load linked events when editing
+  useEffect(() => {
+    if (linkedGoalEvents && linkedGoalEvents.length > 0) {
+      setSelectedEventIds(linkedGoalEvents.map(ge => ge.event_id));
+    } else if (!goal) {
+      setSelectedEventIds([]);
+    }
+  }, [linkedGoalEvents, goal]);
+
   // Derive year from dates
   const derivedYear = formData.start_date
     ? new Date(formData.start_date).getFullYear()
@@ -155,8 +164,14 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
 
     if (isEditing && goal) {
       await updateGoal.mutateAsync({ id: goal.id, ...payload });
+      // Sync linked events
+      await syncGoalEvents.mutateAsync({ goalId: goal.id, eventIds: selectedEventIds });
     } else {
-      await createGoal.mutateAsync(payload);
+      const newGoal = await createGoal.mutateAsync(payload);
+      // Sync linked events for new goal
+      if (selectedEventIds.length > 0 && newGoal?.id) {
+        await syncGoalEvents.mutateAsync({ goalId: newGoal.id, eventIds: selectedEventIds });
+      }
     }
     onOpenChange(false);
   };
@@ -179,10 +194,10 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         <DialogHeader>
           <DialogTitle className="font-serif flex items-center gap-2">
             {getLevelIcon(formData.goal_level)}
-            {isEditing ? 'Edit Goal' : `New ${LEVEL_LABELS[formData.goal_level] || ''} Goal`}
+            {isEditing ? t('goals.editGoal') : `${t('goals.newGoal')} - ${t(`goals.${formData.goal_level}`)}`}
           </DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update goal details' : `Create a new ${LEVEL_LABELS[formData.goal_level]?.toLowerCase() || ''} goal`}
+            {isEditing ? t('goals.updateDetails') : t('goals.createNew')}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,22 +205,22 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
           {/* Title */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title_en">Title (English) *</Label>
+              <Label htmlFor="title_en">{t('goals.titleEn')} *</Label>
               <Input
                 id="title_en"
                 value={formData.title_en}
                 onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                placeholder="Goal title"
+                placeholder={t('goals.titlePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="title_fr">Title (Français)</Label>
+              <Label htmlFor="title_fr">{t('goals.titleFr')}</Label>
               <Input
                 id="title_fr"
                 value={formData.title_fr}
                 onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
-                placeholder="Titre de l'objectif"
+                placeholder={t('goals.titlePlaceholder')}
               />
             </div>
           </div>
@@ -213,20 +228,20 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
           {/* Description */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Description (English)</Label>
+              <Label>{t('goals.descriptionEn')}</Label>
               <Textarea
                 value={formData.description_en}
                 onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-                placeholder="Goal description..."
+                placeholder={t('goals.descriptionPlaceholder')}
                 rows={2}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description (Français)</Label>
+              <Label>{t('goals.descriptionFr')}</Label>
               <Textarea
                 value={formData.description_fr}
                 onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
-                placeholder="Description de l'objectif..."
+                placeholder={t('goals.descriptionPlaceholder')}
                 rows={2}
               />
             </div>
@@ -243,13 +258,13 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="spiritual">Spiritual</SelectItem>
-                <SelectItem value="operational">Operational</SelectItem>
-                <SelectItem value="financial">Financial</SelectItem>
-                <SelectItem value="growth">Growth</SelectItem>
-                <SelectItem value="training">Training</SelectItem>
-                <SelectItem value="leadership">Leadership</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="spiritual">{t('goals.category.spiritual')}</SelectItem>
+                <SelectItem value="operational">{t('goals.category.operational')}</SelectItem>
+                <SelectItem value="financial">{t('goals.category.financial')}</SelectItem>
+                <SelectItem value="growth">{t('goals.category.growth')}</SelectItem>
+                <SelectItem value="training">{t('goals.category.training')}</SelectItem>
+                <SelectItem value="leadership">{t('goals.category.leadership')}</SelectItem>
+                <SelectItem value="other">{t('goals.category.other')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -259,22 +274,22 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <GitBranch className="h-4 w-4" />
-                Parent Goal
+                {t('goals.parentGoal')}
               </Label>
               <Select
                 value={formData.parent_goal_id}
                 onValueChange={(value) => setFormData({ ...formData, parent_goal_id: value === 'none' ? '' : value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Link to a higher-level goal (optional)" />
+                  <SelectValue placeholder={t('goals.parentGoalPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No parent goal</SelectItem>
+                  <SelectItem value="none">{t('goals.noParentGoal')}</SelectItem>
                   {availableParentGoals.map((g) => (
                     <SelectItem key={g.id} value={g.id}>
                       <div className="flex items-center gap-2">
                         {getLevelIcon(g.goal_level)}
-                        <span className="capitalize text-xs text-muted-foreground">[{g.goal_level}]</span>
+                        <span className="capitalize text-xs text-muted-foreground">[{t(`goals.${g.goal_level}`)}]</span>
                         <span>{g.title_en}</span>
                       </div>
                     </SelectItem>
@@ -289,13 +304,13 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {showOwnerPerson && (
                 <div className="space-y-2">
-                  <Label>Owner (Person)</Label>
+                  <Label>{t('goals.ownerPerson')}</Label>
                   <Select
                     value={formData.owner_person_id}
                     onValueChange={(value) => setFormData({ ...formData, owner_person_id: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select person" />
+                      <SelectValue placeholder={t('goals.selectPerson')} />
                     </SelectTrigger>
                     <SelectContent>
                       {people?.map((p) => (
@@ -309,13 +324,13 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
               )}
               {showOwnerMinistry && (
                 <div className="space-y-2">
-                  <Label>Owner (Ministry)</Label>
+                  <Label>{t('goals.ownerMinistry')}</Label>
                   <Select
                     value={formData.owner_ministry_id}
                     onValueChange={(value) => setFormData({ ...formData, owner_ministry_id: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select ministry" />
+                      <SelectValue placeholder={t('goals.selectMinistry')} />
                     </SelectTrigger>
                     <SelectContent>
                       {ministries?.map((m) => (
@@ -382,10 +397,67 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
             </div>
           </div>
 
+          {/* Linked Events */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              {t('goals.linkedEvents')}
+            </Label>
+            <Select
+              value=""
+              onValueChange={(eventId) => {
+                if (eventId && !selectedEventIds.includes(eventId)) {
+                  setSelectedEventIds([...selectedEventIds, eventId]);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('goals.selectEvents')} />
+              </SelectTrigger>
+              <SelectContent>
+                {allEvents?.filter(e => !selectedEventIds.includes(e.id)).map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    <span className="text-xs text-muted-foreground mr-2">
+                      {e.date ? new Date(e.date).toLocaleDateString() : ''}
+                    </span>
+                    {getLocalizedField(e, 'title')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedEventIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedEventIds.map(eventId => {
+                  const event = allEvents?.find(e => e.id === eventId);
+                  if (!event) return null;
+                  return (
+                    <div
+                      key={eventId}
+                      className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md text-sm"
+                    >
+                      <CalendarDays className="h-3 w-3 text-muted-foreground" />
+                      <span>{getLocalizedField(event, 'title')}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedEventIds(selectedEventIds.filter(id => id !== eventId))}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {selectedEventIds.length === 0 && (
+              <p className="text-xs text-muted-foreground">{t('goals.noLinkedEvents')}</p>
+            )}
+          </div>
+
           {/* Goal Level display (read-only when preset) */}
           {!presetLevel && !isEditing && (
             <div className="space-y-2">
-              <Label>Goal Level *</Label>
+              <Label>{t('goals.goalLevel')} *</Label>
               <Select
                 value={formData.goal_level}
                 onValueChange={(value) => setFormData({ ...formData, goal_level: value as any })}
@@ -414,9 +486,9 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Goal</AlertDialogTitle>
+                    <AlertDialogTitle>{t('goals.deleteConfirmTitle')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you sure you want to delete this goal? This action cannot be undone.
+                      {t('goals.deleteConfirmMessage')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

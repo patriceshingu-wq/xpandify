@@ -22,6 +22,7 @@ import {
   GitBranch, Loader2, Church, Users,
 } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
+import { GoalCascadeView } from '@/components/goals/GoalCascadeView';
 import { PDPFormDialog } from '@/components/development/PDPFormDialog';
 import { PDPDetailDialog } from '@/components/development/PDPDetailDialog';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
@@ -134,6 +135,13 @@ export default function Goals() {
   const { data: churchGoals, isLoading: churchGoalsLoading } = useGoals({
     year,
     goal_level: 'church',
+    status: status !== 'all' ? status : undefined,
+    exclude_pdp_items: true,
+  });
+
+  // All goals for cascade view (no level filter)
+  const { data: allGoals, isLoading: allGoalsLoading } = useGoals({
+    year,
     status: status !== 'all' ? status : undefined,
     exclude_pdp_items: true,
   });
@@ -414,15 +422,15 @@ export default function Goals() {
 
             {/* ========== Cascade View Tab ========== */}
             <TabsContent value="cascade" className="space-y-4">
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                  <GitBranch className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Cascade View</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Coming in Week 4 — A tree visualization showing how individual goals align up through ministry goals to church-wide objectives.
-                  </p>
-                </CardContent>
-              </Card>
+              {renderFilters()}
+              {allGoalsLoading ? (
+                <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />
+              ) : (
+                <GoalCascadeView
+                  goals={allGoals || []}
+                  onGoalClick={handleEdit}
+                />
+              )}
             </TabsContent>
 
             {/* ========== Development Plans Tab ========== */}

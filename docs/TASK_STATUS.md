@@ -33,7 +33,7 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | Calendar/Events | ✅ Complete | 3 gaps fixed (organizer_id, campus_id, recurrence cleanup) | 2026-02-17 |
 | People/Directory | ✅ Complete | 9/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅, invite flow ✅, bulk import/export ✅) | 2026-02-18 |
 | Ministries | ✅ Complete | 4 gaps fixed (translations ✅, URL routing ✅, RLS ✅, ministry roles UI ✅) | 2026-02-18 |
-| Goals | ⏳ Pending | — | — |
+| Goals | ✅ Complete | 6 gaps fixed (cascade view ✅, event-goal linking ✅, i18n ✅, category consolidation ✅, auto progress rollup ✅) | 2026-02-23 |
 | Meetings | ⏳ Pending | — | — |
 | PDPs | ⏳ Pending | — | — |
 | Feedback | ⏳ Pending | — | — |
@@ -113,6 +113,35 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 - Added `MinistryRolesManagement` admin component for role definitions
 - Added Ministry Roles tab to Admin page
 
+### Goals - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- 6 tabs: My Goals, Department, Ministry, Church, Cascade, Dev Plans
+- GoalFormDialog with full CRUD, parent goal linking
+- GoalCascadeView component for tree visualization (was not wired up)
+- Hooks: useGoals, useCreateGoal, useUpdateGoal, useDeleteGoal
+- Status workflow with progress sync
+- Bilingual support
+
+**Confirmed Gaps (user approved):**
+
+| # | Gap | Priority | Complexity | Status |
+|---|-----|----------|------------|--------|
+| 1 | Cascade View tab showing placeholder | High | Low | ✅ Done |
+| 2 | Event-Goal linking UI missing | Medium | Medium | ✅ Done |
+| 3 | Hardcoded English strings in GoalFormDialog | Medium | Low | ✅ Done |
+| 4 | Goal categories redundant (operations/operational, finance/financial) | Low | Low | ✅ Done (UI consolidated) |
+| 5 | Auto progress rollup for parent goals | Medium | Medium | ✅ Done |
+| 6 | PDP integration via pdp_id field | Low | Medium | ⏸️ Deferred to later phase |
+
+**Implementation Details:**
+- Wired GoalCascadeView to Cascade tab with year/status filters
+- Created useGoalEvents and useSyncGoalEvents hooks for bidirectional linking
+- Added event multi-select to GoalFormDialog
+- Added goal multi-select to EventEditor
+- Added 35+ translations for goals UI
+- Created database trigger for automatic parent goal progress rollup (average of children)
+
 ---
 
 ## Files Modified This Phase
@@ -153,6 +182,12 @@ src/
   components/ministries/ManageMemberRolesDialog.tsx ✅ Created - assign/remove roles from person
   components/admin/MinistryRolesManagement.tsx ✅ Created - CRUD UI for ministry_roles
   pages/Admin.tsx                       ✅ Updated - added Ministry Roles tab
+  pages/Goals.tsx                       ✅ Updated - wired GoalCascadeView to Cascade tab, added allGoals query
+  components/goals/GoalFormDialog.tsx   ✅ Updated - i18n translations, event linking UI
+  components/goals/GoalCascadeView.tsx  ✅ Updated - i18n translations for all labels
+  hooks/useEventGoals.ts                ✅ Updated - added useGoalEvents, useSyncEventGoals, useSyncGoalEvents hooks
+  pages/calendar/EventEditor.tsx        ✅ Updated - added goals multi-select linking
+  contexts/LanguageContext.tsx          ✅ Updated - added 35+ goals and calendar translations
 
 e2e/
   auth.spec.ts                  ✅ Complete
@@ -164,6 +199,7 @@ supabase/migrations/
   20260217180000_fix_events_schema.sql  ✅ Applied - adds organizer_id, campus_id, drops recurrence_pattern
   20260218100000_people_add_title_and_campus_fk.sql  ✅ Applied - adds title, campus_id FK, drops campus text
   20260218150000_add_profile_photos.sql ⏳ Pending - adds photo_url column, creates storage bucket + RLS policies
+  20260223100000_goal_progress_rollup.sql ⏳ Pending - auto-calculates parent goal progress from children
 
 supabase/functions/
   invite-user/index.ts                  ✅ Created - Edge Function for admin user invite with person creation
@@ -443,16 +479,58 @@ Test user setup (password: testpassword@123):
 - Events schema missing campus support (fixed)
 - Events had redundant `recurrence_pattern` column alongside `recurrence_rule_id` (fixed)
 
+### 2026-02-23 Session
+**Focus:** Goals feature gap analysis and implementation
+
+**Completed:**
+1. Conducted gap analysis interview for Goals feature
+2. Identified 6 gaps (user approved 5, deferred PDP integration):
+   - Cascade View placeholder → wire up GoalCascadeView
+   - Event-Goal linking UI → add bidirectional linking
+   - i18n gaps → fix hardcoded strings
+   - Category consolidation → reduce to 7 categories in UI
+   - Auto progress rollup → DB trigger for parent goals
+3. Wired GoalCascadeView to Cascade tab in Goals.tsx:
+   - Added `allGoals` query (no level filter)
+   - Replaced placeholder with actual component
+   - Passes year/status filters and onGoalClick handler
+4. Added 35+ translations to LanguageContext.tsx:
+   - Goal form labels (titleEn, titleFr, descriptionEn, etc.)
+   - Goal categories (spiritual, operational, financial, etc.)
+   - Event-goal linking (linkedToEvent, selectEvents, etc.)
+   - Cascade view labels (cascadeOverview, avgProgress, etc.)
+5. Enhanced useEventGoals.ts hook:
+   - Added useGoalEvents for fetching events linked to a goal
+   - Added useSyncEventGoals for bulk update event links
+   - Added useSyncGoalEvents for bulk update goal links
+6. Added goals multi-select to EventEditor.tsx:
+   - Goals selector dropdown in Organization card
+   - Displays linked goals as removable chips
+   - Syncs goal links on event save
+7. Added event linking to GoalFormDialog.tsx:
+   - Events selector dropdown
+   - Displays linked events as removable chips
+   - Syncs event links on goal save
+8. Created migration for auto progress rollup:
+   - `20260223100000_goal_progress_rollup.sql`
+   - DB trigger calculates parent progress as average of children
+   - Fires on INSERT, UPDATE (progress_percent, parent_goal_id), DELETE
+9. TypeScript compiles without errors
+
+**Pending Deployments:**
+- Migration: `20260223100000_goal_progress_rollup.sql`
+
 ---
 
 ## Resume Prompt (copy-paste to start next session)
 
 ```
-Read @docs/TASK_STATUS.md. Ministries feature gap analysis COMPLETE (4/4 gaps done).
+Read @docs/TASK_STATUS.md. Goals feature gap analysis COMPLETE (5/6 gaps done, PDP deferred).
 Pending deployments:
 - Migration: `20260218150000_add_profile_photos.sql`
+- Migration: `20260223100000_goal_progress_rollup.sql`
 - Edge Function: `invite-user`
-Next: Move to gap analysis for next feature (Goals, Meetings, PDPs, etc.)
+Next: Move to gap analysis for next feature (Meetings, PDPs, Feedback, etc.)
 ```
 
 ---

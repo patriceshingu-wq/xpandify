@@ -12,6 +12,8 @@ import { useActivityCategories } from '@/hooks/useActivityCategories';
 import { useCourses } from '@/hooks/useCourses';
 import { useCampuses } from '@/hooks/useCampuses';
 import { usePeople } from '@/hooks/usePeople';
+import { useGoals } from '@/hooks/useGoals';
+import { useEventGoals, useSyncEventGoals } from '@/hooks/useEventGoals';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -26,7 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Save, Plus, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Save, Plus, CalendarIcon, Target, X } from 'lucide-react';
 import { format, parse, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +52,12 @@ export default function EventEditorPage() {
   const updateEvent = useUpdateEvent();
   const createRecurringEvent = useCreateRecurringEvent();
 
+  // Goals linking
+  const { data: allGoals } = useGoals({ exclude_pdp_items: true });
+  const { data: linkedEventGoals } = useEventGoals(id);
+  const syncEventGoals = useSyncEventGoals();
+  const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
+
   // Recurrence state
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
   const existingRuleId = (existingEvent as any)?.recurrence_rule_id;
@@ -64,6 +72,13 @@ export default function EventEditorPage() {
       setRecurrenceRule(existingRule);
     }
   }, [existingRule]);
+
+  // Load existing linked goals when editing
+  useEffect(() => {
+    if (linkedEventGoals && linkedEventGoals.length > 0) {
+      setSelectedGoalIds(linkedEventGoals.map(eg => eg.goal_id));
+    }
+  }, [linkedEventGoals]);
 
   // Pre-fill date from query param (e.g. when clicking a day cell)
   const initialDate = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
@@ -241,6 +256,8 @@ export default function EventEditorPage() {
         navigate(`/calendar/events${monthParam ? `?month=${monthParam}` : ''}`);
       } else {
         await updateEvent.mutateAsync({ id, ...eventData });
+        // Sync goals for the updated event
+        await syncEventGoals.mutateAsync({ eventId: id!, goalIds: selectedGoalIds });
         navigate(`/calendar/events/${id}${monthParam ? `?month=${monthParam}` : ''}`);
       }
     } else {
@@ -262,6 +279,10 @@ export default function EventEditorPage() {
         }
       } else {
         const result = await createEvent.mutateAsync(eventData);
+        // Sync goals for the new event
+        if (selectedGoalIds.length > 0) {
+          await syncEventGoals.mutateAsync({ eventId: result.id, goalIds: selectedGoalIds });
+        }
         if (saveAndNew) {
           setFormData({
             ...formData,
@@ -271,6 +292,7 @@ export default function EventEditorPage() {
             description_fr: '',
             notes_internal: '',
           });
+          setSelectedGoalIds([]);
         } else {
           navigate(`/calendar/events/${result.id}${monthParam ? `?month=${monthParam}` : ''}`);
         }
@@ -650,6 +672,58 @@ export default function EventEditorPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Linked Goals */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    {t('calendar.linkedGoals') || 'Linked Goals'}
+                  </Label>
+                  <Select
+                    value=""
+                    onValueChange={(goalId) => {
+                      if (goalId && !selectedGoalIds.includes(goalId)) {
+                        setSelectedGoalIds([...selectedGoalIds, goalId]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('calendar.selectGoalToLink') || 'Select a goal to link...'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allGoals?.filter(g => !selectedGoalIds.includes(g.id)).map((g) => (
+                        <SelectItem key={g.id} value={g.id}>
+                          <span className="text-xs text-muted-foreground mr-2">[{t(`goals.${g.goal_level}`)}]</span>
+                          {getLocalizedField(g, 'title')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedGoalIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedGoalIds.map(goalId => {
+                        const goal = allGoals?.find(g => g.id === goalId);
+                        if (!goal) return null;
+                        return (
+                          <div
+                            key={goalId}
+                            className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md text-sm"
+                          >
+                            <Target className="h-3 w-3 text-muted-foreground" />
+                            <span>{getLocalizedField(goal, 'title')}</span>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedGoalIds(selectedGoalIds.filter(id => id !== goalId))}
+                              className="ml-1 hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

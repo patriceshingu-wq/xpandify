@@ -32,59 +32,59 @@ const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
 const getLevelConfig = (level: string) => {
   switch (level) {
     case 'church':
-      return { 
-        icon: Church, 
+      return {
+        icon: Church,
         color: 'bg-accent text-accent-foreground',
         borderColor: 'border-l-accent',
         bgColor: 'bg-accent/5',
-        label: 'Church'
+        labelKey: 'goals.church'
       };
     case 'ministry':
-      return { 
-        icon: Building2, 
+      return {
+        icon: Building2,
         color: 'bg-info text-info-foreground',
         borderColor: 'border-l-info',
         bgColor: 'bg-info/5',
-        label: 'Ministry'
+        labelKey: 'goals.ministry'
       };
     case 'department':
-      return { 
-        icon: Users, 
+      return {
+        icon: Users,
         color: 'bg-warning text-warning-foreground',
         borderColor: 'border-l-warning',
         bgColor: 'bg-warning/5',
-        label: 'Department'
+        labelKey: 'goals.department'
       };
     case 'individual':
-      return { 
-        icon: User, 
+      return {
+        icon: User,
         color: 'bg-success text-success-foreground',
         borderColor: 'border-l-success',
         bgColor: 'bg-success/5',
-        label: 'Individual'
+        labelKey: 'goals.individual'
       };
     default:
-      return { 
-        icon: Target, 
+      return {
+        icon: Target,
         color: 'bg-muted text-muted-foreground',
         borderColor: 'border-l-muted',
         bgColor: 'bg-muted/5',
-        label: 'Unknown'
+        labelKey: 'common.unknown'
       };
   }
 };
 
-function GoalTreeNode({ 
-  goal, 
-  level = 0, 
-  onGoalClick 
-}: { 
-  goal: GoalNode; 
-  level?: number; 
+function GoalTreeNode({
+  goal,
+  level = 0,
+  onGoalClick
+}: {
+  goal: GoalNode;
+  level?: number;
   onGoalClick?: (goal: Goal) => void;
 }) {
   const [isOpen, setIsOpen] = useState(true);
-  const { getLocalizedField } = useLanguage();
+  const { t, getLocalizedField } = useLanguage();
   const config = getLevelConfig(goal.goal_level);
   const Icon = config.icon;
   const hasChildren = goal.children.length > 0;
@@ -127,7 +127,7 @@ function GoalTreeNode({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <Badge variant="outline" className="text-xs">
-                    {config.label}
+                    {t(config.labelKey)}
                   </Badge>
                   <StatusBadge status={goal.status} />
                 </div>
@@ -256,7 +256,7 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-medium flex items-center gap-2">
             <Target className="h-4 w-4" />
-            Goal Cascade Overview
+            {t('goals.cascadeOverview')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -269,12 +269,12 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
                     <div className={cn("p-3 rounded-xl", stat.config.color)}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="text-sm font-medium mt-2 capitalize">{stat.level}</span>
+                    <span className="text-sm font-medium mt-2">{t(stat.config.labelKey)}</span>
                     <span className="text-xs text-muted-foreground">
-                      {stat.count} goal{stat.count !== 1 ? 's' : ''}
+                      {stat.count} {stat.count !== 1 ? t('goals.goals') : t('goals.goal')}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {stat.avgProgress}% avg
+                      {stat.avgProgress}% {t('goals.avgProgress')}
                     </span>
                   </div>
                   {idx < levelStats.length - 1 && (
@@ -285,8 +285,7 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
             })}
           </div>
           <p className="text-xs text-muted-foreground mt-4 text-center">
-            Goals cascade from Church-wide objectives down to Individual action items. 
-            Click any goal to view details or link child goals using the parent goal selector.
+            {t('goals.cascadeDescription')}
           </p>
         </CardContent>
       </Card>
@@ -304,7 +303,7 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
         ) : (
           <Card className="p-8 text-center">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-            <p className="text-muted-foreground">No goals to display in cascade view</p>
+            <p className="text-muted-foreground">{t('goals.noGoalsCascade')}</p>
           </Card>
         )}
       </div>
