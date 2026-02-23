@@ -179,28 +179,6 @@ export function FeatureUpgradesTab() {
     return !currentFlags[feature.requiresFeature as keyof typeof currentFlags];
   };
 
-  if (FEATURES.simpleMode) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            {t('featureUpgrades.title')}
-          </CardTitle>
-          <CardDescription>{t('featureUpgrades.subtitle')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              {t('featureUpgrades.simpleModeActive')}
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (isLoading) {
     return (
       <Card>

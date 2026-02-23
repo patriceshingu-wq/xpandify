@@ -814,8 +814,8 @@ src/components/people/DirectoryTab.tsx      - Bulk operations guard
 src/contexts/LanguageContext.tsx            - 45+ translations
 ```
 
-**Pending Deployments:**
-- Migration: `20260223120000_feature_toggles.sql`
+**Deployed:**
+- Migration: `20260223120000_feature_toggles.sql` ✅
 
 ---
 
@@ -823,13 +823,9 @@ src/contexts/LanguageContext.tsx            - 45+ translations
 
 ```
 Read @docs/TASK_STATUS.md.
-FEATURE UPGRADES SYSTEM COMPLETE - admins can toggle advanced features per-org.
-Pending deployments:
-- Migration: `20260218150000_add_profile_photos.sql`
-- Migration: `20260223100000_goal_progress_rollup.sql`
-- Migration: `20260223120000_feature_toggles.sql`
-- Edge Function: `invite-user`
-NEXT: Apply migrations, test feature toggles, then user acceptance testing.
+FEATURE UPGRADES SYSTEM COMPLETE & DEPLOYED - admins can toggle advanced features per-org.
+All migrations deployed. Edge Function `invite-user` still pending deployment.
+NEXT: Test feature toggles in Admin UI, then user acceptance testing.
 ```
 
 ---
