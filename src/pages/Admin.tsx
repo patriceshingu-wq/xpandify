@@ -13,8 +13,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateManagement';
 import { MinistryRolesManagement } from '@/components/admin/MinistryRolesManagement';
+import { FeatureUpgradesTab } from '@/components/admin/FeatureUpgradesTab';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
-import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus, Tag } from 'lucide-react';
+import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus, Tag, Sparkles } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function Admin() {
@@ -97,7 +98,7 @@ export default function Admin() {
 
         {/* Tabs - Full width grid on mobile */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 md:w-auto md:inline-flex">
+          <TabsList className="grid w-full grid-cols-6 md:w-auto md:inline-flex">
             <TabsTrigger value="users" className="gap-1.5 touch-target">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.userManagement')}</span>
@@ -117,6 +118,11 @@ export default function Admin() {
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Meeting Templates</span>
               <span className="sm:hidden">Templates</span>
+            </TabsTrigger>
+            <TabsTrigger value="upgrades" className="gap-1.5 touch-target">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('admin.featureUpgrades')}</span>
+              <span className="sm:hidden">Upgrades</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1.5 touch-target">
               <Settings className="h-4 w-4" />
@@ -205,6 +211,10 @@ export default function Admin() {
 
           <TabsContent value="templates" className="mt-6">
             <MeetingTemplateManagement />
+          </TabsContent>
+
+          <TabsContent value="upgrades" className="mt-6">
+            <FeatureUpgradesTab />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">

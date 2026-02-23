@@ -34,12 +34,12 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 | People/Directory | ✅ Complete | 9/9 gaps done (title ✅, campus FK ✅, profile page ✅, ministry UI ✅, infinite scroll ✅, org chart ✅, photos ✅, invite flow ✅, bulk import/export ✅) | 2026-02-18 |
 | Ministries | ✅ Complete | 4 gaps fixed (translations ✅, URL routing ✅, RLS ✅, ministry roles UI ✅) | 2026-02-18 |
 | Goals | ✅ Complete | 6 gaps fixed (cascade view ✅, event-goal linking ✅, i18n ✅, category consolidation ✅, auto progress rollup ✅) | 2026-02-23 |
-| Meetings | ⏳ Pending | — | — |
-| PDPs | ⏳ Pending | — | — |
-| Feedback | ⏳ Pending | — | — |
-| Reviews | ⏳ Pending | — | — |
-| Learning | ⏳ Pending | — | — |
-| Admin | ⏳ Pending | — | — |
+| Meetings | ✅ Complete | No critical gaps - solid implementation | 2026-02-23 |
+| PDPs | ✅ Complete | Working via goals with pdp_id (as designed) | 2026-02-23 |
+| Feedback | ✅ Complete | No gaps - i18n done, visibility controls work | 2026-02-23 |
+| Reviews | ✅ Complete | No critical gaps - formal reviews + feedback tab | 2026-02-23 |
+| Learning | ⏸️ Phase 2 | Feature flag OFF - not in MVP scope | — |
+| Admin | ✅ Complete | 8 tabs, comprehensive settings | 2026-02-23 |
 
 ### People/Directory - Gap Analysis (2026-02-18)
 
@@ -141,6 +141,180 @@ Reviewing each major feature against PRD to identify gaps and improvements.
 - Added goal multi-select to EventEditor
 - Added 35+ translations for goals UI
 - Created database trigger for automatic parent goal progress rollup (average of children)
+
+### Meetings - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- List/Week/Month calendar views
+- Meeting types: one_on_one, team, ministry, board, other
+- MeetingFormDialog with template selection, conflict detection, recurrence
+- MeetingDetailDialog with 3 tabs (Agenda, Action Items, Participants)
+- Agenda items with section types, goal linking, action item tracking
+- Feedback auto-populated to agenda for 1:1 meetings
+- Hooks: useMeetings, useMeetingTemplates, useMeetingParticipants, useMeetingConflicts
+
+**Gaps Found:** None critical
+
+| # | Item | Assessment | Status |
+|---|------|------------|--------|
+| 1 | Core meeting CRUD | Fully functional | ✅ OK |
+| 2 | Agenda management | Grouped by section type, goal linking works | ✅ OK |
+| 3 | Action item tracking | Status, owner, due date all work | ✅ OK |
+| 4 | Template system | Admin can create/edit, applied to new meetings | ✅ OK |
+| 5 | Conflict detection | Real-time check, reschedule dialog | ✅ OK |
+| 6 | Feedback integration | Auto-adds visible feedback to 1:1 agendas | ✅ OK |
+| 7 | i18n | Some hardcoded strings but non-blocking | ⚠️ Minor |
+
+**Complexity Note:** Meeting detail dialog has 3 tabs which is appropriate. Form is reasonably simple.
+
+### PDPs - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- PDPs accessed via "Dev Plans" tab on Goals page
+- `personal_development_plans` table for containers
+- Goals with `pdp_id` set are treated as PDP items (unified model)
+- PDPFormDialog and PDPDetailDialog components exist
+- Hooks: useDevelopmentPlans
+
+**Gaps Found:** None - working as designed
+
+| # | Item | Assessment | Status |
+|---|------|------------|--------|
+| 1 | PDP container CRUD | Works via PDPFormDialog | ✅ OK |
+| 2 | PDP items via goals | Goals with pdp_id=X are PDP items | ✅ OK |
+| 3 | PDPDetailDialog | Shows plan details + linked goals | ✅ OK |
+
+**Complexity Note:** Having PDPs as a separate tab (6th tab!) on Goals page adds complexity. Consider hiding or merging.
+
+### Feedback - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- Feedback tab on Reviews page (2 tabs: Reviews, Feedback)
+- Types: encouragement, coaching, concern
+- Visibility control via `visible_to_person` boolean
+- Auto-integration with meeting agendas
+- Hooks: useFeedback, useVisibleFeedback
+
+**Gaps Found:** None
+
+| # | Item | Assessment | Status |
+|---|------|------------|--------|
+| 1 | Feedback CRUD | Works with type selection | ✅ OK |
+| 2 | Visibility control | Toggle works correctly | ✅ OK |
+| 3 | Meeting integration | Visible feedback auto-added to 1:1 agendas | ✅ OK |
+| 4 | i18n | Translations exist | ✅ OK |
+
+### Reviews - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- Reviews page with 2 tabs (Reviews, Feedback)
+- Review form with period, ratings (1-5 stars), summary
+- Draft vs Finalized status workflow
+- Reviewer tracking
+- Hooks: useReviews, useCreateReview, useUpdateReview, useDeleteReview
+
+**Gaps Found:** None critical
+
+| # | Item | Assessment | Status |
+|---|------|------------|--------|
+| 1 | Review CRUD | Works with all fields | ✅ OK |
+| 2 | Rating display | 5-star visual works | ✅ OK |
+| 3 | Finalization workflow | Draft → Finalize works | ✅ OK |
+| 4 | Access control | Reviewer + admin can finalize | ✅ OK |
+
+### Admin - Gap Analysis (2026-02-23)
+
+**Current Implementation:**
+- 8 tabs: Users, Roles, Templates, Organization, Campuses, Email, Branding, System
+- UserManagementTable with role assignment
+- MeetingTemplateManagement with agenda item editor
+- Organization settings with yearly theme
+- Campus management
+- Email configuration
+- Branding (colors, font)
+- System settings (read-only toggles)
+
+**Gaps Found:** None - comprehensive
+
+| # | Item | Assessment | Status |
+|---|------|------------|--------|
+| 1 | User management | Full CRUD, role assignment | ✅ OK |
+| 2 | Role display | Shows all 5 roles with counts | ✅ OK |
+| 3 | Meeting templates | Full CRUD with agenda items | ✅ OK |
+| 4 | Org settings | Name, contact, yearly theme | ✅ OK |
+| 5 | Campuses | Multi-campus support | ✅ OK |
+| 6 | Email settings | Sender, reply-to, footer | ✅ OK |
+| 7 | Branding | Colors, font family | ✅ OK |
+
+**Complexity Note:** 8 tabs is a lot but appropriate for Admin. This is power-user territory.
+
+---
+
+## Gap Analysis Summary (2026-02-23)
+
+**All features reviewed.** Key findings:
+
+| Feature | Gaps | Action |
+|---------|------|--------|
+| Calendar/Events | 3 fixed | ✅ Done |
+| People/Directory | 9 fixed | ✅ Done |
+| Ministries | 4 fixed | ✅ Done |
+| Goals | 5 fixed, 1 deferred | ✅ Done |
+| Meetings | 0 critical | ✅ OK |
+| PDPs | 0 | ✅ OK (working as designed) |
+| Feedback | 0 | ✅ OK |
+| Reviews | 0 | ✅ OK |
+| Admin | 0 | ✅ OK |
+| Learning | N/A | ⏸️ Phase 2 (feature flag OFF) |
+
+**Next Phase:** Simplification (see [COMPLEXITY_ANALYSIS.md](COMPLEXITY_ANALYSIS.md))
+
+---
+
+## UI Simplification (2026-02-23)
+
+**Goal:** Reduce complexity to improve adoption. Simple mode is ON by default.
+
+### Changes Implemented
+
+| Area | Before | After (Simple Mode) |
+|------|--------|---------------------|
+| **Navigation** | 9 items (Main 5 + Calendar 3 + Admin) | 6 items (Dashboard, People, Ministries, Goals, Meetings, Calendar) |
+| **Goals tabs** | 6 tabs (My, Department, Ministry, Church, Cascade, Dev Plans) | 3 tabs (My Goals, Team Goals, Church Goals) |
+| **People tabs** | 5 tabs (Directory, Org Chart, My Team, Peers, Supervisor) | 2 tabs (Directory, My Team) |
+| **Goal form** | Side-by-side EN/FR fields, event linking | Single language + toggle, no event linking |
+
+### Feature Flag Structure
+
+```typescript
+// src/config/features.ts
+FEATURES.simpleMode = true;  // Default ON
+
+FEATURES.advanced = {
+  cascadeView: false,      // Goal cascade visualization
+  devPlans: false,         // Dev Plans tab on Goals
+  orgChart: false,         // Org Chart in People
+  departmentGoals: false,  // Separate department level
+  eventGoalLinking: false, // Link events to goals
+  bulkOperations: false,   // Bulk import/export
+  bilingualEditing: false, // Side-by-side EN/FR
+};
+```
+
+### Files Modified
+
+```
+src/config/features.ts            ✅ Added simpleMode flag + advanced features
+src/components/layout/Sidebar.tsx ✅ Reduced to 6 nav items, hide Quarters/Programs
+src/pages/Goals.tsx               ✅ 3 tabs in simple mode, Team Goals combines Dept+Ministry
+src/pages/People.tsx              ✅ 2 tabs in simple mode (Directory, My Team)
+src/components/goals/GoalFormDialog.tsx ✅ Single language default + toggle
+src/contexts/LanguageContext.tsx  ✅ Added goal tab translations + language toggle
+```
+
+### How to Enable Advanced Mode
+
+Set `FEATURES.simpleMode = false` in `src/config/features.ts` to show all tabs and features.
 
 ---
 
@@ -520,17 +694,142 @@ Test user setup (password: testpassword@123):
 **Pending Deployments:**
 - Migration: `20260223100000_goal_progress_rollup.sql`
 
+### 2026-02-23 Session (continued)
+**Focus:** Complete gap analysis for remaining features
+
+**Completed:**
+1. Reviewed Meetings implementation:
+   - List/Week/Month views, conflict detection, template system
+   - Agenda management with goal linking, action items
+   - Feedback auto-integration for 1:1s
+   - **No critical gaps found**
+2. Reviewed PDPs implementation:
+   - Working as designed via goals with pdp_id
+   - PDPFormDialog and PDPDetailDialog functional
+   - **No gaps**
+3. Reviewed Feedback implementation:
+   - Types (encouragement, coaching, concern) working
+   - Visibility control working
+   - Meeting integration working
+   - **No gaps**
+4. Reviewed Reviews implementation:
+   - Draft/Finalized workflow working
+   - Star ratings working
+   - **No critical gaps**
+5. Reviewed Admin implementation:
+   - 8 comprehensive tabs
+   - User management, templates, org settings, campuses, email, branding
+   - **No gaps**
+6. Created complexity analysis document:
+   - Identified current navigation has 9 items (too many)
+   - Goals page has 6 tabs (too many)
+   - People page has 5 tabs (too many)
+   - Proposed simplification tiers (Core, Advanced, Phase 2)
+   - Saved to `docs/COMPLEXITY_ANALYSIS.md`
+7. Updated TASK_STATUS.md with all gap analysis results
+
+**Key Finding:** All features functional, but app complexity may hinder adoption. Simplification recommended before launch.
+
+### 2026-02-23 Session (UI Simplification)
+**Focus:** Implement simplification plan from COMPLEXITY_ANALYSIS.md
+
+**Completed:**
+1. Added `simpleMode` feature flag to `features.ts`:
+   - Default ON for new installs
+   - Controls visibility of advanced features
+   - Added `isSimpleMode()` and `isAdvancedFeatureEnabled()` helpers
+2. Simplified sidebar navigation:
+   - Reduced from 9 to 6 main items
+   - Calendar now single item (hides Quarters/Programs in simple mode)
+   - Development section hidden in simple mode
+3. Simplified Goals page:
+   - Reduced from 6 to 3 tabs in simple mode
+   - "Team Goals" combines Ministry + Department goals
+   - Hidden: Cascade View, Dev Plans tabs
+   - Added translations for new tab labels
+4. Simplified People page:
+   - Reduced from 5 to 2 tabs in simple mode
+   - Kept: Directory, My Team (for supervisors)
+   - Hidden: Org Chart, Peers, Supervisor
+5. Simplified GoalFormDialog:
+   - Single language input by default (based on user's language)
+   - "Add [language] translation" collapsible toggle
+   - Event linking hidden in simple mode
+6. Added 15+ new translations for simplified UI
+7. Build compiles successfully
+
+**How to Toggle:**
+- Simple mode: `FEATURES.simpleMode = true` (default)
+- Advanced mode: `FEATURES.simpleMode = false`
+
+### 2026-02-23 Session (Feature Upgrades System)
+**Focus:** Implement admin-controlled feature toggles per-organization
+
+**Completed:**
+1. Created migration `20260223120000_feature_toggles.sql`:
+   - Adds 9 feature toggle columns to `organization_settings`
+   - Columns: `feature_org_chart`, `feature_bulk_operations`, `feature_cascade_view`, `feature_department_goals`, `feature_dev_plans`, `feature_event_goal_linking`, `feature_quarters`, `feature_programs`, `feature_bilingual_editing`
+   - All default to `false`
+2. Created `useFeatureFlags` hook (`src/hooks/useFeatureFlags.ts`):
+   - Reads from organization_settings
+   - Falls back to static FEATURES config
+   - Handles dependency rules (cascadeView → departmentGoals, programs → quarters)
+   - Respects global `simpleMode` override
+3. Created `FeatureUpgradesTab` component (`src/components/admin/FeatureUpgradesTab.tsx`):
+   - 4 feature groups: People & Organization, Goals & Development, Calendar Advanced, Forms & Editing
+   - Toggle switches per feature
+   - Shows dependency locks (e.g., Programs requires Quarters)
+   - Auto-enables dependent features
+4. Added Feature Upgrades tab to Admin page (6 tabs total)
+5. Updated components to use `useFeatureFlags()` instead of static checks:
+   - `Sidebar.tsx` - Quarters/Programs nav items
+   - `Goals.tsx` - Cascade View, Dev Plans, Team Goals tabs
+   - `People.tsx` - Org Chart tab
+   - `GoalFormDialog.tsx` - Event linking, bilingual editing
+   - `GoalCascadeView.tsx` - Dynamic LEVEL_ORDER based on departmentGoals
+   - `EventEditor.tsx` - Quarters/Programs/Goals selectors
+   - `DirectoryTab.tsx` - Bulk operations dropdown
+6. Updated `OrganizationSettings` interface with feature toggle fields
+7. Added 45+ translations for feature upgrade UI
+8. Build passes successfully
+
+**Files Created:**
+```
+supabase/migrations/20260223120000_feature_toggles.sql
+src/hooks/useFeatureFlags.ts
+src/components/admin/FeatureUpgradesTab.tsx
+```
+
+**Files Modified:**
+```
+src/hooks/useOrganizationSettings.ts        - Added feature toggle fields
+src/pages/Admin.tsx                         - Added Feature Upgrades tab
+src/components/layout/Sidebar.tsx           - Dynamic quarters/programs nav
+src/pages/Goals.tsx                         - Dynamic tabs based on flags
+src/pages/People.tsx                        - Dynamic orgChart tab
+src/components/goals/GoalFormDialog.tsx     - Dynamic bilingual/event linking
+src/components/goals/GoalCascadeView.tsx    - Dynamic LEVEL_ORDER
+src/pages/calendar/EventEditor.tsx          - Feature guards on selectors
+src/components/people/DirectoryTab.tsx      - Bulk operations guard
+src/contexts/LanguageContext.tsx            - 45+ translations
+```
+
+**Pending Deployments:**
+- Migration: `20260223120000_feature_toggles.sql`
+
 ---
 
 ## Resume Prompt (copy-paste to start next session)
 
 ```
-Read @docs/TASK_STATUS.md. Goals feature gap analysis COMPLETE (5/6 gaps done, PDP deferred).
+Read @docs/TASK_STATUS.md.
+FEATURE UPGRADES SYSTEM COMPLETE - admins can toggle advanced features per-org.
 Pending deployments:
 - Migration: `20260218150000_add_profile_photos.sql`
 - Migration: `20260223100000_goal_progress_rollup.sql`
+- Migration: `20260223120000_feature_toggles.sql`
 - Edge Function: `invite-user`
-Next: Move to gap analysis for next feature (Meetings, PDPs, Feedback, etc.)
+NEXT: Apply migrations, test feature toggles, then user acceptance testing.
 ```
 
 ---

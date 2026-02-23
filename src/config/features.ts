@@ -24,9 +24,16 @@
 
 export const FEATURES = {
   // ========================================
+  // SIMPLE MODE - Default ON for reduced complexity
+  // ========================================
+
+  // Simple mode hides advanced features for easier adoption
+  simpleMode: true,
+
+  // ========================================
   // MVP - ACTIVE (Weeks 1-9)
   // ========================================
-  
+
   // Core modules
   people: true,
   ministries: true,
@@ -76,8 +83,8 @@ export const FEATURES = {
   
   // Calendar features
   calendarFeatures: {
-    quarters: true,
-    programs: true,
+    quarters: false,             // Hidden in simple mode (was true)
+    programs: false,             // Hidden in simple mode (was true)
     events: true,
     eventRoles: false,           // Phase 2 - no volunteer scheduling
     eventGoals: false,           // Phase 2 - no event-goal alignment
@@ -85,6 +92,17 @@ export const FEATURES = {
     eventRecurrence: false,      // Phase 2
     eventRsvp: false,            // Phase 2
     eventAttendance: false,      // Phase 2
+  },
+
+  // Advanced features (hidden when simpleMode=true)
+  advanced: {
+    cascadeView: false,          // Goal cascade visualization
+    devPlans: false,             // Development plans tab on Goals page
+    orgChart: false,             // Org chart in People
+    departmentGoals: false,      // Separate department level (merged into Team)
+    eventGoalLinking: false,     // Link events to goals
+    bulkOperations: false,       // Bulk import/export
+    bilingualEditing: false,     // Side-by-side EN/FR fields
   },
   
   // ========================================
@@ -128,4 +146,20 @@ export const getEnabledMeetingTypes = () => {
   return Object.entries(FEATURES.meetingTypes)
     .filter(([_, enabled]) => enabled)
     .map(([type]) => type);
+};
+
+/**
+ * Helper to check if an advanced feature is enabled
+ * Returns false if simpleMode is on OR if the feature is explicitly disabled
+ */
+export const isAdvancedFeatureEnabled = (feature: keyof typeof FEATURES.advanced): boolean => {
+  if (FEATURES.simpleMode) return false;
+  return FEATURES.advanced[feature];
+};
+
+/**
+ * Helper to check if simple mode is active
+ */
+export const isSimpleMode = (): boolean => {
+  return FEATURES.simpleMode;
 };

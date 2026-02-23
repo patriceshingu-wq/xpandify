@@ -27,6 +27,7 @@ import { PDPFormDialog } from '@/components/development/PDPFormDialog';
 import { PDPDetailDialog } from '@/components/development/PDPDetailDialog';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const currentYear = new Date().getFullYear();
 
@@ -75,6 +76,10 @@ export default function Goals() {
   const { t, getLocalizedField } = useLanguage();
   const { isAdminOrSuper, person } = useAuth();
   const queryClient = useQueryClient();
+  const { cascadeView, devPlans, departmentGoals: departmentGoalsEnabled } = useFeatureFlags();
+
+  // Simple mode = no advanced features enabled
+  const isInSimpleMode = !cascadeView && !devPlans && !departmentGoalsEnabled;
 
   // Determine default tab based on role
   const defaultTab = isAdminOrSuper ? 'church' : 'my';
@@ -131,6 +136,16 @@ export default function Goals() {
   const departmentGoals = (allDeptGoals || []).filter(
     (g) => !userMinistryIds || userMinistryIds.length === 0 || userMinistryIds.includes(g.owner_ministry_id || '')
   );
+
+  // Simple mode: Combined "Team Goals" (ministry + department)
+  const teamGoals = [...ministryGoals, ...departmentGoals].sort((a, b) => {
+    // Sort by goal_level (ministry first, then department), then by title
+    if (a.goal_level !== b.goal_level) {
+      return a.goal_level === 'ministry' ? -1 : 1;
+    }
+    return (a.title_en || '').localeCompare(b.title_en || '');
+  });
+  const teamGoalsLoading = ministryGoalsLoading || deptGoalsLoading;
 
   const { data: churchGoals, isLoading: churchGoalsLoading } = useGoals({
     year,
@@ -329,37 +344,57 @@ export default function Goals() {
           />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            {/* Simple mode: 3 tabs (My Goals, Team Goals, Church Goals)
+                Advanced mode: 6 tabs (My, Department, Ministry, Church, Cascade, Dev Plans) */}
             <TabsList className="flex w-full overflow-x-auto sm:w-auto sm:inline-flex gap-1">
               <TabsTrigger value="my" className="gap-1.5 touch-target">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">My Goals</span>
-                <span className="sm:hidden text-xs">My</span>
+                <span className="hidden sm:inline">{t('goals.myGoals')}</span>
+                <span className="sm:hidden text-xs">{t('goals.my')}</span>
               </TabsTrigger>
-              <TabsTrigger value="department" className="gap-1.5 touch-target">
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Department</span>
-                <span className="sm:hidden text-xs">Dept</span>
-              </TabsTrigger>
-              <TabsTrigger value="ministry" className="gap-1.5 touch-target">
-                <Building className="h-4 w-4" />
-                <span className="hidden sm:inline">Ministry</span>
-                <span className="sm:hidden text-xs">Ministry</span>
-              </TabsTrigger>
+              {/* Simple mode: Team Goals (combines Ministry + Department) */}
+              {isInSimpleMode && (
+                <TabsTrigger value="team" className="gap-1.5 touch-target">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('goals.teamGoals')}</span>
+                  <span className="sm:hidden text-xs">{t('goals.team')}</span>
+                </TabsTrigger>
+              )}
+              {/* Advanced mode: Separate Department and Ministry tabs */}
+              {!isInSimpleMode && (
+                <>
+                  <TabsTrigger value="department" className="gap-1.5 touch-target">
+                    <Users className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t('goals.department')}</span>
+                    <span className="sm:hidden text-xs">{t('goals.dept')}</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="ministry" className="gap-1.5 touch-target">
+                    <Building className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t('goals.ministry')}</span>
+                    <span className="sm:hidden text-xs">{t('goals.ministry')}</span>
+                  </TabsTrigger>
+                </>
+              )}
               <TabsTrigger value="church" className="gap-1.5 touch-target">
                 <Church className="h-4 w-4" />
-                <span className="hidden sm:inline">Church</span>
-                <span className="sm:hidden text-xs">Church</span>
+                <span className="hidden sm:inline">{t('goals.church')}</span>
+                <span className="sm:hidden text-xs">{t('goals.church')}</span>
               </TabsTrigger>
-              <TabsTrigger value="cascade" className="gap-1.5 touch-target">
-                <GitBranch className="h-4 w-4" />
-                <span className="hidden sm:inline">Cascade</span>
-                <span className="sm:hidden text-xs">Cascade</span>
-              </TabsTrigger>
-              <TabsTrigger value="plans" className="gap-1.5 touch-target">
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Dev Plans</span>
-                <span className="sm:hidden text-xs">Plans</span>
-              </TabsTrigger>
+              {/* Advanced mode only: Cascade and Dev Plans */}
+              {!isInSimpleMode && cascadeView && (
+                <TabsTrigger value="cascade" className="gap-1.5 touch-target">
+                  <GitBranch className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('goals.cascade')}</span>
+                  <span className="sm:hidden text-xs">{t('goals.cascade')}</span>
+                </TabsTrigger>
+              )}
+              {!isInSimpleMode && devPlans && (
+                <TabsTrigger value="plans" className="gap-1.5 touch-target">
+                  <FileText className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('goals.devPlans')}</span>
+                  <span className="sm:hidden text-xs">{t('goals.plans')}</span>
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* ========== My Goals Tab ========== */}
@@ -368,42 +403,63 @@ export default function Goals() {
                 <div />
                 <Button onClick={() => handleCreateWithLevel('individual')} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Create Goal
+                  {t('goals.createGoal')}
                 </Button>
               </div>
               {renderFilters()}
               {renderGoalList(myGoals, myGoalsLoading, () => handleCreateWithLevel('individual'))}
             </TabsContent>
 
-            {/* ========== Department Goals Tab ========== */}
-            <TabsContent value="department" className="space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <div />
-                {(isMinistryLeader || isAdminOrSuper) && (
-                  <Button onClick={() => handleCreateWithLevel('department')} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Department Goal
-                  </Button>
-                )}
-              </div>
-              {renderFilters()}
-              {renderGoalList(departmentGoals, deptGoalsLoading)}
-            </TabsContent>
+            {/* ========== Team Goals Tab (Simple Mode - combines Ministry + Department) ========== */}
+            {isInSimpleMode && (
+              <TabsContent value="team" className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div />
+                  {(isMinistryLeader || isAdminOrSuper) && (
+                    <Button onClick={() => handleCreateWithLevel('ministry')} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      {t('goals.createTeamGoal')}
+                    </Button>
+                  )}
+                </div>
+                {renderFilters()}
+                {renderGoalList(teamGoals, teamGoalsLoading)}
+              </TabsContent>
+            )}
 
-            {/* ========== Ministry Goals Tab ========== */}
-            <TabsContent value="ministry" className="space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <div />
-                {(isMinistryLeader || isAdminOrSuper) && (
-                  <Button onClick={() => handleCreateWithLevel('ministry')} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Ministry Goal
-                  </Button>
-                )}
-              </div>
-              {renderFilters()}
-              {renderGoalList(ministryGoals, ministryGoalsLoading)}
-            </TabsContent>
+            {/* ========== Department Goals Tab (Advanced Mode) ========== */}
+            {!isInSimpleMode && (
+              <TabsContent value="department" className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div />
+                  {(isMinistryLeader || isAdminOrSuper) && (
+                    <Button onClick={() => handleCreateWithLevel('department')} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      {t('goals.createDeptGoal')}
+                    </Button>
+                  )}
+                </div>
+                {renderFilters()}
+                {renderGoalList(departmentGoals, deptGoalsLoading)}
+              </TabsContent>
+            )}
+
+            {/* ========== Ministry Goals Tab (Advanced Mode) ========== */}
+            {!isInSimpleMode && (
+              <TabsContent value="ministry" className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div />
+                  {(isMinistryLeader || isAdminOrSuper) && (
+                    <Button onClick={() => handleCreateWithLevel('ministry')} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      {t('goals.createMinistryGoal')}
+                    </Button>
+                  )}
+                </div>
+                {renderFilters()}
+                {renderGoalList(ministryGoals, ministryGoalsLoading)}
+              </TabsContent>
+            )}
 
             {/* ========== Church Goals Tab ========== */}
             <TabsContent value="church" className="space-y-4">
@@ -412,7 +468,7 @@ export default function Goals() {
                 {isAdminOrSuper && (
                   <Button onClick={() => handleCreateWithLevel('church')} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Create Church Goal
+                    {t('goals.createChurchGoal')}
                   </Button>
                 )}
               </div>
@@ -420,20 +476,23 @@ export default function Goals() {
               {renderGoalList(churchGoals, churchGoalsLoading)}
             </TabsContent>
 
-            {/* ========== Cascade View Tab ========== */}
-            <TabsContent value="cascade" className="space-y-4">
-              {renderFilters()}
-              {allGoalsLoading ? (
-                <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />
-              ) : (
-                <GoalCascadeView
-                  goals={allGoals || []}
-                  onGoalClick={handleEdit}
-                />
-              )}
-            </TabsContent>
+            {/* ========== Cascade View Tab (Advanced Mode) ========== */}
+            {!isInSimpleMode && cascadeView && (
+              <TabsContent value="cascade" className="space-y-4">
+                {renderFilters()}
+                {allGoalsLoading ? (
+                  <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />
+                ) : (
+                  <GoalCascadeView
+                    goals={allGoals || []}
+                    onGoalClick={handleEdit}
+                  />
+                )}
+              </TabsContent>
+            )}
 
-            {/* ========== Development Plans Tab ========== */}
+            {/* ========== Development Plans Tab (Advanced Mode) ========== */}
+            {!isInSimpleMode && devPlans && (
             <TabsContent value="plans" className="space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex gap-2">
@@ -543,6 +602,7 @@ export default function Goals() {
                 </div>
               )}
             </TabsContent>
+            )}
           </Tabs>
         </div>
       </PullToRefresh>

@@ -31,6 +31,16 @@ export interface OrganizationSettings {
   theme_scripture: string | null;
   created_at: string;
   updated_at: string;
+  // Feature toggles (upgrades)
+  feature_org_chart: boolean | null;
+  feature_bulk_operations: boolean | null;
+  feature_cascade_view: boolean | null;
+  feature_department_goals: boolean | null;
+  feature_dev_plans: boolean | null;
+  feature_event_goal_linking: boolean | null;
+  feature_quarters: boolean | null;
+  feature_programs: boolean | null;
+  feature_bilingual_editing: boolean | null;
 }
 
 export function useOrganizationSettings() {

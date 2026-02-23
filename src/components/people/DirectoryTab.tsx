@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { usePeopleInfinite, usePeople, Person } from '@/hooks/usePeople';
 import { useCampuses } from '@/hooks/useCampuses';
 import { generateCSVExport, downloadCSV } from '@/hooks/useBulkPeopleOperations';
@@ -21,6 +22,7 @@ export function DirectoryTab() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { isAdminOrSuper } = useAuth();
+  const { bulkOperations } = useFeatureFlags();
   const [search, setSearch] = useState('');
   const [personType, setPersonType] = useState('all');
   const [status, setStatus] = useState('all');
@@ -104,7 +106,7 @@ export function DirectoryTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
-        {isAdminOrSuper && (
+        {isAdminOrSuper && bulkOperations && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2 touch-target">

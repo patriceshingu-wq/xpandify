@@ -13,8 +13,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Loader2, Trash2, GitBranch, Church, Building2, Users, User, CalendarDays, X } from 'lucide-react';
+import { Loader2, Trash2, GitBranch, Church, Building2, Users, User, CalendarDays, X, Languages } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
 
@@ -39,8 +41,9 @@ interface GoalFormDialogProps {
 const currentYear = new Date().getFullYear();
 
 export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFormDialogProps) {
-  const { t, getLocalizedField } = useLanguage();
+  const { t, getLocalizedField, language } = useLanguage();
   const { person } = useAuth();
+  const { eventGoalLinking, bilingualEditing } = useFeatureFlags();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
   const deleteGoal = useDeleteGoal();
@@ -51,6 +54,13 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
   const { data: linkedGoalEvents } = useGoalEvents(goal?.id);
   const syncGoalEvents = useSyncGoalEvents();
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
+
+  // Simple mode: show only primary language by default
+  const [showSecondaryLanguage, setShowSecondaryLanguage] = useState(false);
+  const showEventLinking = eventGoalLinking;
+  const isInSimpleMode = !bilingualEditing;
+  const primaryLang = language; // 'en' or 'fr'
+  const secondaryLang = language === 'en' ? 'fr' : 'en';
 
   const isEditing = !!goal;
   const effectiveLevel = presetLevel || goal?.goal_level || 'individual';
@@ -202,50 +212,120 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Title */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title_en">{t('goals.titleEn')} *</Label>
-              <Input
-                id="title_en"
-                value={formData.title_en}
-                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                placeholder={t('goals.titlePlaceholder')}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="title_fr">{t('goals.titleFr')}</Label>
-              <Input
-                id="title_fr"
-                value={formData.title_fr}
-                onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
-                placeholder={t('goals.titlePlaceholder')}
-              />
-            </div>
+          {/* Title - Primary language */}
+          <div className="space-y-2">
+            <Label htmlFor={`title_${primaryLang}`}>
+              {t('common.title')} *
+            </Label>
+            <Input
+              id={`title_${primaryLang}`}
+              value={primaryLang === 'en' ? formData.title_en : formData.title_fr}
+              onChange={(e) => setFormData({
+                ...formData,
+                [primaryLang === 'en' ? 'title_en' : 'title_fr']: e.target.value
+              })}
+              placeholder={t('goals.titlePlaceholder')}
+              required
+            />
           </div>
 
-          {/* Description */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{t('goals.descriptionEn')}</Label>
-              <Textarea
-                value={formData.description_en}
-                onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-                placeholder={t('goals.descriptionPlaceholder')}
-                rows={2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('goals.descriptionFr')}</Label>
-              <Textarea
-                value={formData.description_fr}
-                onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
-                placeholder={t('goals.descriptionPlaceholder')}
-                rows={2}
-              />
-            </div>
+          {/* Description - Primary language */}
+          <div className="space-y-2">
+            <Label>{t('common.description')}</Label>
+            <Textarea
+              value={primaryLang === 'en' ? formData.description_en : formData.description_fr}
+              onChange={(e) => setFormData({
+                ...formData,
+                [primaryLang === 'en' ? 'description_en' : 'description_fr']: e.target.value
+              })}
+              placeholder={t('goals.descriptionPlaceholder')}
+              rows={2}
+            />
           </div>
+
+          {/* Secondary language toggle (Simple mode: collapsed by default) */}
+          {isInSimpleMode ? (
+            <Collapsible open={showSecondaryLanguage} onOpenChange={setShowSecondaryLanguage}>
+              <CollapsibleTrigger asChild>
+                <Button type="button" variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+                  <Languages className="h-4 w-4" />
+                  {showSecondaryLanguage
+                    ? t('goals.hideSecondaryLanguage')
+                    : t('goals.showSecondaryLanguage')
+                  }
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`title_${secondaryLang}`}>
+                    {secondaryLang === 'en' ? t('goals.titleEn') : t('goals.titleFr')}
+                  </Label>
+                  <Input
+                    id={`title_${secondaryLang}`}
+                    value={secondaryLang === 'en' ? formData.title_en : formData.title_fr}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      [secondaryLang === 'en' ? 'title_en' : 'title_fr']: e.target.value
+                    })}
+                    placeholder={t('goals.titlePlaceholder')}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{secondaryLang === 'en' ? t('goals.descriptionEn') : t('goals.descriptionFr')}</Label>
+                  <Textarea
+                    value={secondaryLang === 'en' ? formData.description_en : formData.description_fr}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      [secondaryLang === 'en' ? 'description_en' : 'description_fr']: e.target.value
+                    })}
+                    placeholder={t('goals.descriptionPlaceholder')}
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            /* Advanced mode: Side-by-side fields */
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title_en">{t('goals.titleEn')} *</Label>
+                <Input
+                  id="title_en"
+                  value={formData.title_en}
+                  onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                  placeholder={t('goals.titlePlaceholder')}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title_fr">{t('goals.titleFr')}</Label>
+                <Input
+                  id="title_fr"
+                  value={formData.title_fr}
+                  onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
+                  placeholder={t('goals.titlePlaceholder')}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('goals.descriptionEn')}</Label>
+                <Textarea
+                  value={formData.description_en}
+                  onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
+                  placeholder={t('goals.descriptionPlaceholder')}
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('goals.descriptionFr')}</Label>
+                <Textarea
+                  value={formData.description_fr}
+                  onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })}
+                  placeholder={t('goals.descriptionPlaceholder')}
+                  rows={2}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Category */}
           <div className="space-y-2">
@@ -397,7 +477,8 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
             </div>
           </div>
 
-          {/* Linked Events */}
+          {/* Linked Events - Advanced mode only */}
+          {showEventLinking && (
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
@@ -453,6 +534,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
               <p className="text-xs text-muted-foreground">{t('goals.noLinkedEvents')}</p>
             )}
           </div>
+          )}
 
           {/* Goal Level display (read-only when preset) */}
           {!presetLevel && !isEditing && (

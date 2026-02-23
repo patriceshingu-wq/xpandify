@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { FEATURES } from '@/config/features';
 import { useOrganizationSettings } from '@/hooks/useOrganizationSettings';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -13,7 +14,6 @@ import {
   Target,
   Calendar,
   CalendarDays,
-  
   GraduationCap,
   FileText,
   BarChart3,
@@ -38,20 +38,18 @@ interface NavItem {
   roles?: string[];
 }
 
+// Simple mode: 6 nav items (Dashboard, People, Ministries, Goals, Meetings, Calendar)
+// Advanced mode: Adds Quarters, Programs, and Development section
 const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
   { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
+  { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },
 ];
 
-const calendarNavItems: NavItem[] = [
-  { icon: CalendarDays, labelKey: 'nav.eventsCalendar', path: '/calendar/events' },
-  { icon: CalendarRange, labelKey: 'nav.quarters', path: '/calendar/quarters' },
-  { icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' },
-];
-
+// Static development nav items (Phase 2 features based on static flags)
 const developmentNavItems: NavItem[] = [
   // Feedback is always visible (informal feedback for MVP)
   { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
@@ -72,6 +70,16 @@ export function Sidebar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: orgSettings } = useOrganizationSettings();
+  const { quarters, programs } = useFeatureFlags();
+
+  // Build calendar nav items based on feature flags (dynamic)
+  const calendarNavItems: NavItem[] = [
+    ...(quarters ? [{ icon: CalendarRange, labelKey: 'nav.quarters', path: '/calendar/quarters' }] : []),
+    ...(programs ? [{ icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' }] : []),
+  ];
+
+  // Check if we're in simple mode (all advanced features off)
+  const isInSimpleMode = !quarters && !programs;
 
   const themeName = language === 'fr'
     ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
@@ -139,7 +147,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
-          {/* Main Navigation */}
+          {/* Main Navigation - includes Calendar in simple mode */}
           <div className="space-y-1">
             {!isCollapsed && (
               <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
@@ -149,18 +157,20 @@ export function Sidebar() {
             {mainNavItems.map(renderNavItem)}
           </div>
 
-          {/* Calendar & Events */}
-          <div className="space-y-1">
-            {!isCollapsed && (
-              <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                Calendar
-              </span>
-            )}
-            {calendarNavItems.map(renderNavItem)}
-          </div>
+          {/* Calendar Sub-Items (Quarters, Programs) - only shown when features enabled */}
+          {calendarNavItems.length > 0 && (
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                  Calendar
+                </span>
+              )}
+              {calendarNavItems.map(renderNavItem)}
+            </div>
+          )}
 
-          {/* Development */}
-          {developmentNavItems.length > 0 && (
+          {/* Development - only shown when not in simple mode OR has items beyond Feedback */}
+          {!isInSimpleMode && developmentNavItems.length > 0 && (
             <div className="space-y-1">
               {!isCollapsed && (
                 <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">

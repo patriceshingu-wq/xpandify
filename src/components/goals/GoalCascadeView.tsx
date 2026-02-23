@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react';
 import { Goal } from '@/hooks/useGoals';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  Building2, 
-  Church, 
-  Users, 
-  User, 
-  ChevronRight, 
+import {
+  Building2,
+  Church,
+  Users,
+  User,
+  ChevronRight,
   ChevronDown,
   Target,
   ArrowDown
@@ -26,8 +27,6 @@ interface GoalCascadeViewProps {
 interface GoalNode extends Goal {
   children: GoalNode[];
 }
-
-const LEVEL_ORDER = ['church', 'ministry', 'department', 'individual'] as const;
 
 const getLevelConfig = (level: string) => {
   switch (level) {
@@ -197,6 +196,14 @@ function GoalTreeNode({
 
 export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
   const { t } = useLanguage();
+  const { departmentGoals } = useFeatureFlags();
+
+  // Dynamic level order based on feature flags
+  const LEVEL_ORDER = useMemo(() => {
+    return departmentGoals
+      ? (['church', 'ministry', 'department', 'individual'] as const)
+      : (['church', 'ministry', 'individual'] as const);
+  }, [departmentGoals]);
 
   // Build tree structure from flat goals list
   const goalTree = useMemo(() => {
@@ -230,9 +237,9 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
     };
     
     sortRecursively(rootGoals);
-    
+
     return rootGoals;
-  }, [goals]);
+  }, [goals, LEVEL_ORDER]);
 
   // Calculate stats per level
   const levelStats = useMemo(() => {
@@ -242,12 +249,12 @@ export function GoalCascadeView({ goals, onGoalClick }: GoalCascadeViewProps) {
       count: goals.filter(g => g.goal_level === level).length,
       avgProgress: Math.round(
         goals.filter(g => g.goal_level === level)
-          .reduce((sum, g) => sum + (g.progress_percent || 0), 0) / 
+          .reduce((sum, g) => sum + (g.progress_percent || 0), 0) /
         (goals.filter(g => g.goal_level === level).length || 1)
       ),
     }));
     return stats;
-  }, [goals]);
+  }, [goals, LEVEL_ORDER]);
 
   return (
     <div className="space-y-6">

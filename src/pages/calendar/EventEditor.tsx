@@ -16,6 +16,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { useEventGoals, useSyncEventGoals } from '@/hooks/useEventGoals';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,6 +39,7 @@ export default function EventEditorPage() {
   const [searchParams] = useSearchParams();
   const { getLocalizedField, t } = useLanguage();
   const { person } = useAuth();
+  const { quarters: quartersEnabled, programs: programsEnabled, eventGoalLinking } = useFeatureFlags();
   const isEditing = !!id;
 
   const { data: existingEvent, isLoading: eventLoading } = useEvent(id);
@@ -602,41 +604,45 @@ export default function EventEditorPage() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="quarter_id">{t('calendar.quarter') || 'Quarter'}</Label>
-                  <Select
-                    value={formData.quarter_id || 'none'}
-                    onValueChange={(v) => setFormData({ ...formData, quarter_id: v === 'none' ? null : v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('calendar.selectQuarter') || 'Select quarter'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
-                      {quarters?.map((q) => (
-                        <SelectItem key={q.id} value={q.id}>Q{q.quarter_number} {q.year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {quartersEnabled && (
+                  <div className="space-y-2">
+                    <Label htmlFor="quarter_id">{t('calendar.quarter') || 'Quarter'}</Label>
+                    <Select
+                      value={formData.quarter_id || 'none'}
+                      onValueChange={(v) => setFormData({ ...formData, quarter_id: v === 'none' ? null : v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('calendar.selectQuarter') || 'Select quarter'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                        {quarters?.map((q) => (
+                          <SelectItem key={q.id} value={q.id}>Q{q.quarter_number} {q.year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="program_id">{t('calendar.program') || 'Program'}</Label>
-                  <Select
-                    value={formData.program_id || 'none'}
-                    onValueChange={(v) => setFormData({ ...formData, program_id: v === 'none' ? null : v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('calendar.selectProgram') || 'Select program'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
-                      {programs?.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.code} - {getLocalizedField(p, 'name')}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {programsEnabled && (
+                  <div className="space-y-2">
+                    <Label htmlFor="program_id">{t('calendar.program') || 'Program'}</Label>
+                    <Select
+                      value={formData.program_id || 'none'}
+                      onValueChange={(v) => setFormData({ ...formData, program_id: v === 'none' ? null : v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('calendar.selectProgram') || 'Select program'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">{t('common.none') || 'None'}</SelectItem>
+                        {programs?.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>{p.code} - {getLocalizedField(p, 'name')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="category_id">{t('calendar.category') || 'Activity Category'}</Label>
@@ -674,57 +680,59 @@ export default function EventEditorPage() {
                   </Select>
                 </div>
 
-                {/* Linked Goals */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    {t('calendar.linkedGoals') || 'Linked Goals'}
-                  </Label>
-                  <Select
-                    value=""
-                    onValueChange={(goalId) => {
-                      if (goalId && !selectedGoalIds.includes(goalId)) {
-                        setSelectedGoalIds([...selectedGoalIds, goalId]);
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('calendar.selectGoalToLink') || 'Select a goal to link...'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {allGoals?.filter(g => !selectedGoalIds.includes(g.id)).map((g) => (
-                        <SelectItem key={g.id} value={g.id}>
-                          <span className="text-xs text-muted-foreground mr-2">[{t(`goals.${g.goal_level}`)}]</span>
-                          {getLocalizedField(g, 'title')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedGoalIds.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedGoalIds.map(goalId => {
-                        const goal = allGoals?.find(g => g.id === goalId);
-                        if (!goal) return null;
-                        return (
-                          <div
-                            key={goalId}
-                            className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md text-sm"
-                          >
-                            <Target className="h-3 w-3 text-muted-foreground" />
-                            <span>{getLocalizedField(goal, 'title')}</span>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedGoalIds(selectedGoalIds.filter(id => id !== goalId))}
-                              className="ml-1 hover:text-destructive"
+                {/* Linked Goals - only shown when eventGoalLinking is enabled */}
+                {eventGoalLinking && (
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      {t('calendar.linkedGoals') || 'Linked Goals'}
+                    </Label>
+                    <Select
+                      value=""
+                      onValueChange={(goalId) => {
+                        if (goalId && !selectedGoalIds.includes(goalId)) {
+                          setSelectedGoalIds([...selectedGoalIds, goalId]);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('calendar.selectGoalToLink') || 'Select a goal to link...'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allGoals?.filter(g => !selectedGoalIds.includes(g.id)).map((g) => (
+                          <SelectItem key={g.id} value={g.id}>
+                            <span className="text-xs text-muted-foreground mr-2">[{t(`goals.${g.goal_level}`)}]</span>
+                            {getLocalizedField(g, 'title')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedGoalIds.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {selectedGoalIds.map(goalId => {
+                          const goal = allGoals?.find(g => g.id === goalId);
+                          if (!goal) return null;
+                          return (
+                            <div
+                              key={goalId}
+                              className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md text-sm"
                             >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                              <Target className="h-3 w-3 text-muted-foreground" />
+                              <span>{getLocalizedField(goal, 'title')}</span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedGoalIds(selectedGoalIds.filter(id => id !== goalId))}
+                                className="ml-1 hover:text-destructive"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
