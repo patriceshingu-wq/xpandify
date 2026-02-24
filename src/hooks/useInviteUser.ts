@@ -47,7 +47,10 @@ export function useInviteUser() {
       }
 
       const response = await supabase.functions.invoke('invite-user', {
-        body: data,
+        body: {
+          ...data,
+          redirect_to: `${window.location.origin}/auth`,
+        },
       });
 
       if (response.error) {
