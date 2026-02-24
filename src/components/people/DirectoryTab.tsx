@@ -147,7 +147,7 @@ export function DirectoryTab() {
             </div>
             <div className="flex gap-2">
               <Select value={personType} onValueChange={setPersonType}>
-                <SelectTrigger className="flex-1 touch-target">
+                <SelectTrigger className="flex-1 touch-target" aria-label={t('common.filterByType')}>
                   <SelectValue placeholder={t('common.type')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,7 +158,7 @@ export function DirectoryTab() {
                 </SelectContent>
               </Select>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="flex-1 touch-target">
+                <SelectTrigger className="flex-1 touch-target" aria-label={t('common.filterByStatus')}>
                   <SelectValue placeholder={t('common.status')} />
                 </SelectTrigger>
                 <SelectContent>

@@ -68,7 +68,7 @@ export function NotificationsDropdown() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label={t('notifications.title')}>
           <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-accent text-accent-foreground">
@@ -144,6 +144,7 @@ export function NotificationsDropdown() {
                         e.stopPropagation();
                         deleteNotification.mutate(notification.id);
                       }}
+                      aria-label={t('notifications.delete')}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>

@@ -237,7 +237,7 @@ export default function Goals() {
       <CardContent className="p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <Select value={year.toString()} onValueChange={(v) => setYear(parseInt(v))}>
-            <SelectTrigger className="w-full sm:w-32">
+            <SelectTrigger className="w-full sm:w-32" aria-label={t('common.filterByYear')}>
               <SelectValue placeholder={t('common.year')} />
             </SelectTrigger>
             <SelectContent>
@@ -247,7 +247,7 @@ export default function Goals() {
             </SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full sm:w-40" aria-label={t('common.filterByStatus')}>
               <SelectValue placeholder={t('common.status')} />
             </SelectTrigger>
             <SelectContent>

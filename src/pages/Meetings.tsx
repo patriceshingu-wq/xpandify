@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { MeetingCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import { Plus, Calendar, CalendarDays, CalendarRange, User, Eye, List } from 'lucide-react';
@@ -117,29 +117,27 @@ export default function Meetings() {
             <div className="flex flex-col gap-3 md:gap-4">
               {/* View Toggle - First on mobile for easy thumb access */}
               <div className="md:hidden">
-                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'week' | 'month')}>
-                  <TabsList className="grid w-full grid-cols-3 gap-1">
-                    <TabsTrigger value="list" className="gap-1.5 touch-target text-sm">
-                      <List className="h-4 w-4 shrink-0" />
-                      <span>List</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="week" className="gap-1.5 touch-target text-sm">
-                      <CalendarDays className="h-4 w-4 shrink-0" />
-                      <span>Week</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="month" className="gap-1.5 touch-target text-sm">
-                      <CalendarRange className="h-4 w-4 shrink-0" />
-                      <span>Month</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'week' | 'month')} className="grid w-full grid-cols-3 gap-1 bg-muted p-1 rounded-md">
+                  <ToggleGroupItem value="list" className="gap-1.5 touch-target text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                    <List className="h-4 w-4 shrink-0" />
+                    <span>List</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="week" className="gap-1.5 touch-target text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                    <CalendarDays className="h-4 w-4 shrink-0" />
+                    <span>Week</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="month" className="gap-1.5 touch-target text-sm data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                    <CalendarRange className="h-4 w-4 shrink-0" />
+                    <span>Month</span>
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
               
               {/* Filters Row */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 <div className="flex flex-row gap-2 flex-1">
                   <Select value={meetingType} onValueChange={setMeetingType}>
-                    <SelectTrigger className="flex-1 sm:w-36 touch-target">
+                    <SelectTrigger className="flex-1 sm:w-36 touch-target" aria-label={t('common.filterByType')}>
                       <SelectValue placeholder={t('common.type')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -153,7 +151,7 @@ export default function Meetings() {
                   </Select>
                   {viewMode === 'list' && (
                     <Select value={showUpcoming ? 'upcoming' : 'all'} onValueChange={(v) => setShowUpcoming(v === 'upcoming')}>
-                      <SelectTrigger className="flex-1 sm:w-36 touch-target">
+                      <SelectTrigger className="flex-1 sm:w-36 touch-target" aria-label={t('meetings.filterByTime')}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -166,22 +164,20 @@ export default function Meetings() {
                 
                 {/* Desktop view toggle */}
                 <div className="hidden md:block">
-                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'week' | 'month')}>
-                    <TabsList>
-                      <TabsTrigger value="list" className="gap-2">
-                        <List className="h-4 w-4" />
-                        List
-                      </TabsTrigger>
-                      <TabsTrigger value="week" className="gap-2">
-                        <CalendarDays className="h-4 w-4" />
-                        Week
-                      </TabsTrigger>
-                      <TabsTrigger value="month" className="gap-2">
-                        <CalendarRange className="h-4 w-4" />
-                        Month
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+                  <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'week' | 'month')} className="bg-muted p-1 rounded-md">
+                    <ToggleGroupItem value="list" className="gap-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                      <List className="h-4 w-4" />
+                      List
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="week" className="gap-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                      <CalendarDays className="h-4 w-4" />
+                      Week
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="month" className="gap-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+                      <CalendarRange className="h-4 w-4" />
+                      Month
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
               </div>
             </div>

@@ -236,7 +236,8 @@ const translations: Translations = {
   'meetings.oneOnOne': { en: 'One-on-One', fr: 'Tête-à-tête' },
   'meetings.team': { en: 'Team', fr: 'Équipe' },
   'meetings.board': { en: 'Board', fr: 'Conseil' },
-  
+  'meetings.filterByTime': { en: 'Filter by time', fr: 'Filtrer par période' },
+
   // Development
   'development.title': { en: 'Development Plans', fr: 'Plans de développement' },
   'development.subtitle': { en: 'Personal development and growth tracking', fr: 'Suivi du développement personnel et de la croissance' },
@@ -582,6 +583,19 @@ const translations: Translations = {
   'common.of': { en: 'of', fr: 'sur' },
   'common.remove': { en: 'Remove', fr: 'Retirer' },
   'common.unknown': { en: 'Unknown', fr: 'Inconnu' },
+  'common.changeLanguage': { en: 'Change language', fr: 'Changer de langue' },
+  'common.filterByType': { en: 'Filter by type', fr: 'Filtrer par type' },
+  'common.filterByStatus': { en: 'Filter by status', fr: 'Filtrer par statut' },
+  'common.filterByYear': { en: 'Filter by year', fr: 'Filtrer par année' },
+  'common.expand': { en: 'Expand', fr: 'Développer' },
+  'common.collapse': { en: 'Collapse', fr: 'Réduire' },
+
+  // Navigation accessibility
+  'nav.expandSidebar': { en: 'Expand sidebar', fr: 'Agrandir la barre latérale' },
+  'nav.collapseSidebar': { en: 'Collapse sidebar', fr: 'Réduire la barre latérale' },
+
+  // Notifications
+  'notifications.delete': { en: 'Delete notification', fr: 'Supprimer la notification' },
 
   // Ministries
   'ministries.title': { en: 'Ministries', fr: 'Ministères' },

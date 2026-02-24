@@ -92,6 +92,7 @@ export default function Auth() {
           size="icon"
           onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}
           className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
+          aria-label={t('common.changeLanguage')}
         >
           <Globe className="h-5 w-5" />
         </Button>

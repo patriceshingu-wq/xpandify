@@ -53,6 +53,7 @@ function MinistryTreeItem({
                     size="icon"
                     className="h-8 w-8 shrink-0"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={isOpen ? t('common.collapse') : t('common.expand')}
                   >
                     <ChevronRight
                       className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`}

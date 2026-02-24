@@ -155,6 +155,7 @@ export function Sidebar() {
             size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            aria-label={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
@@ -255,6 +256,7 @@ export function Sidebar() {
               'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent',
               !isCollapsed && 'w-full justify-start'
             )}
+            aria-label={t('nav.logout')}
           >
             <LogOut className="h-4 w-4" />
             {!isCollapsed && <span className="ml-2">{t('nav.logout')}</span>}

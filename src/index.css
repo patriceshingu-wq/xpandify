@@ -32,11 +32,11 @@
 
     /* Muted - Soft Gray-Blue */
     --muted: 210 20% 94%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 20% 40%;
 
-    /* Accent - Warm Gold */
-    --accent: 38 92% 50%;
-    --accent-foreground: 222 47% 11%;
+    /* Accent - Warm Gold (darkened for WCAG AA 4.5:1 contrast on white) */
+    --accent: 30 90% 32%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 72% 51%;

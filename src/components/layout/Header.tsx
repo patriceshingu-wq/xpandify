@@ -53,7 +53,7 @@ export function Header({ title, subtitle }: HeaderProps) {
           {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground">
+              <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label={t('common.changeLanguage')}>
                 <Globe className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
