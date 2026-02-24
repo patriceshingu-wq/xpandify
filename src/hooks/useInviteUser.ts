@@ -49,7 +49,7 @@ export function useInviteUser() {
       const response = await supabase.functions.invoke('invite-user', {
         body: {
           ...data,
-          redirect_to: `${window.location.origin}/auth`,
+          redirect_to: 'https://xpandify.wearemc.church/auth',
         },
       });
 
