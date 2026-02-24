@@ -121,7 +121,7 @@ serve(async (req) => {
     }
 
     // Invite the user via Supabase Auth
-    const redirectTo = payload.redirect_to || `${req.headers.get('origin')}/auth`;
+    const redirectTo = payload.redirect_to || 'https://xpandify.wearemc.church/auth';
 
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       payload.email,
