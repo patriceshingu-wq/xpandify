@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
 import { useGoals } from '@/hooks/useGoals';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Target, Loader2 } from 'lucide-react';
 
 const COLORS = {
@@ -13,9 +14,35 @@ const COLORS = {
   cancelled: 'hsl(var(--destructive))',
 };
 
+// Simple CSS-based chart for mobile (no recharts dependency)
+function SimpleGoalBars({ data, total }: { data: { name: string; value: number; status: string }[]; total: number }) {
+  return (
+    <div className="space-y-3">
+      {data.map((item) => (
+        <div key={item.status} className="space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">{item.name}</span>
+            <span className="font-medium">{item.value}</span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: total > 0 ? `${(item.value / total) * 100}%` : '0%',
+                backgroundColor: COLORS[item.status as keyof typeof COLORS],
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function GoalCompletionChart() {
   const { t } = useLanguage();
   const { data: goals, isLoading } = useGoals();
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
@@ -91,33 +118,37 @@ export function GoalCompletionChart() {
         </p>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[200px] w-full">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={50}
-              outerRadius={80}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={COLORS[entry.status as keyof typeof COLORS]} 
-                  stroke="transparent"
-                />
-              ))}
-            </Pie>
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Legend 
-              verticalAlign="bottom" 
-              height={36}
-              formatter={(value) => <span className="text-xs text-foreground">{value}</span>}
-            />
-          </PieChart>
-        </ChartContainer>
+        {isMobile ? (
+          <SimpleGoalBars data={chartData} total={totalGoals} />
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[entry.status as keyof typeof COLORS]}
+                    stroke="transparent"
+                  />
+                ))}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Legend
+                verticalAlign="bottom"
+                height={36}
+                formatter={(value) => <span className="text-xs text-foreground">{value}</span>}
+              />
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

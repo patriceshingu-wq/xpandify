@@ -1,16 +1,38 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis } from 'recharts';
 import { useSurveys } from '@/hooks/useSurveys';
 import { usePeople } from '@/hooks/usePeople';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { BarChart3, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+
+// Simple trend indicator for mobile (no recharts)
+function SimpleTrendIndicator({ data }: { data: { month: string; engagement: number }[] }) {
+  const latest = data[data.length - 1]?.engagement || 0;
+  const previous = data[data.length - 2]?.engagement || 0;
+  const trend = latest - previous;
+
+  return (
+    <div className="flex items-center justify-between p-3 rounded-lg bg-accent/10">
+      <div>
+        <div className="text-2xl font-bold text-accent">{latest}%</div>
+        <div className="text-xs text-muted-foreground">Current engagement</div>
+      </div>
+      <div className={`flex items-center gap-1 ${trend >= 0 ? 'text-success' : 'text-destructive'}`}>
+        <TrendingUp className={`h-4 w-4 ${trend < 0 ? 'rotate-180' : ''}`} />
+        <span className="text-sm font-medium">{trend >= 0 ? '+' : ''}{trend}%</span>
+      </div>
+    </div>
+  );
+}
 
 export function TeamEngagementChart() {
   const { t } = useLanguage();
   const { data: surveys, isLoading: surveysLoading } = useSurveys();
   const { data: people, isLoading: peopleLoading } = usePeople();
+  const isMobile = useIsMobile();
 
   const isLoading = surveysLoading || peopleLoading;
 
@@ -101,31 +123,35 @@ export function TeamEngagementChart() {
             <TrendingUp className="h-3 w-3 text-success" />
             <span className="text-xs text-muted-foreground">Engagement Trend (Last 6 months)</span>
           </div>
-          <ChartContainer config={chartConfig} className="h-[100px] w-full">
-            <AreaChart data={engagementData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <defs>
-                <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis 
-                dataKey="month" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-              />
-              <YAxis hide domain={[60, 100]} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Area
-                type="monotone"
-                dataKey="engagement"
-                stroke="hsl(var(--accent))"
-                strokeWidth={2}
-                fill="url(#engagementGradient)"
-              />
-            </AreaChart>
-          </ChartContainer>
+          {isMobile ? (
+            <SimpleTrendIndicator data={engagementData} />
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[100px] w-full">
+              <AreaChart data={engagementData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                <defs>
+                  <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis hide domain={[60, 100]} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="engagement"
+                  stroke="hsl(var(--accent))"
+                  strokeWidth={2}
+                  fill="url(#engagementGradient)"
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,13 +1,40 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Cell } from 'recharts';
 import { useCourseAssignments } from '@/hooks/useCourseAssignments';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { GraduationCap, Loader2 } from 'lucide-react';
+
+// Simple CSS-based bars for mobile
+function SimpleTrainingBars({ data, total }: { data: { name: string; value: number; fill: string }[]; total: number }) {
+  return (
+    <div className="space-y-3">
+      {data.map((item, index) => (
+        <div key={index} className="space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">{item.name}</span>
+            <span className="font-medium">{item.value}</span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: total > 0 ? `${(item.value / total) * 100}%` : '0%',
+                backgroundColor: item.fill,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function TrainingProgressChart() {
   const { t } = useLanguage();
   const { data: assignments, isLoading } = useCourseAssignments();
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
@@ -94,25 +121,29 @@ export function TrainingProgressChart() {
         </p>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[200px] w-full">
-          <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 16 }}>
-            <XAxis type="number" hide />
-            <YAxis 
-              type="category" 
-              dataKey="name" 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-              width={90}
-            />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
+        {isMobile ? (
+          <SimpleTrainingBars data={chartData} total={totalAssignments} />
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 16 }}>
+              <XAxis type="number" hide />
+              <YAxis
+                type="category"
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                width={90}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

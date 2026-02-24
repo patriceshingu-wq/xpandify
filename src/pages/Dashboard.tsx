@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,9 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
 import { YearlyThemeBanner } from '@/components/dashboard/YearlyThemeBanner';
-import { GoalCompletionChart } from '@/components/dashboard/GoalCompletionChart';
-import { TrainingProgressChart } from '@/components/dashboard/TrainingProgressChart';
-import { TeamEngagementChart } from '@/components/dashboard/TeamEngagementChart';
 import { SupervisorDashboard } from '@/components/dashboard/SupervisorDashboard';
 import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
 import { useDirectReports } from '@/hooks/useDirectReports';
@@ -17,6 +15,25 @@ import { useGoals } from '@/hooks/useGoals';
 import { useMeetings } from '@/hooks/useMeetings';
 import { Users, Target, Calendar, BarChart3 } from 'lucide-react';
 import { format, isToday, isTomorrow, isAfter } from 'date-fns';
+
+// Lazy load chart components (recharts is ~1.2MB)
+const GoalCompletionChart = lazy(() => import('@/components/dashboard/GoalCompletionChart').then(m => ({ default: m.GoalCompletionChart })));
+const TrainingProgressChart = lazy(() => import('@/components/dashboard/TrainingProgressChart').then(m => ({ default: m.TrainingProgressChart })));
+const TeamEngagementChart = lazy(() => import('@/components/dashboard/TeamEngagementChart').then(m => ({ default: m.TeamEngagementChart })));
+
+// Chart skeleton for Suspense fallback
+function ChartSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <Skeleton className="h-5 w-32" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-[200px] w-full rounded-lg" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Dashboard() {
   const { t, getLocalizedField } = useLanguage();
@@ -229,16 +246,22 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Analytics Charts - Single column on mobile */}
+        {/* Analytics Charts - Single column on mobile, lazy loaded */}
         <div>
           <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
             <BarChart3 className="h-5 w-5 text-accent" />
             Analytics & Insights
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <GoalCompletionChart />
-            <TrainingProgressChart />
-            <TeamEngagementChart />
+            <Suspense fallback={<ChartSkeleton />}>
+              <GoalCompletionChart />
+            </Suspense>
+            <Suspense fallback={<ChartSkeleton />}>
+              <TrainingProgressChart />
+            </Suspense>
+            <Suspense fallback={<ChartSkeleton />}>
+              <TeamEngagementChart />
+            </Suspense>
           </div>
         </div>
 

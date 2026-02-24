@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { FEATURES } from '@/config/features';
 import { useOrganizationSettings } from '@/hooks/useOrganizationSettings';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { usePrefetch } from '@/hooks/usePrefetch';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -71,6 +72,17 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: orgSettings } = useOrganizationSettings();
   const { quarters, programs } = useFeatureFlags();
+  const { prefetchDashboard, prefetchPeople, prefetchGoals, prefetchMeetings, prefetchEvents, prefetchMinistries } = usePrefetch();
+
+  // Map paths to prefetch functions
+  const prefetchMap: Record<string, () => void> = {
+    '/dashboard': prefetchDashboard,
+    '/people': prefetchPeople,
+    '/goals': prefetchGoals,
+    '/meetings': prefetchMeetings,
+    '/calendar/events': prefetchEvents,
+    '/ministries': prefetchMinistries,
+  };
 
   // Build calendar nav items based on feature flags (dynamic)
   const calendarNavItems: NavItem[] = [
@@ -94,6 +106,7 @@ export function Sidebar() {
 
     const Icon = item.icon;
     const active = isActive(item.path);
+    const prefetchFn = prefetchMap[item.path];
 
     return (
       <Link
@@ -103,6 +116,8 @@ export function Sidebar() {
           'nav-item group',
           active && 'active'
         )}
+        onMouseEnter={prefetchFn}
+        onFocus={prefetchFn}
       >
         <Icon className={cn(
           'h-5 w-5 transition-colors',
