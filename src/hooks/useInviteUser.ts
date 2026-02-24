@@ -54,11 +54,23 @@ export function useInviteUser() {
       });
 
       if (response.error) {
-        throw new Error(response.error.message || 'Failed to invite user');
+        // Try to extract the actual error message from the response body
+        let errorMessage = 'Failed to invite user';
+        try {
+          const errorData = response.data ?? (response.error as any)?.context;
+          if (typeof errorData === 'object' && errorData?.error) {
+            errorMessage = errorData.error;
+          } else if (typeof response.error.message === 'string') {
+            errorMessage = response.error.message;
+          }
+        } catch {
+          // fallback to generic message
+        }
+        throw new Error(errorMessage);
       }
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to invite user');
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Failed to invite user');
       }
 
       return response.data;
