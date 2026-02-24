@@ -1,34 +1,38 @@
 
 
-# Fix: Return to Viewed Month After Event Create/Edit
+# Fix Invitation Redirect to Custom Domain
 
 ## Problem
-When creating or editing an event from the calendar, closing/saving navigates back to `/calendar/events`, which remounts the page and resets `currentDate` to `new Date()` (today). The user loses their place.
-
-## Solution
-Pass the current month context as a URL search parameter (e.g., `?month=2026-08`) so the calendar can restore the correct month on load.
+Invited users are being redirected to the Lovable preview/published URL instead of the custom domain `xpandify.wearemc.church`.
 
 ## Changes
 
-### 1. `src/pages/calendar/EventsCalendar.tsx`
-- On mount, read a `month` search parameter from the URL (e.g., `?month=2026-08`) and use it to initialize `currentDate` instead of always defaulting to today.
-- Update the "Add Event" button and day-cell click handlers to include `&month=YYYY-MM` in the navigation URL so the editor knows which month to return to.
+### 1. Update `src/hooks/useInviteUser.ts`
+- Change the `redirect_to` value from `window.location.origin` to `https://xpandify.wearemc.church/auth`
 
-### 2. `src/pages/calendar/EventEditor.tsx`
-- Read the `month` search parameter from the URL on load.
-- On all `navigate('/calendar/events')` calls, append `?month=YYYY-MM` so the calendar returns to the correct month.
-- For `navigate('/calendar/events/{id}')` calls (going to detail), also pass `month` as a param.
+### 2. Update `supabase/functions/invite-user/index.ts`
+- Change the fallback redirect URL from using the request origin to `https://xpandify.wearemc.church/auth`
 
-### 3. `src/pages/calendar/EventDetail.tsx`
-- Read the `month` search parameter from the URL.
-- On "Back" / "Delete" / navigation back to the calendar list, append `?month=YYYY-MM`.
-- On "Edit" navigation, forward the `month` param.
+### 3. Backend Auth Configuration
+- Add `https://xpandify.wearemc.church` to the allowed redirect URLs in the authentication settings so the auth system accepts this domain as a valid redirect target.
 
-### 4. `src/components/calendar/EventsWeekView.tsx` and `src/components/calendar/EventsListView.tsx`
-- Accept an optional `monthParam` prop (or similar) and include it in navigation URLs when clicking events or empty cells.
+## Technical Details
 
-## Technical Notes
-- The `month` param format will be `YYYY-MM` parsed with `parse(param, 'yyyy-MM', new Date())`.
-- If the param is missing or invalid, the calendar falls back to today (current behavior).
-- This approach is stateless (no global state or context needed) and URL-shareable.
+**`src/hooks/useInviteUser.ts`** (line ~51):
+```typescript
+// Before
+redirect_to: `${window.location.origin}/auth`,
+
+// After
+redirect_to: 'https://xpandify.wearemc.church/auth',
+```
+
+**`supabase/functions/invite-user/index.ts`** (line ~124):
+```typescript
+// Before
+const redirectTo = payload.redirect_to || `${req.headers.get('origin')}/auth`;
+
+// After
+const redirectTo = payload.redirect_to || 'https://xpandify.wearemc.church/auth';
+```
 
