@@ -47,15 +47,31 @@ export function useInviteUser() {
       }
 
       const response = await supabase.functions.invoke('invite-user', {
-        body: data,
+        body: {
+          ...data,
+          redirect_to: 'https://xpandify.wearemc.church/auth',
+        },
       });
 
       if (response.error) {
-        throw new Error(response.error.message || 'Failed to invite user');
+        let errorMessage = 'Failed to invite user';
+        try {
+          // For FunctionsHttpError, the response body is in error.context
+          const ctx = (response.error as any)?.context;
+          if (ctx && typeof ctx.json === 'function') {
+            const body = await ctx.json();
+            if (body?.error) errorMessage = body.error;
+          } else if (response.data && typeof response.data === 'object' && response.data.error) {
+            errorMessage = response.data.error;
+          }
+        } catch {
+          // fallback
+        }
+        throw new Error(errorMessage);
       }
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to invite user');
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Failed to invite user');
       }
 
       return response.data;

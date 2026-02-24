@@ -48,7 +48,7 @@ serve(async (req) => {
 
     // Verify the caller is authenticated and has admin role
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Missing authorization header' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -57,23 +57,22 @@ serve(async (req) => {
 
     // Create a client with the user's token to verify their identity
     const supabaseUser = createClient(supabaseUrl, anonKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
       global: {
         headers: { Authorization: authHeader },
       },
     });
 
-    // Get the user making the request
-    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
-    if (userError || !user) {
+    // Validate the token using getClaims
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(
         JSON.stringify({ error: 'Invalid authentication token' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    const userId = claimsData.claims.sub;
 
     // Check if user has admin or pastor_supervisor role
     const { data: userRoles, error: rolesError } = await supabaseAdmin
@@ -81,7 +80,7 @@ serve(async (req) => {
       .select(`
         app_roles (name)
       `)
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     if (rolesError) {
       throw rolesError;
@@ -122,7 +121,7 @@ serve(async (req) => {
     }
 
     // Invite the user via Supabase Auth
-    const redirectTo = payload.redirect_to || `${req.headers.get('origin')}/auth`;
+    const redirectTo = payload.redirect_to || 'https://xpandify.wearemc.church/auth';
 
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       payload.email,
