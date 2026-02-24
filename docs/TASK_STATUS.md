@@ -372,8 +372,8 @@ e2e/
 supabase/migrations/
   20260217180000_fix_events_schema.sql  ✅ Applied - adds organizer_id, campus_id, drops recurrence_pattern
   20260218100000_people_add_title_and_campus_fk.sql  ✅ Applied - adds title, campus_id FK, drops campus text
-  20260218150000_add_profile_photos.sql ⏳ Pending - adds photo_url column, creates storage bucket + RLS policies
-  20260223100000_goal_progress_rollup.sql ⏳ Pending - auto-calculates parent goal progress from children
+  20260218150000_add_profile_photos.sql ✅ Applied - adds photo_url column, creates storage bucket + RLS policies
+  20260223100000_goal_progress_rollup.sql ✅ Applied - auto-calculates parent goal progress from children
 
 supabase/functions/
   invite-user/index.ts                  ✅ Created - Edge Function for admin user invite with person creation

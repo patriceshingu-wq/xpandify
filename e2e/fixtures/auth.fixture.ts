@@ -42,8 +42,10 @@ export const test = base.extend<{
       const user = TEST_USERS[role];
       
       await page.goto('/auth');
-      await page.waitForLoadState('networkidle');
-      
+
+      // Wait for login form to be visible (avoid networkidle - Supabase keeps connections open)
+      await page.getByRole('button', { name: /login|connexion/i }).waitFor({ state: 'visible' });
+
       // Fill login form
       await page.getByLabel(/email/i).fill(user.email);
       await page.getByLabel(/password/i).fill(user.password);
@@ -60,15 +62,25 @@ export const test = base.extend<{
   
   logout: async ({ page }, use) => {
     const logout = async () => {
-      // Click logout button (may be in sidebar or header)
-      const logoutButton = page.getByRole('button', { name: /log out|sign out|logout/i });
-      
-      if (await logoutButton.isVisible()) {
-        await logoutButton.click();
-        await expect(page).toHaveURL(/\/auth/, { timeout: 10000 });
+      // Open the "More" menu in the bottom nav (mobile) or user dropdown
+      const moreButton = page.getByRole('button', { name: /more/i });
+      if (await moreButton.isVisible()) {
+        await moreButton.click();
+        // Wait for menu animation to complete (Mobile Safari needs this)
+        await page.waitForTimeout(300);
       }
+
+      // Now find and click logout - try menuitem role first (dropdown menu), then button
+      const logoutLocator = page
+        .getByRole('menuitem', { name: /log out|sign out|logout|déconnexion/i })
+        .or(page.getByRole('button', { name: /log out|sign out|logout|déconnexion/i }));
+      await logoutLocator.first().waitFor({ state: 'visible', timeout: 5000 });
+      await logoutLocator.first().click();
+
+      // Wait for redirect to auth page
+      await expect(page).toHaveURL(/\/auth/, { timeout: 10000 });
     };
-    
+
     await use(logout);
   },
 });
