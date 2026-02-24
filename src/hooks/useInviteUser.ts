@@ -54,17 +54,18 @@ export function useInviteUser() {
       });
 
       if (response.error) {
-        // Try to extract the actual error message from the response body
         let errorMessage = 'Failed to invite user';
         try {
-          const errorData = response.data ?? (response.error as any)?.context;
-          if (typeof errorData === 'object' && errorData?.error) {
-            errorMessage = errorData.error;
-          } else if (typeof response.error.message === 'string') {
-            errorMessage = response.error.message;
+          // For FunctionsHttpError, the response body is in error.context
+          const ctx = (response.error as any)?.context;
+          if (ctx && typeof ctx.json === 'function') {
+            const body = await ctx.json();
+            if (body?.error) errorMessage = body.error;
+          } else if (response.data && typeof response.data === 'object' && response.data.error) {
+            errorMessage = response.data.error;
           }
         } catch {
-          // fallback to generic message
+          // fallback
         }
         throw new Error(errorMessage);
       }
