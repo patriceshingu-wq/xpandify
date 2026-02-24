@@ -26,7 +26,7 @@ const initialFormState = {
   preferred_name: '',
   phone: '',
   date_of_birth: '',
-  gender: '' as 'male' | 'female' | 'other' | 'prefer_not_to_say' | '',
+  gender: '' as 'male' | 'female' | '',
   primary_language: 'en' as 'en' | 'fr',
   person_type: 'staff' as 'staff' | 'volunteer' | 'congregant',
   status: 'active' as 'active' | 'inactive' | 'on_leave',
@@ -202,8 +202,6 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
                 <SelectContent>
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                  <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                 </SelectContent>
               </Select>
             </div>

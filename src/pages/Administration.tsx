@@ -15,26 +15,30 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateManagement';
+import { MinistryRolesManagement } from '@/components/admin/MinistryRolesManagement';
+import { FeatureUpgradesTab } from '@/components/admin/FeatureUpgradesTab';
+import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { CampusFormDialog } from '@/components/settings/CampusFormDialog';
 import { useOrganizationSettings, useUpdateOrganizationSettings } from '@/hooks/useOrganizationSettings';
 import { useCampuses, Campus } from '@/hooks/useCampuses';
 import {
   Search, Users, Shield, Settings, ShieldAlert, FileText,
-  Building2, Mail, Palette, MapPin, Plus, Loader2, Star,
+  Building2, Mail, Palette, MapPin, Plus, Loader2, Star, UserPlus, Tag, Sparkles,
 } from 'lucide-react';
 
 export default function Administration() {
   const { t } = useLanguage();
-  const { isAdminOrSuper, isLoading: authLoading } = useAuth();
+  const { isAdminOrSuper, hasAnyRole, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('users');
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   // Admin data
   const { data: users, isLoading: usersLoading } = useAdminUsers();
   const { data: roles, isLoading: rolesLoading } = useAppRoles();
 
   // Settings data
-  const { data: settings, isLoading: settingsLoading } = useOrganizationSettings();
+  const { data: settings } = useOrganizationSettings();
   const { data: campuses, isLoading: campusesLoading } = useCampuses();
   const updateSettings = useUpdateOrganizationSettings();
 
@@ -78,7 +82,10 @@ export default function Administration() {
     }
   });
 
-  if (!authLoading && !isAdminOrSuper) {
+  // Allow pastor_supervisor to access the admin page (for invite functionality)
+  const canAccessAdmin = isAdminOrSuper || hasAnyRole(['pastor_supervisor']);
+
+  if (!authLoading && !canAccessAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -158,7 +165,7 @@ export default function Administration() {
           </Card>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - Consolidated: Users+Roles, Templates, Ministry Roles, Organization+Campuses, Email, Settings+Branding, Upgrades */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <TabsList className="inline-flex w-auto min-w-full md:min-w-0">
@@ -167,10 +174,10 @@ export default function Administration() {
                 <span className="hidden sm:inline">{t('admin.userManagement')}</span>
                 <span className="sm:hidden">Users</span>
               </TabsTrigger>
-              <TabsTrigger value="roles" className="gap-1.5 touch-target">
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('admin.roleManagement')}</span>
-                <span className="sm:hidden">Roles</span>
+              <TabsTrigger value="ministry-roles" className="gap-1.5 touch-target">
+                <Tag className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('admin.ministryRoles')}</span>
+                <span className="sm:hidden">M. Roles</span>
               </TabsTrigger>
               <TabsTrigger value="templates" className="gap-1.5 touch-target">
                 <FileText className="h-4 w-4" />
@@ -182,41 +189,43 @@ export default function Administration() {
                 <span className="hidden sm:inline">Organization</span>
                 <span className="sm:hidden">Org</span>
               </TabsTrigger>
-              <TabsTrigger value="campuses" className="gap-1.5 touch-target">
-                <MapPin className="h-4 w-4" />
-                <span className="hidden sm:inline">Campuses</span>
-                <span className="sm:hidden">Sites</span>
-              </TabsTrigger>
               <TabsTrigger value="email" className="gap-1.5 touch-target">
                 <Mail className="h-4 w-4" />
                 <span className="hidden sm:inline">Email</span>
                 <span className="sm:hidden">Email</span>
-              </TabsTrigger>
-              <TabsTrigger value="branding" className="gap-1.5 touch-target">
-                <Palette className="h-4 w-4" />
-                <span className="hidden sm:inline">Branding</span>
-                <span className="sm:hidden">Brand</span>
               </TabsTrigger>
               <TabsTrigger value="system" className="gap-1.5 touch-target">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('admin.systemSettings')}</span>
                 <span className="sm:hidden">System</span>
               </TabsTrigger>
+              <TabsTrigger value="upgrades" className="gap-1.5 touch-target">
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('admin.featureUpgrades')}</span>
+                <span className="sm:hidden">Upgrades</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
-          {/* Users Tab */}
-          <TabsContent value="users" className="mt-4 md:mt-6 space-y-4">
+          {/* Users Tab (includes Roles) */}
+          <TabsContent value="users" className="mt-4 md:mt-6 space-y-6">
+            {/* User Management Section */}
             <Card>
               <CardContent className="p-3 md:p-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder={t('admin.searchUsers')}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 touch-target w-full md:max-w-sm"
-                  />
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                  <div className="relative flex-1 sm:max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder={t('admin.searchUsers')}
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9 touch-target w-full"
+                    />
+                  </div>
+                  <Button onClick={() => setIsInviteDialogOpen(true)} className="touch-target">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {t('admin.inviteUser')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -233,13 +242,14 @@ export default function Administration() {
                 description={t('admin.noUsersFound')}
               />
             )}
-          </TabsContent>
 
-          {/* Roles Tab */}
-          <TabsContent value="roles" className="mt-6">
+            {/* Roles Section (moved from separate tab) */}
             <Card>
               <CardHeader>
-                <CardTitle>{t('admin.systemRoles')}</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  {t('admin.systemRoles')}
+                </CardTitle>
                 <CardDescription>{t('admin.rolesDescription')}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -271,13 +281,19 @@ export default function Administration() {
             </Card>
           </TabsContent>
 
+          {/* Ministry Roles Tab */}
+          <TabsContent value="ministry-roles" className="mt-6">
+            <MinistryRolesManagement />
+          </TabsContent>
+
           {/* Templates Tab */}
           <TabsContent value="templates" className="mt-6">
             <MeetingTemplateManagement />
           </TabsContent>
 
-          {/* Organization Tab */}
-          <TabsContent value="organization" className="mt-6">
+          {/* Organization Tab (includes Campuses) */}
+          <TabsContent value="organization" className="mt-6 space-y-6">
+            {/* Basic Info */}
             <Card>
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
@@ -335,11 +351,19 @@ export default function Administration() {
                     <Input id="country" value={formData.country || settings?.country || ''} onChange={(e) => handleFieldChange('country', e.target.value)} placeholder="Canada" />
                   </div>
                 </div>
+                {hasChanges && (
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSaveSettings} disabled={updateSettings.isPending}>
+                      {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Save Changes
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Yearly Theme */}
-            <Card className="mt-6">
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-primary" />
@@ -422,14 +446,15 @@ export default function Administration() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Campuses Tab */}
-          <TabsContent value="campuses" className="mt-6">
+            {/* Campuses Section (moved from separate tab) */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Campuses & Locations</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Campuses & Locations
+                  </CardTitle>
                   <CardDescription>Manage your church's campuses and locations</CardDescription>
                 </div>
                 <Button onClick={() => { setEditingCampus(null); setIsCampusDialogOpen(true); }}>
@@ -523,11 +548,48 @@ export default function Administration() {
             </Card>
           </TabsContent>
 
-          {/* Branding Tab */}
-          <TabsContent value="branding" className="mt-6">
+          {/* System Settings Tab (includes Branding) */}
+          <TabsContent value="system" className="mt-6 space-y-6">
+            {/* System Settings */}
             <Card>
               <CardHeader>
-                <CardTitle>Branding & Theme</CardTitle>
+                <CardTitle>{t('admin.systemSettings')}</CardTitle>
+                <CardDescription>{t('admin.settingsDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{t('admin.defaultLanguage')}</p>
+                      <p className="text-sm text-muted-foreground">{t('admin.defaultLanguageDescription')}</p>
+                    </div>
+                    <Badge>English</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{t('admin.emailConfirmation')}</p>
+                      <p className="text-sm text-muted-foreground">{t('admin.emailConfirmationDescription')}</p>
+                    </div>
+                    <Badge variant="outline">{t('admin.disabled')}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{t('admin.signupEnabled')}</p>
+                      <p className="text-sm text-muted-foreground">{t('admin.signupEnabledDescription')}</p>
+                    </div>
+                    <Badge variant="default">{t('admin.enabled')}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Branding Section (moved from separate tab) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Branding & Theme
+                </CardTitle>
                 <CardDescription>Customize your organization's visual identity</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -576,42 +638,17 @@ export default function Administration() {
             </Card>
           </TabsContent>
 
-          {/* System Settings Tab */}
-          <TabsContent value="system" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('admin.systemSettings')}</CardTitle>
-                <CardDescription>{t('admin.settingsDescription')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{t('admin.defaultLanguage')}</p>
-                      <p className="text-sm text-muted-foreground">{t('admin.defaultLanguageDescription')}</p>
-                    </div>
-                    <Badge>English</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{t('admin.emailConfirmation')}</p>
-                      <p className="text-sm text-muted-foreground">{t('admin.emailConfirmationDescription')}</p>
-                    </div>
-                    <Badge variant="outline">{t('admin.disabled')}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{t('admin.signupEnabled')}</p>
-                      <p className="text-sm text-muted-foreground">{t('admin.signupEnabledDescription')}</p>
-                    </div>
-                    <Badge variant="default">{t('admin.enabled')}</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Feature Upgrades Tab */}
+          <TabsContent value="upgrades" className="mt-6">
+            <FeatureUpgradesTab />
           </TabsContent>
         </Tabs>
       </div>
+
+      <InviteUserDialog
+        open={isInviteDialogOpen}
+        onOpenChange={setIsInviteDialogOpen}
+      />
 
       <CampusFormDialog
         open={isCampusDialogOpen}
