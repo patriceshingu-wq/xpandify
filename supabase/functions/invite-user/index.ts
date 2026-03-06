@@ -62,17 +62,16 @@ serve(async (req) => {
       },
     });
 
-    // Validate the token using getClaims
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    // Validate the token by getting the user
+    const { data: { user: callerUser }, error: userError } = await supabaseUser.auth.getUser();
+    if (userError || !callerUser) {
       return new Response(
         JSON.stringify({ error: 'Invalid authentication token' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = callerUser.id;
 
     // Check if user has admin or pastor_supervisor role
     const { data: userRoles, error: rolesError } = await supabaseAdmin
