@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { format, formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
+import { format, formatDistanceToNow, isToday, isTomorrow } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserActionItems, ActionItem } from '@/hooks/useUserActionItems';
