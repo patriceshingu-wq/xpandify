@@ -44,18 +44,6 @@ const calendarNavItems: NavItem[] = [
   { icon: Layers, labelKey: 'nav.programs', path: '/calendar/programs' },
 ];
 
-const developmentNavItems: NavItem[] = [
-  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
-  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
-  ...(FEATURES.mentorship ? [{ icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
-  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
-];
-
-const adminNavItems: NavItem[] = [
-  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
-  { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
-];
-
 interface MobileMoreMenuProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
