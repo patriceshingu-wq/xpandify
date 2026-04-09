@@ -21,6 +21,8 @@ import { format, parseISO, addDays } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import EventRoleDialog from '@/components/calendar/EventRoleDialog';
 import EventGoalDialog from '@/components/calendar/EventGoalDialog';
+import { EventRSVPSection } from '@/components/calendar/EventRSVPSection';
+import { EventAttendanceSection } from '@/components/calendar/EventAttendanceSection';
 
 export default function EventDetailPage() {
   const { id } = useParams();
@@ -350,7 +352,15 @@ export default function EventDetailPage() {
               </CardContent>
             </Card>
           )}
-        </div>
+
+          {/* RSVP */}
+          <EventRSVPSection eventId={id!} />
+
+          {/* Attendance */}
+          <EventAttendanceSection
+            eventId={id!}
+            isOrganizer={isAdminOrSuper || event.organizer_id === (event as any)?.organizer?.id}
+          />
 
         {/* Internal Notes (admin only) */}
         {isAdminOrSuper && event.notes_internal && (
