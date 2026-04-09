@@ -1,28 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis } from 'recharts';
-import { useSurveys } from '@/hooks/useSurveys';
 import { usePeople } from '@/hooks/usePeople';
+import { useEngagementMetrics } from '@/hooks/useEngagementMetrics';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { BarChart3, Users, TrendingUp, Loader2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 // Simple trend indicator for mobile (no recharts)
-function SimpleTrendIndicator({ data }: { data: { month: string; engagement: number }[] }) {
-  const latest = data[data.length - 1]?.engagement || 0;
-  const previous = data[data.length - 2]?.engagement || 0;
+function SimpleTrendIndicator({ data }: { data: { label: string; meetings: number }[] }) {
+  const latest = data[data.length - 1]?.meetings || 0;
+  const previous = data[data.length - 2]?.meetings || 0;
   const trend = latest - previous;
 
   return (
     <div className="flex items-center justify-between p-3 rounded-lg bg-accent/10">
       <div>
-        <div className="text-2xl font-bold text-accent">{latest}%</div>
-        <div className="text-xs text-muted-foreground">Current engagement</div>
+        <div className="text-2xl font-bold text-accent">{latest}</div>
+        <div className="text-xs text-muted-foreground">Meetings this month</div>
       </div>
       <div className={`flex items-center gap-1 ${trend >= 0 ? 'text-success' : 'text-destructive'}`}>
         <TrendingUp className={`h-4 w-4 ${trend < 0 ? 'rotate-180' : ''}`} />
-        <span className="text-sm font-medium">{trend >= 0 ? '+' : ''}{trend}%</span>
+        <span className="text-sm font-medium">{trend >= 0 ? '+' : ''}{trend}</span>
       </div>
     </div>
   );
@@ -30,11 +29,11 @@ function SimpleTrendIndicator({ data }: { data: { month: string; engagement: num
 
 export function TeamEngagementChart() {
   const { t } = useLanguage();
-  const { data: surveys, isLoading: surveysLoading } = useSurveys();
   const { data: people, isLoading: peopleLoading } = usePeople();
+  const { data: metrics, isLoading: metricsLoading } = useEngagementMetrics();
   const isMobile = useIsMobile();
 
-  const isLoading = surveysLoading || peopleLoading;
+  const isLoading = peopleLoading || metricsLoading;
 
   if (isLoading) {
     return (
@@ -57,23 +56,12 @@ export function TeamEngagementChart() {
   const activeStaff = allPeople.filter(p => p.person_type === 'staff' && p.status === 'active').length;
   const activeVolunteers = allPeople.filter(p => p.person_type === 'volunteer' && p.status === 'active').length;
   const onLeave = allPeople.filter(p => p.status === 'on_leave').length;
-  const totalActive = activeStaff + activeVolunteers;
 
-  // Calculate engagement metrics
-  const activeSurveys = (surveys || []).filter(s => s.is_active).length;
-  
-  // Create sample engagement data (in a real app, this would come from pulse_responses)
-  const engagementData = [
-    { month: 'Jan', engagement: 75 },
-    { month: 'Feb', engagement: 82 },
-    { month: 'Mar', engagement: 78 },
-    { month: 'Apr', engagement: 85 },
-    { month: 'May', engagement: 88 },
-    { month: 'Jun', engagement: 92 },
-  ];
+  const engagementData = metrics || [];
+  const hasData = engagementData.some(m => m.meetings > 0 || m.feedback > 0);
 
   const chartConfig = {
-    engagement: { label: 'Engagement %', color: 'hsl(var(--accent))' },
+    meetings: { label: 'Meetings', color: 'hsl(var(--accent))' },
   };
 
   return (
@@ -84,11 +72,6 @@ export function TeamEngagementChart() {
             <BarChart3 className="h-4 w-4 text-accent" />
             Team Engagement
           </span>
-          {activeSurveys > 0 && (
-            <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-              {activeSurveys} Active Survey{activeSurveys > 1 ? 's' : ''}
-            </Badge>
-          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -121,9 +104,13 @@ export function TeamEngagementChart() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-3 w-3 text-success" />
-            <span className="text-xs text-muted-foreground">Engagement Trend (Last 6 months)</span>
+            <span className="text-xs text-muted-foreground">Meeting Activity (Last 6 months)</span>
           </div>
-          {isMobile ? (
+          {!hasData ? (
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              Not enough data yet
+            </div>
+          ) : isMobile ? (
             <SimpleTrendIndicator data={engagementData} />
           ) : (
             <ChartContainer config={chartConfig} className="h-[100px] w-full">
@@ -135,16 +122,16 @@ export function TeamEngagementChart() {
                   </linearGradient>
                 </defs>
                 <XAxis
-                  dataKey="month"
+                  dataKey="label"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                 />
-                <YAxis hide domain={[60, 100]} />
+                <YAxis hide />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Area
                   type="monotone"
-                  dataKey="engagement"
+                  dataKey="meetings"
                   stroke="hsl(var(--accent))"
                   strokeWidth={2}
                   fill="url(#engagementGradient)"

@@ -109,6 +109,9 @@ export default function Dashboard() {
       subtitle={t('dashboard.overview')}
     >
       <div className="space-y-6 animate-fade-in">
+        {/* Welcome Banner for new users */}
+        <WelcomeBanner />
+
         {/* Yearly Theme Banner */}
         <YearlyThemeBanner />
 
