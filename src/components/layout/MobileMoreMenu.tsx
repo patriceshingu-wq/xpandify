@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { FEATURES } from '@/config/features';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import {
   Church,
   UsersRound,
@@ -65,6 +65,19 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
   const { t } = useLanguage();
   const { hasAnyRole, signOut, person } = useAuth();
   const location = useLocation();
+  const { courses, mentorship, surveys, analytics } = useFeatureFlags();
+
+  const developmentNavItems: NavItem[] = [
+    { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
+    ...(courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+    ...(mentorship ? [{ icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+    ...(surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
+  ];
+
+  const adminNavItems: NavItem[] = [
+    ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
+    { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
+  ];
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
