@@ -35,7 +35,7 @@ export function WelcomeBanner() {
     : orgSettings?.yearly_theme_en;
 
   const hasMinistry = (ministries?.length || 0) > 0;
-  const hasGoals = (goals?.filter(g => g.owner_person_id === person.id)?.length || 0) > 0;
+  const hasGoals = myGoals.length > 0;
 
   const checklist = [
     { done: hasPhoto, label: t('welcome.completeProfile') || 'Complete your profile', icon: User, path: '/profile' },
