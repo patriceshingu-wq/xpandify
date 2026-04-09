@@ -40,8 +40,11 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !person?.id) return;
-    const url = await uploadPhoto(person.id, file);
-    if (url) setPhotoUrl(url);
+    try {
+      await uploadPhoto({ personId: person.id, file });
+    } catch {
+      // handled by hook
+    }
   };
 
   const handleComplete = async () => {
