@@ -64,23 +64,7 @@ export function useFeatureFlags(): FeatureFlags {
   const { data: orgSettings, isLoading } = useOrganizationSettings();
 
   const flags = useMemo((): FeatureFlags => {
-    // If simpleMode is ON globally, all advanced features are OFF
-    if (FEATURES.simpleMode) {
-      return {
-        orgChart: false,
-        bulkOperations: false,
-        cascadeView: false,
-        departmentGoals: false,
-        devPlans: false,
-        eventGoalLinking: false,
-        quarters: false,
-        programs: false,
-        bilingualEditing: false,
-        isLoading,
-      };
-    }
-
-    // Get values from DB, falling back to static config
+    // Always read from DB, falling back to static config
     const orgChart = orgSettings?.feature_org_chart ?? FEATURES.advanced.orgChart;
     const bulkOperations = orgSettings?.feature_bulk_operations ?? FEATURES.advanced.bulkOperations;
     const cascadeView = orgSettings?.feature_cascade_view ?? FEATURES.advanced.cascadeView;
@@ -89,13 +73,20 @@ export function useFeatureFlags(): FeatureFlags {
     const quarters = orgSettings?.feature_quarters ?? FEATURES.calendarFeatures.quarters;
     const bilingualEditing = orgSettings?.feature_bilingual_editing ?? FEATURES.advanced.bilingualEditing;
 
+    // Phase 2 modules — read from DB, default false
+    const courses = (orgSettings as any)?.feature_courses ?? false;
+    const pathways = (orgSettings as any)?.feature_pathways ?? false;
+    const mentorship = (orgSettings as any)?.feature_mentorship ?? false;
+    const reviews = (orgSettings as any)?.feature_reviews ?? false;
+    const surveys = (orgSettings as any)?.feature_surveys ?? false;
+    const analytics = (orgSettings as any)?.feature_analytics ?? false;
+    const recurringMeetings = (orgSettings as any)?.feature_recurring_meetings ?? false;
+
     // Apply dependency rules
-    // cascadeView auto-enables departmentGoals
     const departmentGoals = cascadeView
       ? true
       : (orgSettings?.feature_department_goals ?? FEATURES.advanced.departmentGoals);
 
-    // programs requires quarters
     const programsRaw = orgSettings?.feature_programs ?? FEATURES.calendarFeatures.programs;
     const programs = quarters ? programsRaw : false;
 
@@ -109,6 +100,13 @@ export function useFeatureFlags(): FeatureFlags {
       quarters,
       programs,
       bilingualEditing,
+      courses,
+      pathways,
+      mentorship,
+      reviews,
+      surveys,
+      analytics,
+      recurringMeetings,
       isLoading,
     };
   }, [orgSettings, isLoading]);

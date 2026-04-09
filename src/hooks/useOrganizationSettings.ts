@@ -41,6 +41,14 @@ export interface OrganizationSettings {
   feature_quarters: boolean | null;
   feature_programs: boolean | null;
   feature_bilingual_editing: boolean | null;
+  // Phase 2 feature toggles
+  feature_courses: boolean | null;
+  feature_pathways: boolean | null;
+  feature_mentorship: boolean | null;
+  feature_reviews: boolean | null;
+  feature_surveys: boolean | null;
+  feature_analytics: boolean | null;
+  feature_recurring_meetings: boolean | null;
 }
 
 export function useOrganizationSettings() {

@@ -80,8 +80,22 @@ export function Sidebar() {
     ...(programs ? [{ icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' }] : []),
   ];
 
-  // Check if we're in simple mode (all advanced features off)
-  const isInSimpleMode = !quarters && !programs;
+  // Build development nav items dynamically from feature flags
+  const developmentNavItems: NavItem[] = [
+    { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
+    ...(courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+    ...(mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+    ...(surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
+  ];
+
+  // Build admin nav items dynamically
+  const dynamicAdminNavItems: NavItem[] = [
+    ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
+    ...adminNavItems,
+  ];
+
+  // Show development section when there are items beyond just Feedback
+  const showDevSection = developmentNavItems.length > 1 || !quarters;
 
   const themeName = language === 'fr'
     ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
