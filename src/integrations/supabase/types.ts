@@ -1409,15 +1409,22 @@ export type Database = {
           email_reply_to: string | null
           email_sender_address: string | null
           email_sender_name: string | null
+          feature_analytics: boolean | null
           feature_bilingual_editing: boolean | null
           feature_bulk_operations: boolean | null
           feature_cascade_view: boolean | null
+          feature_courses: boolean | null
           feature_department_goals: boolean | null
           feature_dev_plans: boolean | null
           feature_event_goal_linking: boolean | null
+          feature_mentorship: boolean | null
           feature_org_chart: boolean | null
+          feature_pathways: boolean | null
           feature_programs: boolean | null
           feature_quarters: boolean | null
+          feature_recurring_meetings: boolean | null
+          feature_reviews: boolean | null
+          feature_surveys: boolean | null
           font_family: string | null
           id: string
           organization_logo_url: string | null
@@ -1448,15 +1455,22 @@ export type Database = {
           email_reply_to?: string | null
           email_sender_address?: string | null
           email_sender_name?: string | null
+          feature_analytics?: boolean | null
           feature_bilingual_editing?: boolean | null
           feature_bulk_operations?: boolean | null
           feature_cascade_view?: boolean | null
+          feature_courses?: boolean | null
           feature_department_goals?: boolean | null
           feature_dev_plans?: boolean | null
           feature_event_goal_linking?: boolean | null
+          feature_mentorship?: boolean | null
           feature_org_chart?: boolean | null
+          feature_pathways?: boolean | null
           feature_programs?: boolean | null
           feature_quarters?: boolean | null
+          feature_recurring_meetings?: boolean | null
+          feature_reviews?: boolean | null
+          feature_surveys?: boolean | null
           font_family?: string | null
           id?: string
           organization_logo_url?: string | null
@@ -1487,15 +1501,22 @@ export type Database = {
           email_reply_to?: string | null
           email_sender_address?: string | null
           email_sender_name?: string | null
+          feature_analytics?: boolean | null
           feature_bilingual_editing?: boolean | null
           feature_bulk_operations?: boolean | null
           feature_cascade_view?: boolean | null
+          feature_courses?: boolean | null
           feature_department_goals?: boolean | null
           feature_dev_plans?: boolean | null
           feature_event_goal_linking?: boolean | null
+          feature_mentorship?: boolean | null
           feature_org_chart?: boolean | null
+          feature_pathways?: boolean | null
           feature_programs?: boolean | null
           feature_quarters?: boolean | null
+          feature_recurring_meetings?: boolean | null
+          feature_reviews?: boolean | null
+          feature_surveys?: boolean | null
           font_family?: string | null
           id?: string
           organization_logo_url?: string | null
