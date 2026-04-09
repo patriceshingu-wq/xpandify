@@ -6,6 +6,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
+import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
 import { YearlyThemeBanner } from '@/components/dashboard/YearlyThemeBanner';
 import { SupervisorDashboard } from '@/components/dashboard/SupervisorDashboard';
 import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
