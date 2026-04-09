@@ -18,6 +18,7 @@ export interface CsvPerson {
   title?: string;
   campus_code?: string;
   supervisor_email?: string;
+  ministry_names?: string;
   start_date?: string;
   notes?: string;
   calling_description?: string;
@@ -52,6 +53,7 @@ const CSV_HEADERS = [
   'title',
   'campus_code',
   'supervisor_email',
+  'ministry_names',
   'start_date',
   'notes',
   'calling_description',
@@ -165,6 +167,7 @@ export function generateCSVTemplate(): string {
     'Worship Pastor',
     'MAIN',
     'supervisor@example.com',
+    'Worship;Youth',
     '2024-01-01',
     'Some notes here',
     'Called to worship ministry',
