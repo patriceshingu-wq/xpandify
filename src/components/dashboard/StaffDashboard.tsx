@@ -225,6 +225,9 @@ export function StaffDashboard() {
           </CardContent>
         </Card>
 
+        {/* My Upcoming Roles */}
+        <MyRolesWidget />
+
         {/* Upcoming Meetings */}
         <Card>
           <CardHeader className="pb-3">
