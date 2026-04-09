@@ -40,6 +40,8 @@ function ChartSkeleton() {
 export default function Dashboard() {
   const { t, getLocalizedField } = useLanguage();
   const { person } = useAuth();
+  const needsOnboarding = person && !(person as any).onboarding_completed;
+  const [showOnboarding, setShowOnboarding] = useState(!!needsOnboarding);
 
   // Fetch real data
   const { data: allPeople, isLoading: peopleLoading } = usePeople();
