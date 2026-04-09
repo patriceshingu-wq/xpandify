@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { CourseFormDialog } from '@/components/courses/CourseFormDialog';
-import { Plus, Search, GraduationCap, Clock, Laptop, Users, Book, Trash2 } from 'lucide-react';
+import { CourseAssignmentDialog } from '@/components/development/CourseAssignmentDialog';
+import { Plus, Search, GraduationCap, Clock, Laptop, Users, Book, Trash2, UserPlus } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const deliveryIcons: Record<string, React.ReactNode> = {
@@ -28,6 +29,7 @@ export default function CourseCatalogTab() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
+  const [assigningCourseId, setAssigningCourseId] = useState<string | null>(null);
 
   const { data: courses, isLoading } = useCourses({
     search: search || undefined,
@@ -110,9 +112,14 @@ export default function CourseCatalogTab() {
                     {!course.is_active && <Badge variant="secondary">{t('courses.inactive')}</Badge>}
                   </div>
                   {isAdminOrSuper && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive touch-target shrink-0" onClick={(e) => { e.stopPropagation(); setDeletingCourse(course); }}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 touch-target" onClick={(e) => { e.stopPropagation(); setAssigningCourseId(course.id); }}>
+                        <UserPlus className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive touch-target" onClick={(e) => { e.stopPropagation(); setDeletingCourse(course); }}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
                 <h3 className="font-medium text-foreground text-base leading-snug">{getLocalizedField(course, 'title')}</h3>
@@ -136,6 +143,12 @@ export default function CourseCatalogTab() {
       )}
 
       <CourseFormDialog open={isFormOpen} onOpenChange={handleCloseForm} course={editingCourse} />
+
+      <CourseAssignmentDialog
+        open={!!assigningCourseId}
+        onOpenChange={() => setAssigningCourseId(null)}
+        defaultCourseId={assigningCourseId || undefined}
+      />
 
       <AlertDialog open={!!deletingCourse} onOpenChange={() => setDeletingCourse(null)}>
         <AlertDialogContent>
