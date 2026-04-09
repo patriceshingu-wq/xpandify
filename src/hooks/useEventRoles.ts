@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface EventRole {
   id: string;
@@ -57,6 +58,37 @@ export function useCreateEventRole() {
         .single();
 
       if (error) throw error;
+
+      // Create a notification for the assigned person
+      try {
+        // Get event title for notification
+        const { data: event } = await supabase
+          .from('events')
+          .select('title_en, date')
+          .eq('id', role.event_id)
+          .single();
+
+        // Get person's user_id for notification
+        const { data: person } = await supabase
+          .from('people')
+          .select('user_id')
+          .eq('id', role.person_id)
+          .single();
+
+        if (event && person?.user_id) {
+          await supabase.from('notifications').insert({
+            user_id: person.user_id,
+            type: 'event_role_assigned',
+            title: 'New Role Assignment',
+            message: `You've been assigned as "${role.role}" for ${event.title_en} on ${event.date}`,
+            link: `/calendar/events/${role.event_id}`,
+          });
+        }
+      } catch {
+        // Don't fail the mutation if notification fails
+        console.error('[useCreateEventRole] Failed to create notification');
+      }
+
       return data;
     },
     onSuccess: (_, variables) => {
