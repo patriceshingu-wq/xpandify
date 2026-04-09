@@ -8,6 +8,7 @@ import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplate
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
 import { fetchVisibleFeedback, formatFeedbackForNotes, getFeedbackTitle } from '@/hooks/useVisibleFeedback';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
