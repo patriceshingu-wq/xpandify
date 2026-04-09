@@ -107,6 +107,8 @@ export default function Dashboard() {
   const isLoading = peopleLoading || goalsLoading;
 
   return (
+    <>
+    <OnboardingWizard open={showOnboarding} onComplete={() => setShowOnboarding(false)} />
     <MainLayout
       title={`${t('dashboard.welcome')}, ${displayName}!`}
       subtitle={t('dashboard.overview')}
