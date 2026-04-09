@@ -486,24 +486,28 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
 
           {/* Additional Options */}
           <div className="space-y-4 pt-2 border-t">
-            <div className="space-y-2">
-              <Label htmlFor="recurrence">Recurrence Pattern</Label>
-              <Select
-                value={formData.recurrence_pattern || 'none'}
-                onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value === 'none' ? '' : value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="No recurrence" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No recurrence</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {recurringEnabled && !isEditing && (
+              <div className="space-y-2">
+                <Label htmlFor="recurrence" className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Recurrence Pattern
+                </Label>
+                <Select
+                  value={formData.recurrence_pattern || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value === 'none' ? '' : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="No recurrence" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No recurrence</SelectItem>
+                    <SelectItem value="weekly">Weekly (12 occurrences)</SelectItem>
+                    <SelectItem value="biweekly">Bi-weekly (12 occurrences)</SelectItem>
+                    <SelectItem value="monthly">Monthly (6 occurrences)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
