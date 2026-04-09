@@ -408,6 +408,58 @@ export type Database = {
         }
         Relationships: []
       }
+      event_attendance: {
+        Row: {
+          checked_in_at: string | null
+          checked_in_by: string | null
+          created_at: string | null
+          event_id: string
+          id: string
+          notes: string | null
+          person_id: string
+        }
+        Insert: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          created_at?: string | null
+          event_id: string
+          id?: string
+          notes?: string | null
+          person_id: string
+        }
+        Update: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          notes?: string | null
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendance_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_goals: {
         Row: {
           created_at: string | null
@@ -586,6 +638,54 @@ export type Database = {
           },
           {
             foreignKeyName: "event_roles_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          notes: string | null
+          person_id: string
+          responded_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          notes?: string | null
+          person_id: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          notes?: string | null
+          person_id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_rsvps_person_id_fkey"
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
@@ -1740,6 +1840,7 @@ export type Database = {
           id: string
           last_name: string
           notes: string | null
+          onboarding_completed: boolean | null
           other_languages: Database["public"]["Enums"]["language_code"][] | null
           person_type: Database["public"]["Enums"]["person_type"] | null
           phone: string | null
@@ -1767,6 +1868,7 @@ export type Database = {
           id?: string
           last_name: string
           notes?: string | null
+          onboarding_completed?: boolean | null
           other_languages?:
             | Database["public"]["Enums"]["language_code"][]
             | null
@@ -1796,6 +1898,7 @@ export type Database = {
           id?: string
           last_name?: string
           notes?: string | null
+          onboarding_completed?: boolean | null
           other_languages?:
             | Database["public"]["Enums"]["language_code"][]
             | null

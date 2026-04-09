@@ -1,7 +1,8 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,6 +40,8 @@ function ChartSkeleton() {
 export default function Dashboard() {
   const { t, getLocalizedField } = useLanguage();
   const { person } = useAuth();
+  const needsOnboarding = person && !(person as any).onboarding_completed;
+  const [showOnboarding, setShowOnboarding] = useState(!!needsOnboarding);
 
   // Fetch real data
   const { data: allPeople, isLoading: peopleLoading } = usePeople();
@@ -104,6 +107,8 @@ export default function Dashboard() {
   const isLoading = peopleLoading || goalsLoading;
 
   return (
+    <>
+    <OnboardingWizard open={showOnboarding} onComplete={() => setShowOnboarding(false)} />
     <MainLayout
       title={`${t('dashboard.welcome')}, ${displayName}!`}
       subtitle={t('dashboard.overview')}
@@ -273,5 +278,6 @@ export default function Dashboard() {
         <DevelopmentProgressWidget />
       </div>
     </MainLayout>
+    </>
   );
 }
