@@ -18,9 +18,10 @@ interface CourseAssignmentDialogProps {
   onOpenChange: (open: boolean) => void;
   assignment?: CourseAssignment | null;
   defaultPersonId?: string;
+  defaultCourseId?: string;
 }
 
-export function CourseAssignmentDialog({ open, onOpenChange, assignment, defaultPersonId }: CourseAssignmentDialogProps) {
+export function CourseAssignmentDialog({ open, onOpenChange, assignment, defaultPersonId, defaultCourseId }: CourseAssignmentDialogProps) {
   const { t, getLocalizedField } = useLanguage();
   const { person } = useAuth();
   const { data: staffPeople } = usePeople({ person_type: 'staff' });
@@ -57,7 +58,7 @@ export function CourseAssignmentDialog({ open, onOpenChange, assignment, default
       } else {
         setFormData({
           person_id: defaultPersonId || '',
-          course_id: '',
+          course_id: defaultCourseId || '',
           assigned_date: new Date().toISOString().split('T')[0],
           status: 'not_started',
           completion_date: '',
