@@ -30,8 +30,8 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
 
   const [step, setStep] = useState<Step>('welcome');
   const [preferredName, setPreferredName] = useState(person?.preferred_name || '');
-  const [language, setLanguage] = useState(person?.primary_language || 'en');
-  const [photoUrl, setPhotoUrl] = useState(person?.photo_url || '');
+  const [language, setLanguage] = useState((person as any)?.primary_language || 'en');
+  const [photoUrl, setPhotoUrl] = useState((person as any)?.photo_url || '');
   const [isSaving, setIsSaving] = useState(false);
 
   const currentIndex = STEPS.indexOf(step);
