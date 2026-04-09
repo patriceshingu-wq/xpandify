@@ -326,7 +326,36 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
             </Select>
             <p className="text-xs text-muted-foreground">{t('admin.inviteRoleHelp')}</p>
           </div>
-        </TabsContent>
+
+          {/* Ministry Assignment */}
+          <div className="space-y-2">
+            <Label>Ministries</Label>
+            <div className="border rounded-md p-3 max-h-[150px] overflow-y-auto space-y-2">
+              {(ministries || []).map((ministry) => (
+                <div key={ministry.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`ministry-${ministry.id}`}
+                    checked={formData.ministry_ids.includes(ministry.id)}
+                    onCheckedChange={(checked) => {
+                      setFormData({
+                        ...formData,
+                        ministry_ids: checked
+                          ? [...formData.ministry_ids, ministry.id]
+                          : formData.ministry_ids.filter(id => id !== ministry.id),
+                      });
+                    }}
+                  />
+                  <label htmlFor={`ministry-${ministry.id}`} className="text-sm cursor-pointer">
+                    {ministry.name_en}
+                  </label>
+                </div>
+              ))}
+              {(!ministries || ministries.length === 0) && (
+                <p className="text-xs text-muted-foreground">No ministries available</p>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Select ministries this person belongs to</p>
+          </div>
       </Tabs>
 
       <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
