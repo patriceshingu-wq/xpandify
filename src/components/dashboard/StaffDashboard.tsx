@@ -42,10 +42,16 @@ export function StaffDashboard() {
   const { data: pdps, isLoading: pdpsLoading } = useDevelopmentPlans();
   const updateAgendaItem = useUpdateAgendaItem();
 
-  // Filter open action items
+  // Group action items by urgency
+  const today = new Date().toISOString().split('T')[0];
   const openActions = actionItems?.filter(a => 
     a.action_status === 'open' || a.action_status === 'in_progress'
   ) || [];
+
+  const overdueActions = openActions.filter(a => a.action_due_date && a.action_due_date < today);
+  const dueTodayActions = openActions.filter(a => a.action_due_date === today);
+  const upcomingActions = openActions.filter(a => !a.action_due_date || a.action_due_date > today);
+  const urgentCount = overdueActions.length + dueTodayActions.length;
 
   // Get upcoming meetings for this user (as participant or focus)
   const now = new Date();
