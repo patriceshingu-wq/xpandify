@@ -38,7 +38,7 @@ export function WelcomeBanner() {
   const hasGoals = myGoals.length > 0;
 
   const checklist = [
-    { done: hasPhoto, label: t('welcome.completeProfile') || 'Complete your profile', icon: User, path: '/profile' },
+    { done: false, label: t('welcome.completeProfile') || 'Complete your profile', icon: User, path: '/profile' },
     { done: hasMinistry, label: t('welcome.viewMinistry') || 'View your ministry', icon: Church, path: '/ministries' },
     { done: false, label: t('welcome.checkEvents') || 'Check upcoming events', icon: CalendarDays, path: '/calendar/events' },
     { done: hasGoals, label: t('welcome.reviewGoals') || 'Review your goals', icon: Target, path: '/goals' },
