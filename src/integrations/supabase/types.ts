@@ -1913,6 +1913,14 @@ export type Database = {
           period_label: string | null
           person_id: string
           reviewer_id: string
+          self_character_rating: number | null
+          self_ministry_effectiveness_rating: number | null
+          self_overall_rating: number | null
+          self_skills_rating: number | null
+          self_spiritual_health_rating: number | null
+          self_submitted_at: string | null
+          self_summary_en: string | null
+          self_summary_fr: string | null
           skills_rating: number | null
           spiritual_health_rating: number | null
           start_period_date: string | null
@@ -1932,6 +1940,14 @@ export type Database = {
           period_label?: string | null
           person_id: string
           reviewer_id: string
+          self_character_rating?: number | null
+          self_ministry_effectiveness_rating?: number | null
+          self_overall_rating?: number | null
+          self_skills_rating?: number | null
+          self_spiritual_health_rating?: number | null
+          self_submitted_at?: string | null
+          self_summary_en?: string | null
+          self_summary_fr?: string | null
           skills_rating?: number | null
           spiritual_health_rating?: number | null
           start_period_date?: string | null
@@ -1951,6 +1967,14 @@ export type Database = {
           period_label?: string | null
           person_id?: string
           reviewer_id?: string
+          self_character_rating?: number | null
+          self_ministry_effectiveness_rating?: number | null
+          self_overall_rating?: number | null
+          self_skills_rating?: number | null
+          self_spiritual_health_rating?: number | null
+          self_submitted_at?: string | null
+          self_summary_en?: string | null
+          self_summary_fr?: string | null
           skills_rating?: number | null
           spiritual_health_rating?: number | null
           start_period_date?: string | null
