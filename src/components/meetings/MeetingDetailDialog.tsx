@@ -35,7 +35,6 @@ import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
 import { LinkedGoalProgress } from './LinkedItemProgress';
 import { MeetingPrepPanel } from './MeetingPrepPanel';
-import { LinkedGoalProgress } from './LinkedItemProgress';
 
 interface MeetingDetailDialogProps {
   open: boolean;
