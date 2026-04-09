@@ -82,6 +82,9 @@ export default function EventsListView({ events, isLoading, monthParam }: Events
                       <Badge variant={getStatusBadgeVariant(event.status)} className="text-xs">
                         {event.status}
                       </Badge>
+                      {(event as any).recurring_series_id && (
+                        <RefreshCw className="h-3 w-3 text-muted-foreground" title="Recurring event" />
+                      )}
                       {event.language && event.language !== 'Bilingual' && (
                         <Badge variant="outline" className="text-xs">{event.language}</Badge>
                       )}
