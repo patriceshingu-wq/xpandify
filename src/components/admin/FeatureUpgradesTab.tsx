@@ -16,7 +16,13 @@ import {
   Languages,
   Lock,
   Info,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  Users2,
+  BarChart3,
+  PieChart,
+  RefreshCw,
+  ClipboardList,
 } from 'lucide-react';
 
 interface FeatureToggle {
@@ -134,6 +140,70 @@ export function FeatureUpgradesTab() {
           label: t('featureUpgrades.bilingualEditing'),
           description: t('featureUpgrades.bilingualEditingDescription'),
           icon: <Languages className="h-4 w-4" />,
+        },
+      ],
+    },
+    {
+      title: 'Phase 2: Learning & Mentorship',
+      description: 'Enable advanced learning and mentorship modules',
+      icon: <GraduationCap className="h-5 w-5" />,
+      features: [
+        {
+          key: 'courses',
+          dbKey: 'feature_courses',
+          label: 'Courses & LMS',
+          description: 'Enable the course catalog, assignments, and learning management',
+          icon: <GraduationCap className="h-4 w-4" />,
+        },
+        {
+          key: 'pathways',
+          dbKey: 'feature_pathways',
+          label: 'Learning Pathways',
+          description: 'Enable structured learning pathways with course sequences',
+          icon: <GraduationCap className="h-4 w-4" />,
+          requiresFeature: 'courses',
+        },
+        {
+          key: 'mentorship',
+          dbKey: 'feature_mentorship',
+          label: 'Mentorship Program',
+          description: 'Enable mentor-mentee matching, check-ins, and tracking',
+          icon: <Users2 className="h-4 w-4" />,
+        },
+      ],
+    },
+    {
+      title: 'Phase 2: Reviews & Analytics',
+      description: 'Enable formal reviews, surveys, and advanced analytics',
+      icon: <PieChart className="h-5 w-5" />,
+      features: [
+        {
+          key: 'reviews',
+          dbKey: 'feature_reviews',
+          label: 'Performance Reviews',
+          description: 'Enable formal review cycles and review forms',
+          icon: <ClipboardList className="h-4 w-4" />,
+        },
+        {
+          key: 'surveys',
+          dbKey: 'feature_surveys',
+          label: 'Pulse Surveys',
+          description: 'Enable anonymous pulse surveys for team engagement',
+          icon: <BarChart3 className="h-4 w-4" />,
+        },
+        {
+          key: 'analytics',
+          dbKey: 'feature_analytics',
+          label: 'Advanced Analytics',
+          description: 'Enable detailed reporting and analytics dashboards',
+          icon: <PieChart className="h-4 w-4" />,
+        },
+        {
+          key: 'recurringMeetings',
+          dbKey: 'feature_recurring_meetings',
+          label: 'Recurring Meetings',
+          description: 'Enable weekly, bi-weekly, and monthly recurring meetings',
+          icon: <RefreshCw className="h-4 w-4" />,
         },
       ],
     },

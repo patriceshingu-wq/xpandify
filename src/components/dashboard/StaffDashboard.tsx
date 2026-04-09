@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { format, formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
+import { format, formatDistanceToNow, isToday, isTomorrow } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserActionItems, ActionItem } from '@/hooks/useUserActionItems';
@@ -42,10 +42,16 @@ export function StaffDashboard() {
   const { data: pdps, isLoading: pdpsLoading } = useDevelopmentPlans();
   const updateAgendaItem = useUpdateAgendaItem();
 
-  // Filter open action items
+  // Group action items by urgency
+  const today = new Date().toISOString().split('T')[0];
   const openActions = actionItems?.filter(a => 
     a.action_status === 'open' || a.action_status === 'in_progress'
   ) || [];
+
+  const overdueActions = openActions.filter(a => a.action_due_date && a.action_due_date < today);
+  const dueTodayActions = openActions.filter(a => a.action_due_date === today);
+  const upcomingActions = openActions.filter(a => !a.action_due_date || a.action_due_date > today);
+  const urgentCount = overdueActions.length + dueTodayActions.length;
 
   // Get upcoming meetings for this user (as participant or focus)
   const now = new Date();
@@ -100,8 +106,8 @@ export function StaffDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${openActions.length > 0 ? 'bg-warning/10' : 'bg-success/10'}`}>
-                <CheckSquare className={`h-4 w-4 ${openActions.length > 0 ? 'text-warning' : 'text-success'}`} />
+              <div className={`p-2 rounded-lg ${urgentCount > 0 ? 'bg-destructive/10' : openActions.length > 0 ? 'bg-warning/10' : 'bg-success/10'}`}>
+                <CheckSquare className={`h-4 w-4 ${urgentCount > 0 ? 'text-destructive' : openActions.length > 0 ? 'text-warning' : 'text-success'}`} />
               </div>
               <div>
                 <p className="text-2xl font-bold">{openActions.length}</p>
@@ -182,13 +188,32 @@ export function StaffDashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {openActions.slice(0, 5).map((item) => (
-                  <ActionItemRow 
-                    key={item.id} 
-                    item={item} 
-                    onStatusChange={(id, meetingId, status) => handleStatusChange(id, meetingId, status)}
-                  />
-                ))}
+                {overdueActions.length > 0 && (
+                  <>
+                    <p className="text-xs font-semibold text-destructive uppercase tracking-wider">Overdue</p>
+                    {overdueActions.slice(0, 3).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="overdue" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
+                {dueTodayActions.length > 0 && (
+                  <>
+                    <p className="text-xs font-semibold text-warning uppercase tracking-wider">Due Today</p>
+                    {dueTodayActions.slice(0, 3).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="due_today" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
+                {upcomingActions.length > 0 && (
+                  <>
+                    {(overdueActions.length > 0 || dueTodayActions.length > 0) && (
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Upcoming</p>
+                    )}
+                    {upcomingActions.slice(0, 5 - overdueActions.length - dueTodayActions.length).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="upcoming" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
                 {openActions.length > 5 && (
                   <p className="text-xs text-center text-muted-foreground pt-2">
                     +{openActions.length - 5} more items
@@ -307,31 +332,46 @@ export function StaffDashboard() {
 
 function ActionItemRow({ 
   item, 
+  urgency = 'upcoming',
   onStatusChange 
 }: { 
   item: ActionItem; 
+  urgency?: 'overdue' | 'due_today' | 'upcoming';
   onStatusChange: (id: string, meetingId: string, status: string) => void;
 }) {
   const { getLocalizedField } = useLanguage();
-  const isOverdue = item.action_due_date && isPast(new Date(item.action_due_date));
+
+  const borderClass = urgency === 'overdue' 
+    ? 'border-destructive/30 bg-destructive/5' 
+    : urgency === 'due_today' 
+    ? 'border-warning/30 bg-warning/5' 
+    : '';
 
   return (
-    <div className="p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+    <div className={`p-3 rounded-lg border hover:bg-muted/50 transition-colors ${borderClass}`}>
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">
-            {getLocalizedField(item, 'topic')}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-sm truncate">
+              {getLocalizedField(item, 'topic')}
+            </p>
+            {urgency === 'overdue' && (
+              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Overdue</Badge>
+            )}
+            {urgency === 'due_today' && (
+              <Badge className="text-[10px] px-1.5 py-0 bg-warning text-warning-foreground">Due Today</Badge>
+            )}
+          </div>
           {item.meeting && (
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
               From: {getLocalizedField(item.meeting, 'title')}
             </p>
           )}
           {item.action_due_date && (
-            <div className={`flex items-center gap-1 mt-1 text-xs ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}>
-              {isOverdue ? <AlertCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+            <div className={`flex items-center gap-1 mt-1 text-xs ${urgency === 'overdue' ? 'text-destructive' : 'text-muted-foreground'}`}>
+              {urgency === 'overdue' ? <AlertCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
               <span>
-                {isOverdue ? 'Overdue: ' : 'Due: '}
+                {urgency === 'overdue' ? 'Overdue: ' : 'Due: '}
                 {format(new Date(item.action_due_date), 'MMM d, yyyy')}
               </span>
             </div>

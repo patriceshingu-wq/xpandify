@@ -50,18 +50,8 @@ const mainNavItems: NavItem[] = [
   { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },
 ];
 
-// Static development nav items (Phase 2 features based on static flags)
-const developmentNavItems: NavItem[] = [
-  // Feedback is always visible (informal feedback for MVP)
-  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
-  // Phase 2 features (hidden for MVP)
-  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
-  ...(FEATURES.mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
-  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
-];
-
+// Development nav items will be built dynamically from feature flags
 const adminNavItems: NavItem[] = [
-  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
@@ -71,7 +61,7 @@ export function Sidebar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: orgSettings } = useOrganizationSettings();
-  const { quarters, programs } = useFeatureFlags();
+  const { quarters, programs, courses, mentorship, surveys, analytics } = useFeatureFlags();
   const { prefetchDashboard, prefetchPeople, prefetchGoals, prefetchMeetings, prefetchEvents, prefetchMinistries } = usePrefetch();
 
   // Map paths to prefetch functions
@@ -90,8 +80,22 @@ export function Sidebar() {
     ...(programs ? [{ icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' }] : []),
   ];
 
-  // Check if we're in simple mode (all advanced features off)
-  const isInSimpleMode = !quarters && !programs;
+  // Build development nav items dynamically from feature flags
+  const developmentNavItems: NavItem[] = [
+    { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
+    ...(courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
+    ...(mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
+    ...(surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
+  ];
+
+  // Build admin nav items dynamically
+  const dynamicAdminNavItems: NavItem[] = [
+    ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
+    ...adminNavItems,
+  ];
+
+  // Show development section when there are items beyond just Feedback
+  const showDevSection = developmentNavItems.length > 1 || !quarters;
 
   const themeName = language === 'fr'
     ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
@@ -185,8 +189,8 @@ export function Sidebar() {
             </div>
           )}
 
-          {/* Development - only shown when not in simple mode OR has items beyond Feedback */}
-          {!isInSimpleMode && developmentNavItems.length > 0 && (
+          {/* Development */}
+          {developmentNavItems.length > 0 && (
             <div className="space-y-1">
               {!isCollapsed && (
                 <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
@@ -205,7 +209,7 @@ export function Sidebar() {
                   System
                 </span>
               )}
-              {adminNavItems.map(renderNavItem)}
+              {dynamicAdminNavItems.map(renderNavItem)}
             </div>
           )}
         </nav>

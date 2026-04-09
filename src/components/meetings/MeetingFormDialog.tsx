@@ -8,6 +8,7 @@ import { useMeetingTemplates, MeetingTemplate } from '@/hooks/useMeetingTemplate
 import { useBulkAddMeetingParticipants } from '@/hooks/useMeetingParticipants';
 import { checkMeetingConflicts, formatConflictMessage, MeetingConflict } from '@/hooks/useMeetingConflicts';
 import { fetchVisibleFeedback, formatFeedbackForNotes, getFeedbackTitle } from '@/hooks/useVisibleFeedback';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { RescheduleConflictsDialog } from '@/components/meetings/RescheduleConflictsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, FileText, AlertTriangle } from 'lucide-react';
+import { Loader2, FileText, AlertTriangle, RefreshCw } from 'lucide-react';
+import { addWeeks, addMonths } from 'date-fns';
 import type { Database } from '@/integrations/supabase/types';
 
 type MeetingType = Database['public']['Enums']['meeting_type'];
@@ -37,7 +39,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   const { data: people } = usePeople();
   const { data: ministries } = useMinistries();
   const { data: templates } = useMeetingTemplates();
-  
+  const { recurringMeetings: recurringEnabled } = useFeatureFlags();
   const isEditing = !!meeting;
 
   const [formData, setFormData] = useState({
@@ -157,6 +159,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   };
 
   const proceedWithSave = async () => {
+    const seriesId = formData.recurrence_pattern ? crypto.randomUUID() : null;
     const payload = {
       meeting_type: formData.meeting_type,
       title_en: formData.title_en,
@@ -168,59 +171,89 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
       person_focus_id: formData.person_focus_id || null,
       spiritual_focus: formData.spiritual_focus,
       recurrence_pattern: formData.recurrence_pattern || null,
+      recurring_series_id: seriesId,
     };
 
     if (isEditing && meeting) {
       await updateMeeting.mutateAsync({ id: meeting.id, ...payload });
       onOpenChange(false);
     } else {
-      // Create meeting
-      const newMeeting = await createMeeting.mutateAsync(payload);
+      // Helper to create agenda + participants for a meeting
+      const setupMeeting = async (meetingId: string) => {
+        // Add person_focus as participant for 1:1s
+        if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
+          await bulkAddParticipants.mutateAsync({
+            meeting_id: meetingId,
+            person_ids: [formData.person_focus_id],
+          });
+        }
 
-      // Add person_focus as participant for 1:1s
-      if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
-        await bulkAddParticipants.mutateAsync({
-          meeting_id: newMeeting.id,
-          person_ids: [formData.person_focus_id],
-        });
-      }
-
-      // Apply template if selected
-      let templateOrderIndex = 0;
-      if (selectedTemplateId && selectedTemplateId !== 'none') {
-        const template = templates?.find(t => t.id === selectedTemplateId);
-        if (template?.items && template.items.length > 0) {
-          for (const item of template.items) {
-            await createAgendaItem.mutateAsync({
-              meeting_id: newMeeting.id,
-              topic_en: item.topic_en,
-              topic_fr: item.topic_fr,
-              section_type: item.section_type as any,
-              order_index: item.order_index || templateOrderIndex,
-            });
-            templateOrderIndex = Math.max(templateOrderIndex, (item.order_index || 0) + 1);
+        // Apply template if selected
+        let templateOrderIndex = 0;
+        if (selectedTemplateId && selectedTemplateId !== 'none') {
+          const template = templates?.find(t => t.id === selectedTemplateId);
+          if (template?.items && template.items.length > 0) {
+            for (const item of template.items) {
+              await createAgendaItem.mutateAsync({
+                meeting_id: meetingId,
+                topic_en: item.topic_en,
+                topic_fr: item.topic_fr,
+                section_type: item.section_type as any,
+                order_index: item.order_index || templateOrderIndex,
+              });
+              templateOrderIndex = Math.max(templateOrderIndex, (item.order_index || 0) + 1);
+            }
           }
         }
-      }
 
-      // Add visible feedback as agenda items for 1:1 meetings
-      if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
-        try {
-          const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
-          for (const feedback of visibleFeedback) {
-            const { title_en, title_fr } = getFeedbackTitle(feedback);
-            await createAgendaItem.mutateAsync({
-              meeting_id: newMeeting.id,
-              topic_en: title_en,
-              topic_fr: title_fr,
-              section_type: 'feedback_coaching',
-              discussion_notes: formatFeedbackForNotes(feedback, 'en'),
-              order_index: templateOrderIndex++,
-              linked_feedback_id: feedback.id,
-            });
+        // Add visible feedback as agenda items for 1:1 meetings
+        if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
+          try {
+            const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
+            for (const feedback of visibleFeedback) {
+              const { title_en, title_fr } = getFeedbackTitle(feedback);
+              await createAgendaItem.mutateAsync({
+                meeting_id: meetingId,
+                topic_en: title_en,
+                topic_fr: title_fr,
+                section_type: 'feedback_coaching',
+                discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+                order_index: templateOrderIndex++,
+                linked_feedback_id: feedback.id,
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching feedback for agenda:', error);
           }
-        } catch (error) {
-          console.error('Error fetching feedback for agenda:', error);
+        }
+      };
+
+      // Create the first meeting
+      const newMeeting = await createMeeting.mutateAsync(payload);
+      await setupMeeting(newMeeting.id);
+
+      // Generate recurring instances
+      if (formData.recurrence_pattern && seriesId) {
+        const baseDate = new Date(formData.date_time);
+        const count = formData.recurrence_pattern === 'monthly' ? 6 : 12;
+        
+        for (let i = 1; i < count; i++) {
+          let nextDate: Date;
+          if (formData.recurrence_pattern === 'weekly') {
+            nextDate = addWeeks(baseDate, i);
+          } else if (formData.recurrence_pattern === 'biweekly') {
+            nextDate = addWeeks(baseDate, i * 2);
+          } else {
+            nextDate = addMonths(baseDate, i);
+          }
+
+          const instancePayload = {
+            ...payload,
+            date_time: nextDate.toISOString(),
+            recurring_series_id: seriesId,
+          };
+          const instance = await createMeeting.mutateAsync(instancePayload);
+          await setupMeeting(instance.id);
         }
       }
 
@@ -453,24 +486,28 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
 
           {/* Additional Options */}
           <div className="space-y-4 pt-2 border-t">
-            <div className="space-y-2">
-              <Label htmlFor="recurrence">Recurrence Pattern</Label>
-              <Select
-                value={formData.recurrence_pattern || 'none'}
-                onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value === 'none' ? '' : value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="No recurrence" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No recurrence</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {recurringEnabled && !isEditing && (
+              <div className="space-y-2">
+                <Label htmlFor="recurrence" className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Recurrence Pattern
+                </Label>
+                <Select
+                  value={formData.recurrence_pattern || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, recurrence_pattern: value === 'none' ? '' : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="No recurrence" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No recurrence</SelectItem>
+                    <SelectItem value="weekly">Weekly (12 occurrences)</SelectItem>
+                    <SelectItem value="biweekly">Bi-weekly (12 occurrences)</SelectItem>
+                    <SelectItem value="monthly">Monthly (6 occurrences)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

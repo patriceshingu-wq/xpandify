@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { FEATURES } from "@/config/features";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
@@ -75,6 +75,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
+  const flags = useFeatureFlags();
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -89,7 +91,7 @@ function AppRoutes() {
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<Navigate to="/goals" replace />} />
-      {FEATURES.courses && (
+      {flags.courses && (
         <>
           <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
           <Route path="/courses" element={<Navigate to="/learning" replace />} />
@@ -97,8 +99,8 @@ function AppRoutes() {
       )}
       <Route path="/feedback" element={<Navigate to="/reviews" replace />} />
       <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
-      {FEATURES.surveys && <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />}
-      {FEATURES.analytics && <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />}
+      {flags.surveys && <Route path="/surveys" element={<ProtectedRoute><Surveys /></ProtectedRoute>} />}
+      {flags.analytics && <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />}
       <Route path="/admin" element={<Navigate to="/administration" replace />} />
       <Route path="/administration" element={<ProtectedRoute><Administration /></ProtectedRoute>} />
       <Route path="/settings" element={<Navigate to="/administration" replace />} />
@@ -113,13 +115,13 @@ function AppRoutes() {
       <Route path="/calendar/events/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
       <Route path="/calendar/events/:id/edit" element={<ProtectedRoute><EventEditorPage /></ProtectedRoute>} />
       
-      {FEATURES.courses && (
+      {flags.courses && (
         <>
           <Route path="/pathways" element={<Navigate to="/learning" replace />} />
           <Route path="/my-learning" element={<Navigate to="/learning" replace />} />
         </>
       )}
-      {FEATURES.mentorship && <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />}
+      {flags.mentorship && <Route path="/mentorship" element={<ProtectedRoute><MentorshipPage /></ProtectedRoute>} />}
       
       <Route path="*" element={<NotFound />} />
     </Routes>

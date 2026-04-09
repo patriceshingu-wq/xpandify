@@ -79,3 +79,27 @@ export function useOpenActionItemsCount() {
     enabled: !!person?.id,
   });
 }
+
+export function useOverdueActionItemsCount() {
+  const { person } = useAuth();
+
+  return useQuery({
+    queryKey: ['overdue-action-items-count', person?.id],
+    queryFn: async () => {
+      if (!person?.id) return 0;
+
+      const today = new Date().toISOString().split('T')[0];
+      const { count, error } = await supabase
+        .from('meeting_agenda_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('action_owner_id', person.id)
+        .eq('action_required', true)
+        .in('action_status', ['open', 'in_progress'])
+        .lt('action_due_date', today);
+
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!person?.id,
+  });
+}
