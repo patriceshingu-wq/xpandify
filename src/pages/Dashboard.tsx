@@ -278,5 +278,6 @@ export default function Dashboard() {
         <DevelopmentProgressWidget />
       </div>
     </MainLayout>
+    </>
   );
 }
