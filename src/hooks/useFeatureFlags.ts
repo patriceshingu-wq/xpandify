@@ -24,6 +24,15 @@ export interface FeatureFlags {
   // Forms & Editing
   bilingualEditing: boolean;
 
+  // Phase 2 modules
+  courses: boolean;
+  pathways: boolean;
+  mentorship: boolean;
+  reviews: boolean;
+  surveys: boolean;
+  analytics: boolean;
+  recurringMeetings: boolean;
+
   // Loading state
   isLoading: boolean;
 }
