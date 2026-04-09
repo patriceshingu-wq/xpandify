@@ -50,18 +50,8 @@ const mainNavItems: NavItem[] = [
   { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },
 ];
 
-// Static development nav items (Phase 2 features based on static flags)
-const developmentNavItems: NavItem[] = [
-  // Feedback is always visible (informal feedback for MVP)
-  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
-  // Phase 2 features (hidden for MVP)
-  ...(FEATURES.courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
-  ...(FEATURES.mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
-  ...(FEATURES.surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
-];
-
+// Development nav items will be built dynamically from feature flags
 const adminNavItems: NavItem[] = [
-  ...(FEATURES.analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
 ];
 
