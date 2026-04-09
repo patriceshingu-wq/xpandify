@@ -403,13 +403,13 @@ Staff Member
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Recurring meetings create future instances automatically | 🔲 |
-| 2 | Incomplete action items carry forward to next meeting | 🔲 |
-| 3 | "Prepare for meeting" shows goal changes + recent feedback | 🔲 |
-| 4 | Staff can add agenda items before the meeting | 🔲 |
+| 1 | Recurring meetings create future instances automatically | ✅ Done (feature flag enabled, schema ready) |
+| 2 | Incomplete action items carry forward to next meeting | ✅ Done (MeetingPrepPanel) |
+| 3 | "Prepare for meeting" shows goal changes + recent feedback | ✅ Done (MeetingPrepPanel) |
+| 4 | Staff can add agenda items before the meeting | ✅ Done (created_by_id column + RLS) |
 | 5 | Post-meeting email summary can be sent to participants | 🔲 |
-| 6 | Meeting history is filterable by person and date range | 🔲 |
-| 7 | Dashboard action items widget shows overdue warnings | 🔲 |
+| 6 | Meeting history is filterable by person and date range | ✅ Done (MeetingHistoryPanel in reviews) |
+| 7 | Dashboard action items widget shows overdue warnings | ✅ Done |
 
 #### 5.2.6 Phase 2 Tasks
 
@@ -536,12 +536,12 @@ Supervisor
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Cascade view shows full 4-level hierarchy | 🔲 |
-| 2 | Department-level goals toggle via feature flag | 🔲 |
+| 1 | Cascade view shows full 4-level hierarchy | ✅ Done (feature flag enabled) |
+| 2 | Department-level goals toggle via feature flag | ✅ Done (feature flag enabled) |
 | 3 | Alignment score shows % of linked goals | 🔲 |
-| 4 | Event-goal linking shows impact on goal progress | 🔲 |
+| 4 | Event-goal linking shows impact on goal progress | ✅ Done (feature flag enabled) |
 | 5 | Goal templates can be created and applied | 🔲 |
-| 6 | All advanced features toggled per-org via DB flags | 🔲 |
+| 6 | All advanced features toggled per-org via DB flags | ✅ Done |
 
 #### 5.3.6 Phase 2 Tasks
 
@@ -643,14 +643,14 @@ Ministry Leader
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Volunteer roles can be defined and assigned per event | 🔲 |
-| 2 | Unfilled roles are visually highlighted | 🔲 |
-| 3 | Assigned volunteers receive notifications | 🔲 |
+| 1 | Volunteer roles can be defined and assigned per event | ✅ Done (EventRoleBoard) |
+| 2 | Unfilled roles are visually highlighted | ✅ Done (vacancy board) |
+| 3 | Assigned volunteers receive notifications | ✅ Done |
 | 4 | Recurring events generate instances automatically | 🔲 |
-| 5 | Single instance can be edited without affecting series | 🔲 |
+| 5 | Single instance can be edited without affecting series | 🔲 (EditScopeDialog exists) |
 | 6 | RSVP responses collected and displayed | 🔲 |
 | 7 | Post-event attendance marking | 🔲 |
-| 8 | Quarters and Programs visible in advanced mode | 🔲 |
+| 8 | Quarters and Programs visible in advanced mode | ✅ Done (feature flags enabled) |
 
 #### 5.4.6 Phase 2 Tasks
 
@@ -761,15 +761,15 @@ Staff Member
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Course catalog displays available courses with categories | 🔲 |
-| 2 | Courses can be assigned to staff with due dates | 🔲 |
-| 3 | Course progress tracking (0-100%) | 🔲 |
-| 4 | Learning pathways with sequential course ordering | 🔲 |
-| 5 | Assessments with scoring and pass/fail | 🔲 |
-| 6 | Mentorship pairings with focus area and frequency | 🔲 |
-| 7 | Mentorship check-in logging | 🔲 |
-| 8 | Formal reviews with ratings and self-assessment | 🔲 |
-| 9 | Review pulls meeting history + goal data | 🔲 |
+| 1 | Course catalog displays available courses with categories | ✅ Done |
+| 2 | Courses can be assigned to staff with due dates | ✅ Done (CourseAssignmentDialog) |
+| 3 | Course progress tracking (0-100%) | ✅ Done (course_progress table) |
+| 4 | Learning pathways with sequential course ordering | ✅ Done (PathwayDetailDialog) |
+| 5 | Assessments with scoring and pass/fail | 🔲 (schema ready, no UI) |
+| 6 | Mentorship pairings with focus area and frequency | ✅ Done |
+| 7 | Mentorship check-in logging | ✅ Done |
+| 8 | Formal reviews with ratings and self-assessment | ✅ Done (SelfAssessmentTab) |
+| 9 | Review pulls meeting history + goal data | ✅ Done (MeetingHistoryPanel + ReviewPeriodDataPanel) |
 
 #### 5.5.6 Phase 2 Tasks
 
