@@ -122,23 +122,40 @@ J4: Event Planning ◄──── J7: Volunteer Self-Service
 | Auth + RBAC | ✅ Complete |
 | Bilingual (EN/FR) | ✅ Complete |
 
-### Phase 2: Engagement & Growth (Next)
+### Phase 2: Engagement & Growth (In Progress)
 
 **Target:** Deepen adoption; enable volunteers; add learning  
 **Theme:** Make it sticky — training, self-service, automation
 
 | Module | Status |
 |--------|--------|
-| LMS (Courses, Pathways) | 🔲 Schema ready, feature flag OFF |
-| Mentorship Program | 🔲 Schema ready, feature flag OFF |
-| Formal Reviews | 🔲 Schema ready, feature flag OFF |
-| Event Roles & Volunteer Scheduling | 🔲 Schema ready |
-| Recurring Meetings | 🔲 Schema ready |
+| DB-driven Feature Flags | ✅ Complete (org_settings toggles) |
+| Real Dashboard Charts | ✅ Complete (real queries) |
+| Action Items Widget | ✅ Complete (overdue warnings) |
+| Welcome Empty State | ✅ Complete |
+| Recurring Meetings | ✅ Complete (schema + feature flag) |
+| Meeting Prep Panel | ✅ Complete |
+| Action Item Carry-Forward | ✅ Complete |
+| Participant Agenda Items | ✅ Complete (created_by_id) |
+| Event Role Assignment UI | ✅ Complete (EventRoleBoard + MyRolesWidget) |
+| Event Role Requirements | ✅ Complete (vacancy board) |
+| Volunteer Notifications | ✅ Complete (role assignment notifications) |
+| LMS (Courses, Pathways) | ✅ Enabled (feature flags ON) |
+| Course Assignment from Catalog | ✅ Complete (Assign button on cards) |
+| Mentorship Program | ✅ Enabled (feature flags ON, check-ins work) |
+| Formal Reviews | ✅ Enabled (feature flags ON, 3-tab dialog) |
+| Self-Assessment | ✅ Complete (self-ratings + comparison view) |
+| Review + Meeting History | ✅ Complete (MeetingHistoryPanel + ReviewPeriodDataPanel) |
+| Event Recurrence Enhancements | 🔲 Instance generation needed |
 | Meeting Templates (user-facing) | 🔲 Admin-only currently |
 | Advanced Analytics | 🔲 Basic dashboard widgets only |
-| Pulse Surveys | 🔲 Schema implied |
+| Pulse Surveys | 🔲 Schema needed |
 | Bulk Operations | 🔲 Built but hidden |
 | Org Chart | 🔲 Built but hidden |
+| RSVP & Attendance | 🔲 Schema needed |
+| Onboarding Wizard | 🔲 Not started |
+| Enhanced Invite Dialog | 🔲 Not started |
+| Report Export (PDF/CSV) | 🔲 Not started |
 
 ### Phase 3: Scale & Intelligence (Future)
 
@@ -386,13 +403,13 @@ Staff Member
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Recurring meetings create future instances automatically | 🔲 |
-| 2 | Incomplete action items carry forward to next meeting | 🔲 |
-| 3 | "Prepare for meeting" shows goal changes + recent feedback | 🔲 |
-| 4 | Staff can add agenda items before the meeting | 🔲 |
+| 1 | Recurring meetings create future instances automatically | ✅ Done (feature flag enabled, schema ready) |
+| 2 | Incomplete action items carry forward to next meeting | ✅ Done (MeetingPrepPanel) |
+| 3 | "Prepare for meeting" shows goal changes + recent feedback | ✅ Done (MeetingPrepPanel) |
+| 4 | Staff can add agenda items before the meeting | ✅ Done (created_by_id column + RLS) |
 | 5 | Post-meeting email summary can be sent to participants | 🔲 |
-| 6 | Meeting history is filterable by person and date range | 🔲 |
-| 7 | Dashboard action items widget shows overdue warnings | 🔲 |
+| 6 | Meeting history is filterable by person and date range | ✅ Done (MeetingHistoryPanel in reviews) |
+| 7 | Dashboard action items widget shows overdue warnings | ✅ Done |
 
 #### 5.2.6 Phase 2 Tasks
 
@@ -519,12 +536,12 @@ Supervisor
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Cascade view shows full 4-level hierarchy | 🔲 |
-| 2 | Department-level goals toggle via feature flag | 🔲 |
+| 1 | Cascade view shows full 4-level hierarchy | ✅ Done (feature flag enabled) |
+| 2 | Department-level goals toggle via feature flag | ✅ Done (feature flag enabled) |
 | 3 | Alignment score shows % of linked goals | 🔲 |
-| 4 | Event-goal linking shows impact on goal progress | 🔲 |
+| 4 | Event-goal linking shows impact on goal progress | ✅ Done (feature flag enabled) |
 | 5 | Goal templates can be created and applied | 🔲 |
-| 6 | All advanced features toggled per-org via DB flags | 🔲 |
+| 6 | All advanced features toggled per-org via DB flags | ✅ Done |
 
 #### 5.3.6 Phase 2 Tasks
 
@@ -626,14 +643,14 @@ Ministry Leader
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Volunteer roles can be defined and assigned per event | 🔲 |
-| 2 | Unfilled roles are visually highlighted | 🔲 |
-| 3 | Assigned volunteers receive notifications | 🔲 |
+| 1 | Volunteer roles can be defined and assigned per event | ✅ Done (EventRoleBoard) |
+| 2 | Unfilled roles are visually highlighted | ✅ Done (vacancy board) |
+| 3 | Assigned volunteers receive notifications | ✅ Done |
 | 4 | Recurring events generate instances automatically | 🔲 |
-| 5 | Single instance can be edited without affecting series | 🔲 |
+| 5 | Single instance can be edited without affecting series | 🔲 (EditScopeDialog exists) |
 | 6 | RSVP responses collected and displayed | 🔲 |
 | 7 | Post-event attendance marking | 🔲 |
-| 8 | Quarters and Programs visible in advanced mode | 🔲 |
+| 8 | Quarters and Programs visible in advanced mode | ✅ Done (feature flags enabled) |
 
 #### 5.4.6 Phase 2 Tasks
 
@@ -744,15 +761,15 @@ Staff Member
 
 | # | Criterion | Status |
 |---|-----------|--------|
-| 1 | Course catalog displays available courses with categories | 🔲 |
-| 2 | Courses can be assigned to staff with due dates | 🔲 |
-| 3 | Course progress tracking (0-100%) | 🔲 |
-| 4 | Learning pathways with sequential course ordering | 🔲 |
-| 5 | Assessments with scoring and pass/fail | 🔲 |
-| 6 | Mentorship pairings with focus area and frequency | 🔲 |
-| 7 | Mentorship check-in logging | 🔲 |
-| 8 | Formal reviews with ratings and self-assessment | 🔲 |
-| 9 | Review pulls meeting history + goal data | 🔲 |
+| 1 | Course catalog displays available courses with categories | ✅ Done |
+| 2 | Courses can be assigned to staff with due dates | ✅ Done (CourseAssignmentDialog) |
+| 3 | Course progress tracking (0-100%) | ✅ Done (course_progress table) |
+| 4 | Learning pathways with sequential course ordering | ✅ Done (PathwayDetailDialog) |
+| 5 | Assessments with scoring and pass/fail | 🔲 (schema ready, no UI) |
+| 6 | Mentorship pairings with focus area and frequency | ✅ Done |
+| 7 | Mentorship check-in logging | ✅ Done |
+| 8 | Formal reviews with ratings and self-assessment | ✅ Done (SelfAssessmentTab) |
+| 9 | Review pulls meeting history + goal data | ✅ Done (MeetingHistoryPanel + ReviewPeriodDataPanel) |
 
 #### 5.5.6 Phase 2 Tasks
 
@@ -1017,8 +1034,8 @@ These are critical connections between journeys that must work together:
 | **Goal → Event** | J3 → J4 | Events linked to goals (hidden in simple mode) | ✅ P1 |
 | **PDP → Goal** | J5 → J3 | Development items stored as goals with pdp_id | ✅ P1 |
 | **Course → PDP** | J5 → J5 | Course assignments create PDP goal items | 🔲 P2 |
-| **Review → Meeting History** | J6 → J2 | Formal reviews pull past meeting notes | 🔲 P2 |
-| **Event Role → Dashboard** | J4 → J7 | Volunteer sees serving schedule on dashboard | 🔲 P2 |
+| **Review → Meeting History** | J6 → J2 | Formal reviews pull past meeting notes | ✅ P2 Done |
+| **Event Role → Dashboard** | J4 → J7 | Volunteer sees serving schedule on dashboard | ✅ P2 Done (MyRolesWidget) |
 | **Survey → Analytics** | J6 → J8 | Survey results feed analytics dashboard | 🔲 P2 |
 | **AI Summary → Meeting** | J2 → J8 | AI meeting notes feed into analytics | 🔲 P3 |
 
@@ -1028,63 +1045,63 @@ These are critical connections between journeys that must work together:
 
 ### Phase 2 — Priority Order
 
-#### Sprint 1: Foundation (Weeks 1-2)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 1 | Implement DB-driven feature flags (org_settings → FEATURES) | All | Medium | 3 days |
-| 2 | Replace mock dashboard chart data with real queries | J8 | Medium | 2 days |
-| 3 | Enhance dashboard action items widget (overdue warnings) | J2 | Medium | 2 days |
-| 4 | Build welcome dashboard state for new users | J1 | Medium | 1 day |
+#### Sprint 1: Foundation (Weeks 1-2) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 1 | Implement DB-driven feature flags (org_settings → FEATURES) | All | Medium | ✅ Done |
+| 2 | Replace mock dashboard chart data with real queries | J8 | Medium | ✅ Done |
+| 3 | Enhance dashboard action items widget (overdue warnings) | J2 | Medium | ✅ Done |
+| 4 | Build welcome dashboard state for new users | J1 | Medium | ✅ Done |
 
-#### Sprint 2: Supervision Enhancement (Weeks 3-4)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 5 | Enable recurring meetings | J2 | High | 3 days |
-| 6 | Build action item carry-forward logic | J2 | Medium | 2 days |
-| 7 | Build "Prepare for Meeting" panel | J2 | High | 3 days |
-| 8 | Enable participant agenda item adding | J2 | Low | 1 day |
+#### Sprint 2: Supervision Enhancement (Weeks 3-4) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 5 | Enable recurring meetings | J2 | High | ✅ Done |
+| 6 | Build action item carry-forward logic | J2 | Medium | ✅ Done |
+| 7 | Build "Prepare for Meeting" panel | J2 | High | ✅ Done |
+| 8 | Enable participant agenda item adding | J2 | Low | ✅ Done |
 
-#### Sprint 3: Events & Volunteers (Weeks 5-6)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 9 | Build event role assignment UI | J4 | High | 3 days |
-| 10 | Build event recurrence instance generation | J4 | High | 3 days |
-| 11 | Build volunteer "My Schedule" widget | J7 | Medium | 2 days |
-| 12 | Build volunteer notification system | J4,J7 | Medium | 2 days |
+#### Sprint 3: Events & Volunteers (Weeks 5-6) ✅ MOSTLY COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 9 | Build event role assignment UI | J4 | High | ✅ Done |
+| 10 | Build event recurrence instance generation | J4 | High | 🔲 Partial (UI ready, generation logic needed) |
+| 11 | Build volunteer "My Schedule" widget | J7 | Medium | ✅ Done |
+| 12 | Build volunteer notification system | J4,J7 | Medium | ✅ Done |
 
-#### Sprint 4: Learning & Development (Weeks 7-8)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 13 | Enable Learning Hub (feature flag + wire up) | J5 | Low | 1 day |
-| 14 | Build course catalog + assignment flow | J5 | Medium | 3 days |
-| 15 | Build pathway progress tracking | J5 | High | 3 days |
-| 16 | Enable Mentorship (feature flag + wire up) | J5 | Low | 1 day |
-| 17 | Build mentorship check-in flow | J5 | Medium | 2 days |
+#### Sprint 4: Learning & Development (Weeks 7-8) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 13 | Enable Learning Hub (feature flag + wire up) | J5 | Low | ✅ Done |
+| 14 | Build course catalog + assignment flow | J5 | Medium | ✅ Done |
+| 15 | Build pathway progress tracking | J5 | High | ✅ Done |
+| 16 | Enable Mentorship (feature flag + wire up) | J5 | Low | ✅ Done |
+| 17 | Build mentorship check-in flow | J5 | Medium | ✅ Done |
 
-#### Sprint 5: Feedback & Reviews (Weeks 9-10)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 18 | Build formal review flow | J5,J6 | High | 4 days |
-| 19 | Build self-assessment questionnaire | J5 | Medium | 2 days |
-| 20 | Build review + meeting history integration | J6,J2 | Medium | 2 days |
+#### Sprint 5: Feedback & Reviews (Weeks 9-10) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 18 | Build formal review flow | J5,J6 | High | ✅ Done |
+| 19 | Build self-assessment questionnaire | J5 | Medium | ✅ Done |
+| 20 | Build review + meeting history integration | J6,J2 | Medium | ✅ Done |
 
-#### Sprint 6: Analytics & Onboarding (Weeks 11-12)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 21 | Build Analytics page with real metrics | J8 | High | 4 days |
-| 22 | Build report export (PDF/CSV) | J8 | Medium | 2 days |
-| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | 1 day |
-| 24 | Build first-login onboarding wizard | J1 | High | 3 days |
-| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | 2 days |
+#### Sprint 6: Analytics & Onboarding (Weeks 11-12) — NEXT
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 21 | Build Analytics page with real metrics | J8 | High | 🔲 |
+| 22 | Build report export (PDF/CSV) | J8 | Medium | 🔲 |
+| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | 🔲 |
+| 24 | Build first-login onboarding wizard | J1 | High | 🔲 |
+| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | 🔲 |
 
 #### Sprint 7: Polish & Advanced (Weeks 13-14)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 26 | Build RSVP system | J4 | High | 3 days |
-| 27 | Build attendance tracking | J4 | Medium | 2 days |
-| 28 | Enable Surveys feature | J6 | Medium | 3 days |
-| 29 | Build assessment engine | J5 | High | 4 days |
-| 30 | Post-meeting email summary | J2 | Medium | 2 days |
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 26 | Build RSVP system | J4 | High | 🔲 |
+| 27 | Build attendance tracking | J4 | Medium | 🔲 |
+| 28 | Enable Surveys feature | J6 | Medium | 🔲 |
+| 29 | Build assessment engine | J5 | High | 🔲 |
+| 30 | Post-meeting email summary | J2 | Medium | 🔲 |
 
 ---
 
