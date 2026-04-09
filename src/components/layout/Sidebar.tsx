@@ -189,8 +189,8 @@ export function Sidebar() {
             </div>
           )}
 
-          {/* Development - only shown when not in simple mode OR has items beyond Feedback */}
-          {!isInSimpleMode && developmentNavItems.length > 0 && (
+          {/* Development */}
+          {developmentNavItems.length > 0 && (
             <div className="space-y-1">
               {!isCollapsed && (
                 <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
@@ -209,7 +209,7 @@ export function Sidebar() {
                   System
                 </span>
               )}
-              {adminNavItems.map(renderNavItem)}
+              {dynamicAdminNavItems.map(renderNavItem)}
             </div>
           )}
         </nav>
