@@ -17,7 +17,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, FileText, AlertTriangle } from 'lucide-react';
+import { Loader2, FileText, AlertTriangle, RefreshCw } from 'lucide-react';
+import { addWeeks, addMonths } from 'date-fns';
 import type { Database } from '@/integrations/supabase/types';
 
 type MeetingType = Database['public']['Enums']['meeting_type'];
