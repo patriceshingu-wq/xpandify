@@ -39,7 +39,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   const { data: people } = usePeople();
   const { data: ministries } = useMinistries();
   const { data: templates } = useMeetingTemplates();
-  
+  const { recurringMeetings: recurringEnabled } = useFeatureFlags();
   const isEditing = !!meeting;
 
   const [formData, setFormData] = useState({
