@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CalendarIcon, Clock, MapPin } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, RefreshCw } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { getStatusBadgeVariant } from '@/components/calendar/EventStatusBadge';
 import { getTeamColorClass } from '@/components/calendar/TeamColorLegend';
@@ -82,6 +82,9 @@ export default function EventsListView({ events, isLoading, monthParam }: Events
                       <Badge variant={getStatusBadgeVariant(event.status)} className="text-xs">
                         {event.status}
                       </Badge>
+                      {(event as any).recurring_series_id && (
+                        <RefreshCw className="h-3 w-3 text-muted-foreground" />
+                      )}
                       {event.language && event.language !== 'Bilingual' && (
                         <Badge variant="outline" className="text-xs">{event.language}</Badge>
                       )}

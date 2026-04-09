@@ -510,6 +510,41 @@ export type Database = {
         }
         Relationships: []
       }
+      event_role_requirements: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          quantity_needed: number
+          role_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          quantity_needed?: number
+          role_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          quantity_needed?: number
+          role_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_role_requirements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_roles: {
         Row: {
           created_at: string | null
@@ -864,6 +899,7 @@ export type Database = {
           action_required: boolean | null
           action_status: Database["public"]["Enums"]["action_status"] | null
           created_at: string | null
+          created_by_id: string | null
           discussion_notes: string | null
           id: string
           linked_feedback_id: string | null
@@ -884,6 +920,7 @@ export type Database = {
           action_required?: boolean | null
           action_status?: Database["public"]["Enums"]["action_status"] | null
           created_at?: string | null
+          created_by_id?: string | null
           discussion_notes?: string | null
           id?: string
           linked_feedback_id?: string | null
@@ -904,6 +941,7 @@ export type Database = {
           action_required?: boolean | null
           action_status?: Database["public"]["Enums"]["action_status"] | null
           created_at?: string | null
+          created_by_id?: string | null
           discussion_notes?: string | null
           id?: string
           linked_feedback_id?: string | null
@@ -922,6 +960,13 @@ export type Database = {
           {
             foreignKeyName: "meeting_agenda_items_action_owner_id_fkey"
             columns: ["action_owner_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_agenda_items_created_by_id_fkey"
+            columns: ["created_by_id"]
             isOneToOne: false
             referencedRelation: "people"
             referencedColumns: ["id"]

@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, Plus, User, Target, BookOpen, GripVertical, Trash2, Loader2, Link } from 'lucide-react';
+import { Calendar, Plus, User, Target, BookOpen, GripVertical, Trash2, Loader2, Link, RefreshCw, CornerDownRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,6 +34,7 @@ import { getSectionTypeLabel, getSectionTypeColor, AgendaSectionType } from '@/h
 import { AttachGoalDialog } from './AttachGoalDialog';
 import { AttachPDPDialog } from './AttachPDPDialog';
 import { LinkedGoalProgress } from './LinkedItemProgress';
+import { MeetingPrepPanel } from './MeetingPrepPanel';
 
 interface MeetingDetailDialogProps {
   open: boolean;
@@ -150,11 +151,21 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
           </DialogHeader>
 
           <Tabs defaultValue="agenda" className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="prep">Prep</TabsTrigger>
               <TabsTrigger value="agenda">Agenda</TabsTrigger>
               <TabsTrigger value="actions">Action Items</TabsTrigger>
               <TabsTrigger value="participants">Participants</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="prep" className="flex-1 overflow-hidden">
+              <MeetingPrepPanel
+                meetingId={meetingId}
+                personFocusId={meeting?.person_focus_id || undefined}
+                organizerId={meeting?.organizer_id || undefined}
+                meetingDateTime={meeting?.date_time}
+              />
+            </TabsContent>
 
             <TabsContent value="agenda" className="flex-1 overflow-hidden">
               <ScrollArea className="h-[500px] pr-4">

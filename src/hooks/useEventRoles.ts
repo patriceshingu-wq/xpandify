@@ -49,7 +49,7 @@ export function useCreateEventRole() {
   const { t } = useLanguage();
 
   return useMutation({
-    mutationFn: async (role: Omit<EventRole, 'id' | 'created_at' | 'updated_at' | 'person'>) => {
+    mutationFn: async (role: { event_id: string; person_id: string; role: string; from_country?: string | null; notes?: string | null }) => {
       const { data, error } = await supabase
         .from('event_roles')
         .insert(role)
