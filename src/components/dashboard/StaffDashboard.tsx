@@ -30,6 +30,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { MyRolesWidget } from './MyRolesWidget';
 
 export function StaffDashboard() {
   const { t, getLocalizedField } = useLanguage();
