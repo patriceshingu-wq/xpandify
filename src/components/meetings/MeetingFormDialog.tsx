@@ -159,6 +159,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
   };
 
   const proceedWithSave = async () => {
+    const seriesId = formData.recurrence_pattern ? crypto.randomUUID() : null;
     const payload = {
       meeting_type: formData.meeting_type,
       title_en: formData.title_en,
@@ -170,59 +171,89 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
       person_focus_id: formData.person_focus_id || null,
       spiritual_focus: formData.spiritual_focus,
       recurrence_pattern: formData.recurrence_pattern || null,
+      recurring_series_id: seriesId,
     };
 
     if (isEditing && meeting) {
       await updateMeeting.mutateAsync({ id: meeting.id, ...payload });
       onOpenChange(false);
     } else {
-      // Create meeting
-      const newMeeting = await createMeeting.mutateAsync(payload);
+      // Helper to create agenda + participants for a meeting
+      const setupMeeting = async (meetingId: string) => {
+        // Add person_focus as participant for 1:1s
+        if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
+          await bulkAddParticipants.mutateAsync({
+            meeting_id: meetingId,
+            person_ids: [formData.person_focus_id],
+          });
+        }
 
-      // Add person_focus as participant for 1:1s
-      if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
-        await bulkAddParticipants.mutateAsync({
-          meeting_id: newMeeting.id,
-          person_ids: [formData.person_focus_id],
-        });
-      }
-
-      // Apply template if selected
-      let templateOrderIndex = 0;
-      if (selectedTemplateId && selectedTemplateId !== 'none') {
-        const template = templates?.find(t => t.id === selectedTemplateId);
-        if (template?.items && template.items.length > 0) {
-          for (const item of template.items) {
-            await createAgendaItem.mutateAsync({
-              meeting_id: newMeeting.id,
-              topic_en: item.topic_en,
-              topic_fr: item.topic_fr,
-              section_type: item.section_type as any,
-              order_index: item.order_index || templateOrderIndex,
-            });
-            templateOrderIndex = Math.max(templateOrderIndex, (item.order_index || 0) + 1);
+        // Apply template if selected
+        let templateOrderIndex = 0;
+        if (selectedTemplateId && selectedTemplateId !== 'none') {
+          const template = templates?.find(t => t.id === selectedTemplateId);
+          if (template?.items && template.items.length > 0) {
+            for (const item of template.items) {
+              await createAgendaItem.mutateAsync({
+                meeting_id: meetingId,
+                topic_en: item.topic_en,
+                topic_fr: item.topic_fr,
+                section_type: item.section_type as any,
+                order_index: item.order_index || templateOrderIndex,
+              });
+              templateOrderIndex = Math.max(templateOrderIndex, (item.order_index || 0) + 1);
+            }
           }
         }
-      }
 
-      // Add visible feedback as agenda items for 1:1 meetings
-      if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
-        try {
-          const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
-          for (const feedback of visibleFeedback) {
-            const { title_en, title_fr } = getFeedbackTitle(feedback);
-            await createAgendaItem.mutateAsync({
-              meeting_id: newMeeting.id,
-              topic_en: title_en,
-              topic_fr: title_fr,
-              section_type: 'feedback_coaching',
-              discussion_notes: formatFeedbackForNotes(feedback, 'en'),
-              order_index: templateOrderIndex++,
-              linked_feedback_id: feedback.id,
-            });
+        // Add visible feedback as agenda items for 1:1 meetings
+        if (formData.meeting_type === 'one_on_one' && formData.person_focus_id) {
+          try {
+            const visibleFeedback = await fetchVisibleFeedback(formData.person_focus_id);
+            for (const feedback of visibleFeedback) {
+              const { title_en, title_fr } = getFeedbackTitle(feedback);
+              await createAgendaItem.mutateAsync({
+                meeting_id: meetingId,
+                topic_en: title_en,
+                topic_fr: title_fr,
+                section_type: 'feedback_coaching',
+                discussion_notes: formatFeedbackForNotes(feedback, 'en'),
+                order_index: templateOrderIndex++,
+                linked_feedback_id: feedback.id,
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching feedback for agenda:', error);
           }
-        } catch (error) {
-          console.error('Error fetching feedback for agenda:', error);
+        }
+      };
+
+      // Create the first meeting
+      const newMeeting = await createMeeting.mutateAsync(payload);
+      await setupMeeting(newMeeting.id);
+
+      // Generate recurring instances
+      if (formData.recurrence_pattern && seriesId) {
+        const baseDate = new Date(formData.date_time);
+        const count = formData.recurrence_pattern === 'monthly' ? 6 : 12;
+        
+        for (let i = 1; i < count; i++) {
+          let nextDate: Date;
+          if (formData.recurrence_pattern === 'weekly') {
+            nextDate = addWeeks(baseDate, i);
+          } else if (formData.recurrence_pattern === 'biweekly') {
+            nextDate = addWeeks(baseDate, i * 2);
+          } else {
+            nextDate = addMonths(baseDate, i);
+          }
+
+          const instancePayload = {
+            ...payload,
+            date_time: nextDate.toISOString(),
+            recurring_series_id: seriesId,
+          };
+          const instance = await createMeeting.mutateAsync(instancePayload);
+          await setupMeeting(instance.id);
         }
       }
 
