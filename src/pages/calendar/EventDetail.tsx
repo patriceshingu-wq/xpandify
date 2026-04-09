@@ -361,6 +361,7 @@ export default function EventDetailPage() {
             eventId={id!}
             isOrganizer={isAdminOrSuper || event.organizer_id === (event as any)?.organizer?.id}
           />
+        </div>
 
         {/* Internal Notes (admin only) */}
         {isAdminOrSuper && event.notes_internal && (
