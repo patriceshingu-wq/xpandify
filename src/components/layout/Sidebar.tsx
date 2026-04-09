@@ -61,7 +61,7 @@ export function Sidebar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: orgSettings } = useOrganizationSettings();
-  const { quarters, programs } = useFeatureFlags();
+  const { quarters, programs, courses, mentorship, surveys, analytics } = useFeatureFlags();
   const { prefetchDashboard, prefetchPeople, prefetchGoals, prefetchMeetings, prefetchEvents, prefetchMinistries } = usePrefetch();
 
   // Map paths to prefetch functions
