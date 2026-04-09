@@ -23,19 +23,17 @@ export function WelcomeBanner() {
 
   if (dismissed || !person) return null;
 
-  // Check if user is new (created within last 7 days)
-  const createdAt = person.created_at ? new Date(person.created_at) : null;
-  const isNewUser = createdAt && (Date.now() - createdAt.getTime()) < 7 * 24 * 60 * 60 * 1000;
-  const hasNoData = (goals?.length || 0) === 0 && (meetings?.length || 0) === 0;
+  // Show banner when user has no goals and no meetings (new user experience)
+  const myGoals = goals?.filter(g => g.owner_person_id === person.id) || [];
+  const hasNoData = myGoals.length === 0 && (meetings?.length || 0) === 0;
 
-  if (!isNewUser && !hasNoData) return null;
+  if (!hasNoData) return null;
 
   const displayName = person.preferred_name || person.first_name || 'User';
   const themeName = language === 'fr'
     ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
     : orgSettings?.yearly_theme_en;
 
-  const hasPhoto = !!person.photo_url;
   const hasMinistry = (ministries?.length || 0) > 0;
   const hasGoals = (goals?.filter(g => g.owner_person_id === person.id)?.length || 0) > 0;
 
