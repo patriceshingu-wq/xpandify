@@ -18,6 +18,7 @@ export interface CsvPerson {
   title?: string;
   campus_code?: string;
   supervisor_email?: string;
+  ministry_names?: string;
   start_date?: string;
   notes?: string;
   calling_description?: string;
@@ -52,6 +53,7 @@ const CSV_HEADERS = [
   'title',
   'campus_code',
   'supervisor_email',
+  'ministry_names',
   'start_date',
   'notes',
   'calling_description',
@@ -165,6 +167,7 @@ export function generateCSVTemplate(): string {
     'Worship Pastor',
     'MAIN',
     'supervisor@example.com',
+    'Worship;Youth',
     '2024-01-01',
     'Some notes here',
     'Called to worship ministry',
@@ -182,7 +185,8 @@ export function validateCSVData(
   csvText: string,
   existingEmails: Set<string>,
   campusCodes: Map<string, string>,
-  supervisorEmails: Map<string, string>
+  supervisorEmails: Map<string, string>,
+  ministryNames?: Map<string, string>
 ): ImportValidationResult[] {
   const lines = parseCSV(csvText);
 
@@ -263,6 +267,17 @@ export function validateCSVData(
       warnings.push(`Supervisor email not found: ${supervisorEmail}`);
     }
 
+    // Ministry validation
+    const ministryNamesValue = getValue('ministry_names');
+    if (ministryNamesValue && ministryNames) {
+      const names = ministryNamesValue.split(';').map(n => n.trim()).filter(Boolean);
+      for (const name of names) {
+        if (!ministryNames.has(name.toLowerCase())) {
+          warnings.push(`Unknown ministry: ${name}`);
+        }
+      }
+    }
+
     // Date validation
     if (dateOfBirth && isNaN(Date.parse(dateOfBirth))) {
       errors.push(`Invalid date_of_birth format: ${dateOfBirth}. Use YYYY-MM-DD`);
@@ -272,7 +287,7 @@ export function validateCSVData(
     }
 
     results.push({
-      row: i + 1, // 1-indexed for display
+      row: i + 1,
       data: {
         first_name: firstName,
         last_name: lastName,
@@ -287,6 +302,7 @@ export function validateCSVData(
         title: getValue('title') || undefined,
         campus_code: campusCode || undefined,
         supervisor_email: supervisorEmail || undefined,
+        ministry_names: ministryNamesValue || undefined,
         start_date: startDate || undefined,
         notes: getValue('notes') || undefined,
         calling_description: getValue('calling_description') || undefined,
@@ -310,10 +326,12 @@ export function useBulkImportPeople() {
       people,
       campusCodes,
       supervisorEmails,
+      ministryNames,
     }: {
       people: CsvPerson[];
       campusCodes: Map<string, string>;
       supervisorEmails: Map<string, string>;
+      ministryNames?: Map<string, string>;
     }): Promise<ImportResult> => {
       const result: ImportResult = {
         success: 0,
@@ -325,19 +343,17 @@ export function useBulkImportPeople() {
         const person = people[i];
 
         try {
-          // Resolve campus_id from campus_code
           let campus_id: string | null = null;
           if (person.campus_code) {
             campus_id = campusCodes.get(person.campus_code.toUpperCase()) || null;
           }
 
-          // Resolve supervisor_id from supervisor_email
           let supervisor_id: string | null = null;
           if (person.supervisor_email) {
             supervisor_id = supervisorEmails.get(person.supervisor_email.toLowerCase()) || null;
           }
 
-          const { error } = await supabase.from('people').insert({
+          const { data: inserted, error } = await supabase.from('people').insert({
             first_name: person.first_name,
             last_name: person.last_name,
             preferred_name: person.preferred_name || null,
@@ -356,13 +372,26 @@ export function useBulkImportPeople() {
             calling_description: person.calling_description || null,
             strengths: person.strengths || null,
             growth_areas: person.growth_areas || null,
-          });
+          }).select('id').single();
 
           if (error) {
             result.failed++;
             result.errors.push({ row: i + 2, error: error.message });
           } else {
             result.success++;
+
+            // Link to ministries if specified
+            if (inserted && person.ministry_names && ministryNames) {
+              const names = person.ministry_names.split(';').map(n => n.trim()).filter(Boolean);
+              const ministryInserts = names
+                .map(name => ministryNames.get(name.toLowerCase()))
+                .filter((id): id is string => !!id)
+                .map(ministry_id => ({ person_id: inserted.id, ministry_id }));
+
+              if (ministryInserts.length > 0) {
+                await supabase.from('people_ministries').insert(ministryInserts);
+              }
+            }
           }
         } catch (err) {
           result.failed++;

@@ -22,6 +22,7 @@ export interface InviteUserData {
     notes?: string;
   };
   role_id?: string;
+  ministry_ids?: string[];
 }
 
 interface InviteUserResponse {
@@ -74,11 +75,21 @@ export function useInviteUser() {
         throw new Error(response.data?.error || 'Failed to invite user');
       }
 
+      // If ministry_ids provided, link person to ministries
+      if (response.data?.data?.person_id && data.ministry_ids?.length) {
+        const ministryInserts = data.ministry_ids.map(ministry_id => ({
+          person_id: response.data.data!.person_id,
+          ministry_id,
+        }));
+        await supabase.from('people_ministries').insert(ministryInserts);
+      }
+
       return response.data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['people-ministries'] });
       toast.success(t('admin.inviteSuccess'));
     },
     onError: (error: Error) => {

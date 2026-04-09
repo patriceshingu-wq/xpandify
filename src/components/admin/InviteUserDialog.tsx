@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCampuses } from '@/hooks/useCampuses';
 import { usePeople } from '@/hooks/usePeople';
 import { useAppRoles } from '@/hooks/useAdminUsers';
+import { useMinistries } from '@/hooks/useMinistries';
 import { useInviteUser } from '@/hooks/useInviteUser';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
@@ -11,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Mail, User, Briefcase } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -35,6 +37,7 @@ const initialFormState = {
   campus_id: '',
   title: '',
   role_id: '',
+  ministry_ids: [] as string[],
 };
 
 export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) {
@@ -44,6 +47,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
   const { data: campuses } = useCampuses();
   const { data: allPeople } = usePeople();
   const { data: roles } = useAppRoles();
+  const { data: ministries } = useMinistries();
 
   const [formData, setFormData] = useState(initialFormState);
 
@@ -68,6 +72,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
         title: formData.title || undefined,
       },
       role_id: formData.role_id || undefined,
+      ministry_ids: formData.ministry_ids.length > 0 ? formData.ministry_ids : undefined,
     });
 
     // Reset form and close dialog on success
@@ -320,6 +325,36 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">{t('admin.inviteRoleHelp')}</p>
+          </div>
+
+          {/* Ministry Assignment */}
+          <div className="space-y-2">
+            <Label>Ministries</Label>
+            <div className="border rounded-md p-3 max-h-[150px] overflow-y-auto space-y-2">
+              {(ministries || []).map((ministry) => (
+                <div key={ministry.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`ministry-${ministry.id}`}
+                    checked={formData.ministry_ids.includes(ministry.id)}
+                    onCheckedChange={(checked) => {
+                      setFormData({
+                        ...formData,
+                        ministry_ids: checked
+                          ? [...formData.ministry_ids, ministry.id]
+                          : formData.ministry_ids.filter(id => id !== ministry.id),
+                      });
+                    }}
+                  />
+                  <label htmlFor={`ministry-${ministry.id}`} className="text-sm cursor-pointer">
+                    {ministry.name_en}
+                  </label>
+                </div>
+              ))}
+              {(!ministries || ministries.length === 0) && (
+                <p className="text-xs text-muted-foreground">No ministries available</p>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Select ministries this person belongs to</p>
           </div>
         </TabsContent>
       </Tabs>

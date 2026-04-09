@@ -1085,23 +1085,23 @@ These are critical connections between journeys that must work together:
 | 19 | Build self-assessment questionnaire | J5 | Medium | ✅ Done |
 | 20 | Build review + meeting history integration | J6,J2 | Medium | ✅ Done |
 
-#### Sprint 6: Analytics & Onboarding (Weeks 11-12) — NEXT
+#### Sprint 6: Analytics & Onboarding (Weeks 11-12) ✅ COMPLETE
 | # | Task | Journey | Complexity | Status |
 |---|------|---------|-----------|--------|
-| 21 | Build Analytics page with real metrics | J8 | High | 🔲 |
-| 22 | Build report export (PDF/CSV) | J8 | Medium | 🔲 |
-| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | 🔲 |
-| 24 | Build first-login onboarding wizard | J1 | High | 🔲 |
-| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | 🔲 |
+| 21 | Build Analytics page with real metrics | J8 | High | ✅ Done |
+| 22 | Build report export (PDF/CSV) | J8 | Medium | ✅ Done |
+| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | ✅ Done |
+| 24 | Build first-login onboarding wizard | J1 | High | ✅ Done |
+| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | ✅ Done |
 
-#### Sprint 7: Polish & Advanced (Weeks 13-14)
+#### Sprint 7: Polish & Advanced (Weeks 13-14) ✅ COMPLETE
 | # | Task | Journey | Complexity | Status |
 |---|------|---------|-----------|--------|
-| 26 | Build RSVP system | J4 | High | 🔲 |
-| 27 | Build attendance tracking | J4 | Medium | 🔲 |
-| 28 | Enable Surveys feature | J6 | Medium | 🔲 |
-| 29 | Build assessment engine | J5 | High | 🔲 |
-| 30 | Post-meeting email summary | J2 | Medium | 🔲 |
+| 26 | Build RSVP system | J4 | High | ✅ Done |
+| 27 | Build attendance tracking | J4 | Medium | ✅ Done |
+| 28 | Enable Surveys feature | J6 | Medium | ✅ Done |
+| 29 | Build assessment engine | J5 | High | ✅ Done |
+| 30 | Post-meeting email summary | J2 | Medium | ✅ Done |
 
 ---
 
