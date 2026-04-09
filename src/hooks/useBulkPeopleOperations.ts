@@ -267,6 +267,17 @@ export function validateCSVData(
       warnings.push(`Supervisor email not found: ${supervisorEmail}`);
     }
 
+    // Ministry validation
+    const ministryNamesValue = getValue('ministry_names');
+    if (ministryNamesValue && ministryNames) {
+      const names = ministryNamesValue.split(';').map(n => n.trim()).filter(Boolean);
+      for (const name of names) {
+        if (!ministryNames.has(name.toLowerCase())) {
+          warnings.push(`Unknown ministry: ${name}`);
+        }
+      }
+    }
+
     // Date validation
     if (dateOfBirth && isNaN(Date.parse(dateOfBirth))) {
       errors.push(`Invalid date_of_birth format: ${dateOfBirth}. Use YYYY-MM-DD`);
@@ -276,7 +287,7 @@ export function validateCSVData(
     }
 
     results.push({
-      row: i + 1, // 1-indexed for display
+      row: i + 1,
       data: {
         first_name: firstName,
         last_name: lastName,
@@ -291,6 +302,7 @@ export function validateCSVData(
         title: getValue('title') || undefined,
         campus_code: campusCode || undefined,
         supervisor_email: supervisorEmail || undefined,
+        ministry_names: ministryNamesValue || undefined,
         start_date: startDate || undefined,
         notes: getValue('notes') || undefined,
         calling_description: getValue('calling_description') || undefined,
