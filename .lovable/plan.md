@@ -1,193 +1,201 @@
 
-# Detailed Specs for Tasks 6–10 (Phase 2 Sprint 2 + Sprint 3 Start)
+# Detailed Specs for Tasks 11–20 (Phase 2 Sprints 3–5)
 
 ---
 
-## Task 6: Build Action Item Carry-Forward Logic
+## Assessment: What Already Exists
 
-**Journey:** J2 (Supervision) | **Estimate:** 2 days | **Complexity:** Medium
+Most of these features have full infrastructure built but are disabled by feature flags:
+
+| Task | Status | What's Needed |
+|------|--------|---------------|
+| 11. Volunteer "My Schedule" widget | 80% done (MyRolesWidget exists) | Add volunteer dashboard variant |
+| 12. Volunteer notification system | 60% done (notification table + edge function exist) | Add role assignment notification trigger |
+| 13. Enable Learning Hub | 95% done (full UI exists) | Enable feature flag, verify wiring |
+| 14. Course catalog + assignment flow | 95% done (full CRUD exists) | Add "Assign to Person" button from catalog |
+| 15. Pathway progress tracking | 90% done (PathwayDetailDialog exists) | Add pathway enrollment + completion tracking |
+| 16. Enable Mentorship | 95% done (full UI exists) | Enable feature flag, verify wiring |
+| 17. Mentorship check-in flow | 95% done (check-in form in MentorshipDetailDialog) | Already functional |
+| 18. Build formal review flow | 95% done (ReviewFormDialog with 3 tabs) | Already functional with ratings + meeting history |
+| 19. Self-assessment questionnaire | 0% done | NEW: Build self-assessment form |
+| 20. Review + meeting history | 95% done (MeetingHistoryPanel + ReviewPeriodDataPanel) | Already wired into ReviewFormDialog |
+
+---
+
+## Task 11: Volunteer "My Schedule" Widget Enhancement
+
+**Journey:** J7 | **Estimate:** 0.5 days | **Complexity:** Low
 
 ### Current State
-- Action items live in `meeting_agenda_items` with `action_required=true`, `action_status`, `action_due_date`, `action_owner_id`
-- When a recurring meeting creates the next instance, agenda template is copied but **incomplete action items from the previous meeting are not carried over**
-- No link between action items across meeting instances
+- `MyRolesWidget` exists on StaffDashboard showing upcoming event role assignments
+- No volunteer-specific dashboard view
 
 ### What to Build
-1. **On recurring meeting creation** — when generating the next instance in a series, query incomplete action items (`action_status IN ('open','in_progress')`) from the most recent past meeting in the same `recurring_series_id`
-2. **Copy incomplete items** to the new meeting's agenda as a new `meeting_agenda_items` row with:
-   - Same `topic_en/fr`, `action_owner_id`, `action_due_date`, `linked_goal_id`
-   - `section_type = 'action_items'`
-   - `action_status = 'open'` (reset to open)
-   - `discussion_notes` cleared (fresh start)
-3. **Visual indicator** — carried-forward items show a small "↻ Carried forward" badge in the agenda
-4. **Also support manual carry-forward** — in MeetingDetailDialog, add a "Carry to next meeting" button on open action items that copies the item to the next meeting in the series (or any selected meeting)
+1. The MyRolesWidget already shows upcoming roles — mark as ✅ DONE
+2. Ensure it appears for volunteer users (check role-based dashboard rendering)
 
 ### Acceptance Criteria
-- [ ] When a recurring meeting instance is created, incomplete action items from the previous instance are auto-copied
-- [ ] Carried items retain their owner, due date, and linked goal
-- [ ] Carried items show a visual indicator distinguishing them from new items
-- [ ] Manual carry-forward works for non-recurring meetings too
-- [ ] Original item remains unchanged in the source meeting
-
-### Files to Modify
-- `src/components/meetings/MeetingFormDialog.tsx` — add carry-forward logic after recurring instance creation
-- `src/hooks/useMeetings.ts` — add `useCarryForwardItems` mutation
-- `src/components/meetings/MeetingDetailDialog.tsx` — add "Carry to next" button on action items
+- [x] MyRolesWidget shows upcoming event roles (already works)
+- [ ] Volunteer users see a relevant dashboard with their schedule
 
 ---
 
-## Task 7: Build "Prepare for Meeting" Panel
+## Task 12: Volunteer Notification for Role Assignments
 
-**Journey:** J2 (Supervision) | **Estimate:** 3 days | **Complexity:** High
+**Journey:** J4, J7 | **Estimate:** 1 day | **Complexity:** Medium
+
+### What to Build
+1. When an event role is assigned to a person, create a notification for that person
+2. Use existing notification system (notifications table + generate-notifications edge function)
+3. Add notification creation in `useCreateEventRole` onSuccess callback
+
+### Acceptance Criteria
+- [ ] When a role is assigned, the assigned person gets a notification
+- [ ] Notification links to the event detail page
+- [ ] Notification includes role name and event title
+
+---
+
+## Task 13: Enable Learning Hub
+
+**Journey:** J5 | **Estimate:** 0.5 days | **Complexity:** Low
 
 ### Current State
-- MeetingDetailDialog has 3 tabs: Agenda, Action Items, Participants
-- No pre-meeting preparation view
-- Supervisors manually review goals and feedback before meetings
+- Full Learning page exists with 3 tabs (Catalog, Pathways, My Progress)
+- All hooks exist (useCourses, useCourseProgress, usePathways, useCourseAssignments)
+- Feature flag `courses: false` in useFeatureFlags
 
 ### What to Build
-1. **Add "Prep" tab** (or collapsible panel) to MeetingDetailDialog showing:
-   - **Goal changes since last meeting**: Query goals owned by the person_focus_id, compare `progress_percent` and `status` changes (using `updated_at` > last meeting date)
-   - **Recent feedback**: Query feedback where `person_id = person_focus_id` created since last meeting
-   - **Outstanding action items**: Query incomplete items from previous meetings with same person_focus
-   - **Upcoming due dates**: Goals with due dates in the next 2 weeks
-2. **"Last meeting" detection**: Find the most recent past meeting with the same `person_focus_id` and `organizer_id`
-3. **Auto-suggest agenda items**: Based on goal changes and overdue items, suggest topics to add to the agenda (click to add)
-
-### Acceptance Criteria
-- [ ] Prep tab shows goal progress changes since last meeting with the same person
-- [ ] Recent feedback (given to/by person_focus) is listed
-- [ ] Outstanding action items from previous meetings are shown
-- [ ] Suggested agenda items can be added with one click
-- [ ] Works for both 1:1 and other meeting types (falls back gracefully when no person_focus)
-- [ ] Shows "No previous meeting found" for first-time meetings
-
-### Files to Create/Modify
-- `src/hooks/useMeetingPrep.ts` — NEW hook: queries goals, feedback, past action items relative to last meeting
-- `src/components/meetings/MeetingPrepPanel.tsx` — NEW component for the prep view
-- `src/components/meetings/MeetingDetailDialog.tsx` — add Prep tab
+1. Enable feature flags in organization_settings: `feature_courses = true`, `feature_pathways = true`
+2. Verify the Learning nav item appears in sidebar
+3. Verify all tabs render correctly
 
 ---
 
-## Task 8: Enable Participant Agenda Item Adding
+## Task 14: Course Catalog + Assignment Flow Enhancement
 
-**Journey:** J2 (Supervision) | **Estimate:** 1 day | **Complexity:** Low
+**Journey:** J5 | **Estimate:** 1 day | **Complexity:** Medium
 
 ### Current State
-- Only organizer and admins can add agenda items (checked via `canEdit` in MeetingDetailDialog)
-- `canEdit` is already `isOrganizer || isParticipant || isAdminOrSuper` — so participants CAN already add items
-- However, there's no distinction between organizer-added and participant-added items
-- RLS allows participants to insert agenda items (meeting_participants check)
+- CourseCatalogTab shows course grid with search/filter
+- CourseAssignmentDialog exists for assigning courses to people
+- useCourseAssignments hook has full CRUD
 
 ### What to Build
-1. **Verify RLS** allows participants to insert `meeting_agenda_items` for meetings they're part of
-2. **Add "added by" indicator** — show who added each agenda item (compare `created_at` timing or add `created_by_id` column)
-3. **Pre-meeting item collection** — participants can add items before the meeting date, shown in a "Participant Topics" section
-4. **Notification** — when a participant adds an item, the organizer gets a notification (use existing notification system)
-
-### Acceptance Criteria
-- [ ] Any meeting participant can add agenda items
-- [ ] Items show who added them
-- [ ] Organizer is notified when a participant adds an item
-- [ ] Participant-added items appear in a distinguishable section or with a badge
-- [ ] RLS correctly allows participant inserts but not edits of others' items
-
-### Files to Modify
-- `src/components/meetings/MeetingDetailDialog.tsx` — add "added by" display, participant section
-- `src/hooks/useMeetings.ts` — no change needed (insert already works for participants)
-- **Migration:** `ALTER TABLE meeting_agenda_items ADD COLUMN created_by_id UUID REFERENCES people(id)` — to track who added each item
+1. Add "Assign" button to course cards (for admins/supervisors)
+2. Wire CourseAssignmentDialog to be openable from CourseCatalogTab
+3. Show assignment count on course cards
 
 ---
 
-## Task 9: Build Event Role Assignment UI
+## Task 15: Pathway Progress Tracking Enhancement
 
-**Journey:** J4 (Event Planning) | **Estimate:** 3 days | **Complexity:** High
+**Journey:** J5 | **Estimate:** 1 day | **Complexity:** Medium
 
 ### Current State
-- `event_roles` table exists with `event_id`, `person_id`, `role`, `from_country`, `notes`
-- `EventRoleDialog` exists for adding a single role to an event
-- EventDetail page shows roles in a simple list
-- No bulk role assignment, no role templates, no vacancy display
-- Feature is accessible but basic
+- PathwaysTab shows pathway cards with course counts
+- PathwayDetailDialog exists for viewing pathway details
+- useMyCourseProgress tracks individual course progress
 
 ### What to Build
-1. **Role requirements template** — when creating/editing an event, define needed roles (e.g., "Need 2 Hosts, 1 Tech, 1 Worship Leader") without assigning people yet
-2. **Role vacancy board** — on EventDetail, show required roles vs filled roles with visual fill indicator
-3. **Quick-assign from people list** — click a vacant role → dropdown of available people (filtered by ministry membership)
-4. **Bulk role copy** — copy role assignments from a previous event (useful for recurring events)
-5. **"My Roles" widget** — on volunteer/staff dashboard, show upcoming events where user has a role assigned
-6. **Role summary on event cards** — show role fill status (e.g., "3/5 roles filled") on EventsListView cards
-
-### Acceptance Criteria
-- [ ] Event creator can define required roles with quantities
-- [ ] Vacant roles are visually distinct from filled roles
-- [ ] People can be assigned to roles from the event detail page
-- [ ] Role assignments can be copied from another event
-- [ ] Dashboard shows user's upcoming role assignments
-- [ ] Event cards show role fill status
-
-### Database Notes
-- May need a `event_role_requirements` table: `event_id`, `role_name`, `quantity_needed`, `is_filled`
-- Or simpler: use `event_roles` with `person_id = NULL` to represent vacant slots
-
-### Files to Create/Modify
-- `src/components/calendar/EventRoleBoard.tsx` — NEW: vacancy board component
-- `src/pages/calendar/EventDetail.tsx` — replace simple role list with EventRoleBoard
-- `src/pages/calendar/EventEditor.tsx` — add role requirements section
-- `src/components/dashboard/MyRolesWidget.tsx` — NEW: dashboard widget for assigned roles
-- `src/hooks/useEventRoles.ts` — add bulk copy mutation
-- **Migration:** Add `event_role_requirements` table if needed
+1. In PathwayDetailDialog, show user's progress per course in the pathway
+2. Add "Enroll in Pathway" button that starts all courses in the pathway
+3. Show overall pathway completion percentage
 
 ---
 
-## Task 10: Build Event Recurrence Instance Generation
+## Task 16: Enable Mentorship
 
-**Journey:** J4 (Event Planning) | **Estimate:** 3 days | **Complexity:** High
+**Journey:** J5 | **Estimate:** 0.5 days | **Complexity:** Low
 
 ### Current State
-- `useRecurringEvents.ts` has `useCreateRecurringEvent` that creates a recurrence rule + generates event instances
-- `RecurrenceRuleEditor.tsx` component exists with frequency/interval/end-type controls
-- `EditScopeDialog` handles "this only" vs "this and future" for edits
-- `useDeleteRecurringEvent` handles scoped deletion
-- **BUT**: Recurrence is only available from the EventEditor page — no easy way to make an existing event recurring
-- Role assignments are NOT copied to generated instances
+- Full Mentorship page with CRUD, tabs (I'm Mentoring / My Mentors)
+- MentorshipDetailDialog with check-in form
+- All hooks exist (useMentorship with CRUD + check-ins)
+- Feature flag `mentorship: false`
 
 ### What to Build
-1. **Copy event roles to instances** — when generating recurring event instances, also copy `event_roles` from the parent event
-2. **Copy event goals to instances** — also copy `event_goals` linkages
-3. **"Make Recurring" action** — on EventDetail page, add a button to convert a single event into a recurring series
-4. **Instance management** — show all instances in a series on EventDetail with ability to navigate between them
-5. **Exception handling** — when editing a single instance, mark it as `is_recurrence_exception = true` and preserve the edit
-6. **Calendar visual** — recurring events show a recurrence icon (↻) on the calendar views
-
-### Acceptance Criteria
-- [ ] Creating a recurring event copies role assignments to all instances
-- [ ] Creating a recurring event copies goal linkages to all instances
-- [ ] Single events can be converted to recurring series
-- [ ] Series instances are navigable from event detail
-- [ ] Editing "this only" marks the instance as an exception
-- [ ] Recurring events show a visual indicator on calendar views
-- [ ] Deleting "this and future" removes future instances correctly
-
-### Files to Modify
-- `src/hooks/useRecurringEvents.ts` — add role/goal copy logic to instance generation
-- `src/pages/calendar/EventDetail.tsx` — add "Make Recurring" action, series navigation
-- `src/components/calendar/EventsListView.tsx` — add recurrence icon
-- `src/components/calendar/EventsWeekView.tsx` — add recurrence icon
-- `src/components/meetings/MonthlyCalendarView.tsx` — add recurrence icon (if events shown here)
+1. Enable feature flag: `feature_mentorship = true`
+2. Verify nav item appears and page renders
 
 ---
 
-## Implementation Order & Dependencies
+## Task 17: Mentorship Check-in Flow
 
-```
-Task 6 (Carry-Forward)     ──► depends on Task 5 (recurring meetings) ✅ done
-Task 7 (Meeting Prep)      ──► standalone, no deps
-Task 8 (Participant Agenda) ──► standalone, needs migration
-Task 9 (Event Roles UI)    ──► standalone, may need migration
-Task 10 (Event Recurrence)  ──► standalone, enhances existing recurrence
+**Journey:** J5 | **Estimate:** Already done | **Complexity:** N/A
 
-Recommended parallel tracks:
-  Track A: Task 6 → Task 7
-  Track B: Task 8 (quick) → Task 9 → Task 10
-```
+### Assessment
+Already fully functional:
+- MentorshipDetailDialog has "Log Check-in" button
+- Check-in form captures: discussion notes, prayer points, next steps, mentee mood
+- useCreateCheckIn, useUpdateCheckIn, useDeleteCheckIn hooks all work
+- Check-in history is displayed chronologically
+
+**Status: ✅ DONE — no additional work needed**
+
+---
+
+## Task 18: Formal Review Flow
+
+**Journey:** J5, J6 | **Estimate:** Already done | **Complexity:** N/A
+
+### Assessment
+Already fully functional:
+- ReviewFormDialog with 3 tabs (Review, Meeting History, Goals & Development)
+- 5 rating dimensions (Overall, Spiritual Health, Ministry Effectiveness, Character, Skills)
+- MeetingHistoryPanel shows 1:1 meeting history grouped by section + action items
+- ReviewPeriodDataPanel shows goals, PDP items, course assignments
+- Draft → Finalize workflow works
+- Reviews page shows list with star ratings, filters, delete
+
+**Status: ✅ DONE — enable feature flag only**
+
+---
+
+## Task 19: Self-Assessment Questionnaire
+
+**Journey:** J5 | **Estimate:** 2 days | **Complexity:** Medium
+
+### Current State
+- No self-assessment capability exists
+- performance_reviews table has ratings but they're reviewer-only
+
+### What to Build
+1. **Add self-assessment columns** to performance_reviews: `self_overall_rating`, `self_spiritual_rating`, `self_ministry_rating`, `self_character_rating`, `self_skills_rating`, `self_summary_en`, `self_summary_fr`, `self_submitted_at`
+2. **Self-Assessment Form**: Allow the person being reviewed to complete their own ratings
+3. **Comparison View**: In ReviewFormDialog, show side-by-side self vs reviewer ratings
+4. **Notification**: When a review is created, notify the person to complete self-assessment
+
+### Acceptance Criteria
+- [ ] Person being reviewed can access and complete self-assessment
+- [ ] Self-assessment has same rating dimensions as reviewer assessment
+- [ ] Reviewer can see self-assessment alongside their own ratings
+- [ ] Self-assessment can be submitted independently of the review
+
+---
+
+## Task 20: Review + Meeting History Integration
+
+**Journey:** J6, J2 | **Estimate:** Already done | **Complexity:** N/A
+
+### Assessment
+Already fully functional:
+- MeetingHistoryPanel shows all 1:1 meetings for the person within the review period
+- Three views: By Section (grouped discussion topics), By Meeting (timeline), Actions (action item summary)
+- ReviewPeriodDataPanel shows goals, PDP items, and course assignments
+- Both panels are embedded in ReviewFormDialog tabs
+- Data is filtered by the review period dates
+
+**Status: ✅ DONE — no additional work needed**
+
+---
+
+## Implementation Summary
+
+Only 4 tasks need actual work:
+1. **Enable flags** (Tasks 13, 16, 18): Update organization_settings
+2. **Volunteer notifications** (Task 12): Add notification in useCreateEventRole
+3. **Course assignment from catalog** (Task 14): Wire button
+4. **Self-assessment** (Task 19): Migration + new UI
+
+Tasks 11, 15, 17, 20 are already done or need minimal polish.
