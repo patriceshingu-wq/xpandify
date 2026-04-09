@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePeople } from '@/hooks/usePeople';
 import { useCampuses } from '@/hooks/useCampuses';
+import { useMinistries } from '@/hooks/useMinistries';
 import {
   validateCSVData,
   generateCSVTemplate,
@@ -44,6 +45,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
 
   const { data: existingPeople } = usePeople();
   const { data: campuses } = useCampuses();
+  const { data: ministries } = useMinistries();
 
   const [step, setStep] = useState<ImportStep>('upload');
   const [csvContent, setCsvContent] = useState<string>('');
@@ -78,6 +80,10 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
       .map(p => [p.email!.toLowerCase(), p.id])
   );
 
+  const ministryNameMap = new Map(
+    (ministries || []).map(m => [m.name_en.toLowerCase(), m.id])
+  );
+
   const handleDownloadTemplate = () => {
     const template = generateCSVTemplate();
     downloadCSV(template, 'people_import_template.csv');
@@ -92,7 +98,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
       const text = event.target?.result as string;
       setCsvContent(text);
 
-      const results = validateCSVData(text, existingEmails, campusCodes, supervisorEmails);
+      const results = validateCSVData(text, existingEmails, campusCodes, supervisorEmails, ministryNameMap);
       setValidationResults(results);
       setStep('preview');
     };
@@ -113,6 +119,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
       people: validPeople,
       campusCodes,
       supervisorEmails,
+      ministryNames: ministryNameMap,
     });
 
     setImportResult(result);
