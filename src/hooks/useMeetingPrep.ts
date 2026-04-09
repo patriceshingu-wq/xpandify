@@ -80,7 +80,7 @@ export function useMeetingPrep(personFocusId: string | undefined, organizerId: s
         .from('goals')
         .select('id, title_en, title_fr, progress_percent, status, updated_at')
         .eq('owner_person_id', personFocusId)
-        .in('status', ['not_started', 'in_progress', 'at_risk']);
+        .in('status', ['not_started', 'in_progress', 'on_hold']);
 
       if (sinceDate) {
         query = query.gte('updated_at', sinceDate);
