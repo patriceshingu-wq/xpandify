@@ -188,13 +188,32 @@ export function StaffDashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {openActions.slice(0, 5).map((item) => (
-                  <ActionItemRow 
-                    key={item.id} 
-                    item={item} 
-                    onStatusChange={(id, meetingId, status) => handleStatusChange(id, meetingId, status)}
-                  />
-                ))}
+                {overdueActions.length > 0 && (
+                  <>
+                    <p className="text-xs font-semibold text-destructive uppercase tracking-wider">Overdue</p>
+                    {overdueActions.slice(0, 3).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="overdue" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
+                {dueTodayActions.length > 0 && (
+                  <>
+                    <p className="text-xs font-semibold text-warning uppercase tracking-wider">Due Today</p>
+                    {dueTodayActions.slice(0, 3).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="due_today" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
+                {upcomingActions.length > 0 && (
+                  <>
+                    {(overdueActions.length > 0 || dueTodayActions.length > 0) && (
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Upcoming</p>
+                    )}
+                    {upcomingActions.slice(0, 5 - overdueActions.length - dueTodayActions.length).map((item) => (
+                      <ActionItemRow key={item.id} item={item} urgency="upcoming" onStatusChange={handleStatusChange} />
+                    ))}
+                  </>
+                )}
                 {openActions.length > 5 && (
                   <p className="text-xs text-center text-muted-foreground pt-2">
                     +{openActions.length - 5} more items
