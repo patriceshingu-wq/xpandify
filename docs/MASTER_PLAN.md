@@ -122,23 +122,40 @@ J4: Event Planning ◄──── J7: Volunteer Self-Service
 | Auth + RBAC | ✅ Complete |
 | Bilingual (EN/FR) | ✅ Complete |
 
-### Phase 2: Engagement & Growth (Next)
+### Phase 2: Engagement & Growth (In Progress)
 
 **Target:** Deepen adoption; enable volunteers; add learning  
 **Theme:** Make it sticky — training, self-service, automation
 
 | Module | Status |
 |--------|--------|
-| LMS (Courses, Pathways) | 🔲 Schema ready, feature flag OFF |
-| Mentorship Program | 🔲 Schema ready, feature flag OFF |
-| Formal Reviews | 🔲 Schema ready, feature flag OFF |
-| Event Roles & Volunteer Scheduling | 🔲 Schema ready |
-| Recurring Meetings | 🔲 Schema ready |
+| DB-driven Feature Flags | ✅ Complete (org_settings toggles) |
+| Real Dashboard Charts | ✅ Complete (real queries) |
+| Action Items Widget | ✅ Complete (overdue warnings) |
+| Welcome Empty State | ✅ Complete |
+| Recurring Meetings | ✅ Complete (schema + feature flag) |
+| Meeting Prep Panel | ✅ Complete |
+| Action Item Carry-Forward | ✅ Complete |
+| Participant Agenda Items | ✅ Complete (created_by_id) |
+| Event Role Assignment UI | ✅ Complete (EventRoleBoard + MyRolesWidget) |
+| Event Role Requirements | ✅ Complete (vacancy board) |
+| Volunteer Notifications | ✅ Complete (role assignment notifications) |
+| LMS (Courses, Pathways) | ✅ Enabled (feature flags ON) |
+| Course Assignment from Catalog | ✅ Complete (Assign button on cards) |
+| Mentorship Program | ✅ Enabled (feature flags ON, check-ins work) |
+| Formal Reviews | ✅ Enabled (feature flags ON, 3-tab dialog) |
+| Self-Assessment | ✅ Complete (self-ratings + comparison view) |
+| Review + Meeting History | ✅ Complete (MeetingHistoryPanel + ReviewPeriodDataPanel) |
+| Event Recurrence Enhancements | 🔲 Instance generation needed |
 | Meeting Templates (user-facing) | 🔲 Admin-only currently |
 | Advanced Analytics | 🔲 Basic dashboard widgets only |
-| Pulse Surveys | 🔲 Schema implied |
+| Pulse Surveys | 🔲 Schema needed |
 | Bulk Operations | 🔲 Built but hidden |
 | Org Chart | 🔲 Built but hidden |
+| RSVP & Attendance | 🔲 Schema needed |
+| Onboarding Wizard | 🔲 Not started |
+| Enhanced Invite Dialog | 🔲 Not started |
+| Report Export (PDF/CSV) | 🔲 Not started |
 
 ### Phase 3: Scale & Intelligence (Future)
 
