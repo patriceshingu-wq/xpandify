@@ -1,207 +1,193 @@
 
-
-# Detailed Specs for Next 5 Tasks (Phase 2 Sprint 1 + Sprint 2 Start)
-
-Based on the Master Plan Section 7, these are Tasks #1-#5 in priority order.
+# Detailed Specs for Tasks 6–10 (Phase 2 Sprint 2 + Sprint 3 Start)
 
 ---
 
-## Task 1: DB-Driven Feature Flags via Organization Settings
-
-**Journey:** All | **Estimate:** 3 days | **Complexity:** Medium
-
-### Current State
-- `src/config/features.ts` has hardcoded `simpleMode: true` which forces all advanced features OFF
-- `useFeatureFlags()` hook already reads from `organization_settings` table (columns `feature_org_chart`, `feature_cascade_view`, etc.)
-- But `simpleMode` short-circuits everything — the DB values are never used
-
-### What to Build
-1. **Replace `simpleMode` gate** in `useFeatureFlags()` — instead of returning all-false when `simpleMode` is true, always read from DB and fall back to static config only when DB value is null
-2. **Add missing feature flag columns** to `organization_settings` for Phase 2 modules: `feature_courses`, `feature_pathways`, `feature_mentorship`, `feature_reviews`, `feature_surveys`, `feature_analytics`, `feature_recurring_meetings`
-3. **Update Admin Feature Upgrades tab** (`FeatureUpgradesTab.tsx`) to show toggles for the new Phase 2 flags
-4. **Update navigation/routing** in `Sidebar.tsx`, `BottomNav.tsx`, and `App.tsx` to respect DB-driven flags instead of hardcoded `FEATURES.*`
-
-### Acceptance Criteria
-- [ ] Admin can toggle any feature ON/OFF from Administration > Feature Upgrades
-- [ ] Toggling a feature ON immediately shows it in navigation for all users
-- [ ] Toggling OFF hides the feature without data loss
-- [ ] Default state for new Phase 2 features is OFF
-- [ ] Feature dependencies still work (programs requires quarters)
-- [ ] No changes needed to `features.ts` static config (kept as fallback defaults)
-
-### Files to Modify
-- `src/hooks/useFeatureFlags.ts` — remove simpleMode gate, add new flag keys
-- `src/hooks/useOrganizationSettings.ts` — add new column types
-- `src/components/admin/FeatureUpgradesTab.tsx` — add Phase 2 toggle cards
-- `src/components/layout/Sidebar.tsx` — use `useFeatureFlags()` for nav items
-- `src/components/layout/BottomNav.tsx` — same
-- `src/App.tsx` — guard routes with feature flags
-- **Migration:** `ALTER TABLE organization_settings ADD COLUMN feature_courses boolean DEFAULT false, ...`
-
----
-
-## Task 2: Replace Mock Dashboard Chart Data with Real Queries
-
-**Journey:** J8 (Strategy & Reporting) | **Estimate:** 2 days | **Complexity:** Medium
-
-### Current State
-- `GoalCompletionChart` — uses REAL data from `useGoals()` (done)
-- `TrainingProgressChart` — uses REAL data from `useCourseAssignments()` (done, but shows "No training data" since courses feature is OFF)
-- `TeamEngagementChart` — uses HARDCODED mock data (`engagementData = [{month: 'Jan', engagement: 75}, ...]`)
-
-### What to Build
-1. **Replace TeamEngagement mock data** with real metrics derived from:
-   - Meeting frequency per month (from `meetings` table — count by month)
-   - Feedback volume per month (from `feedback` table — count by month)
-   - Goal progress changes over time (from `goals` table — avg progress by month)
-2. **Create `useEngagementMetrics()` hook** that queries the last 6 months of meeting counts, feedback counts, and goal progress
-3. **Add a "Meetings This Week" stat** to the team stats section (replacing or supplementing the survey badge)
-4. **Handle empty states** gracefully when no historical data exists
-
-### Acceptance Criteria
-- [ ] TeamEngagementChart shows real meeting frequency trend (last 6 months)
-- [ ] Feedback volume is shown as a secondary metric
-- [ ] No hardcoded sample data remains in any chart component
-- [ ] Empty state shows "Not enough data yet" instead of fake numbers
-- [ ] Chart updates when new meetings/feedback are created
-
-### Files to Modify
-- `src/hooks/useEngagementMetrics.ts` — NEW hook with 3 queries (meetings/month, feedback/month, goals avg)
-- `src/components/dashboard/TeamEngagementChart.tsx` — replace mock data with hook
-- `src/pages/Dashboard.tsx` — no changes needed (already lazy-loads charts)
-
----
-
-## Task 3: Enhance Dashboard Action Items Widget with Overdue Warnings
+## Task 6: Build Action Item Carry-Forward Logic
 
 **Journey:** J2 (Supervision) | **Estimate:** 2 days | **Complexity:** Medium
 
 ### Current State
-- `StaffDashboard` shows action items with status badges and due dates
-- `useUserActionItems()` fetches items ordered by due date
-- No visual distinction between overdue, due today, and future items
-- No count badge on navigation for pending items
+- Action items live in `meeting_agenda_items` with `action_required=true`, `action_status`, `action_due_date`, `action_owner_id`
+- When a recurring meeting creates the next instance, agenda template is copied but **incomplete action items from the previous meeting are not carried over**
+- No link between action items across meeting instances
 
 ### What to Build
-1. **Add overdue styling** — items past due date get red highlight, "Overdue" badge, and sort to top
-2. **Add "due today" styling** — amber highlight with "Due Today" badge
-3. **Add overdue count badge** on the Meetings nav item (sidebar + bottom nav)
-4. **Group action items** by urgency: Overdue > Due Today > Upcoming > No Due Date
-5. **Quick-complete from dashboard** — allow status change directly from the card (already partially implemented, enhance UX)
+1. **On recurring meeting creation** — when generating the next instance in a series, query incomplete action items (`action_status IN ('open','in_progress')`) from the most recent past meeting in the same `recurring_series_id`
+2. **Copy incomplete items** to the new meeting's agenda as a new `meeting_agenda_items` row with:
+   - Same `topic_en/fr`, `action_owner_id`, `action_due_date`, `linked_goal_id`
+   - `section_type = 'action_items'`
+   - `action_status = 'open'` (reset to open)
+   - `discussion_notes` cleared (fresh start)
+3. **Visual indicator** — carried-forward items show a small "↻ Carried forward" badge in the agenda
+4. **Also support manual carry-forward** — in MeetingDetailDialog, add a "Carry to next meeting" button on open action items that copies the item to the next meeting in the series (or any selected meeting)
 
 ### Acceptance Criteria
-- [ ] Overdue items show red background/border and "Overdue" badge
-- [ ] Due-today items show amber styling and "Due Today" badge
-- [ ] Items are grouped by urgency section with headers
-- [ ] Nav badge shows count of overdue + due-today items
-- [ ] Quick status change works without opening meeting detail
-- [ ] Supervisor dashboard also shows aggregate overdue count per direct report
+- [ ] When a recurring meeting instance is created, incomplete action items from the previous instance are auto-copied
+- [ ] Carried items retain their owner, due date, and linked goal
+- [ ] Carried items show a visual indicator distinguishing them from new items
+- [ ] Manual carry-forward works for non-recurring meetings too
+- [ ] Original item remains unchanged in the source meeting
 
 ### Files to Modify
-- `src/components/dashboard/StaffDashboard.tsx` — add urgency grouping and styling
-- `src/components/dashboard/DirectReportCard.tsx` — show overdue count
-- `src/components/layout/Sidebar.tsx` — add badge to Meetings nav item
-- `src/components/layout/BottomNav.tsx` — add badge
-- `src/hooks/useUserActionItems.ts` — add `useOverdueCount()` export
+- `src/components/meetings/MeetingFormDialog.tsx` — add carry-forward logic after recurring instance creation
+- `src/hooks/useMeetings.ts` — add `useCarryForwardItems` mutation
+- `src/components/meetings/MeetingDetailDialog.tsx` — add "Carry to next" button on action items
 
 ---
 
-## Task 4: Build Welcome Dashboard State for New Users
-
-**Journey:** J1 (Onboarding) | **Estimate:** 1 day | **Complexity:** Medium
-
-### Current State
-- New users see empty stat cards (0 people, 0 goals, 0 meetings)
-- Empty states exist per-widget but no cohesive "welcome" experience
-- No detection of first-time login
-
-### What to Build
-1. **Detect new user** — check if user has zero goals, zero meetings, and person record was created within last 7 days
-2. **Show WelcomeBanner component** instead of normal dashboard content for new users
-3. **Banner content:**
-   - Welcome message with user's name
-   - Yearly theme (from org settings)
-   - Quick-start checklist: "Complete your profile", "View your ministry", "Check upcoming events", "Review your goals"
-   - Each item links to the relevant page
-   - Dismissable (store flag in localStorage)
-4. **Progressive disclosure** — show normal dashboard below the banner so it's not blocking
-
-### Acceptance Criteria
-- [ ] New user (< 7 days, 0 goals, 0 meetings) sees welcome banner
-- [ ] Banner shows 4 quick-start actions with links
-- [ ] Each completed action shows a checkmark (profile has photo, has ministry, etc.)
-- [ ] Banner can be dismissed and doesn't reappear
-- [ ] Existing users never see the banner
-- [ ] Bilingual support for all banner text
-
-### Files to Create/Modify
-- `src/components/dashboard/WelcomeBanner.tsx` — NEW component
-- `src/pages/Dashboard.tsx` — add WelcomeBanner conditionally
-- Translation keys added for welcome messages
-
----
-
-## Task 5: Enable Recurring Meetings
+## Task 7: Build "Prepare for Meeting" Panel
 
 **Journey:** J2 (Supervision) | **Estimate:** 3 days | **Complexity:** High
 
 ### Current State
-- `meetings` table has `recurrence_pattern` (text) and `recurring_series_id` (text) columns
-- No UI for setting recurrence when creating a meeting
-- `MeetingFormDialog` has no recurrence controls
-- Event recurrence system exists (`useRecurringEvents.ts`, `RecurrenceRuleEditor.tsx`) but is for calendar events, not meetings
-- Feature flag `meetingFeatures.recurringMeetings` is `false`
+- MeetingDetailDialog has 3 tabs: Agenda, Action Items, Participants
+- No pre-meeting preparation view
+- Supervisors manually review goals and feedback before meetings
 
 ### What to Build
-1. **Add recurrence selector** to `MeetingFormDialog` — simple dropdown: None, Weekly, Bi-weekly, Monthly
-2. **On save with recurrence**, generate future instances:
-   - Weekly: next 12 occurrences
-   - Bi-weekly: next 12 occurrences
-   - Monthly: next 6 occurrences
-   - All share the same `recurring_series_id`
-   - Each is a separate row in `meetings` (same pattern as event recurrence)
-3. **Copy agenda template** to each generated instance
-4. **Add participants** to each generated instance
-5. **Edit scope dialog** — when editing a recurring meeting, ask: "This meeting only" or "This and future meetings" (reuse `EditScopeDialog` from calendar)
-6. **Visual indicator** on meeting cards showing recurrence icon + pattern label
-7. **Enable feature flag** `meetingFeatures.recurringMeetings = true`
+1. **Add "Prep" tab** (or collapsible panel) to MeetingDetailDialog showing:
+   - **Goal changes since last meeting**: Query goals owned by the person_focus_id, compare `progress_percent` and `status` changes (using `updated_at` > last meeting date)
+   - **Recent feedback**: Query feedback where `person_id = person_focus_id` created since last meeting
+   - **Outstanding action items**: Query incomplete items from previous meetings with same person_focus
+   - **Upcoming due dates**: Goals with due dates in the next 2 weeks
+2. **"Last meeting" detection**: Find the most recent past meeting with the same `person_focus_id` and `organizer_id`
+3. **Auto-suggest agenda items**: Based on goal changes and overdue items, suggest topics to add to the agenda (click to add)
 
 ### Acceptance Criteria
-- [ ] User can select recurrence (none/weekly/biweekly/monthly) when creating a meeting
-- [ ] Correct number of future instances are generated
-- [ ] Each instance has the same agenda template sections
-- [ ] Each instance has the same participants
-- [ ] Editing a recurring meeting shows scope dialog
-- [ ] "This only" edits just one instance
-- [ ] "This and future" regenerates from that point
-- [ ] Recurring meetings show a recurrence icon in lists
-- [ ] Deleting a recurring meeting offers scope options
+- [ ] Prep tab shows goal progress changes since last meeting with the same person
+- [ ] Recent feedback (given to/by person_focus) is listed
+- [ ] Outstanding action items from previous meetings are shown
+- [ ] Suggested agenda items can be added with one click
+- [ ] Works for both 1:1 and other meeting types (falls back gracefully when no person_focus)
+- [ ] Shows "No previous meeting found" for first-time meetings
+
+### Files to Create/Modify
+- `src/hooks/useMeetingPrep.ts` — NEW hook: queries goals, feedback, past action items relative to last meeting
+- `src/components/meetings/MeetingPrepPanel.tsx` — NEW component for the prep view
+- `src/components/meetings/MeetingDetailDialog.tsx` — add Prep tab
+
+---
+
+## Task 8: Enable Participant Agenda Item Adding
+
+**Journey:** J2 (Supervision) | **Estimate:** 1 day | **Complexity:** Low
+
+### Current State
+- Only organizer and admins can add agenda items (checked via `canEdit` in MeetingDetailDialog)
+- `canEdit` is already `isOrganizer || isParticipant || isAdminOrSuper` — so participants CAN already add items
+- However, there's no distinction between organizer-added and participant-added items
+- RLS allows participants to insert agenda items (meeting_participants check)
+
+### What to Build
+1. **Verify RLS** allows participants to insert `meeting_agenda_items` for meetings they're part of
+2. **Add "added by" indicator** — show who added each agenda item (compare `created_at` timing or add `created_by_id` column)
+3. **Pre-meeting item collection** — participants can add items before the meeting date, shown in a "Participant Topics" section
+4. **Notification** — when a participant adds an item, the organizer gets a notification (use existing notification system)
+
+### Acceptance Criteria
+- [ ] Any meeting participant can add agenda items
+- [ ] Items show who added them
+- [ ] Organizer is notified when a participant adds an item
+- [ ] Participant-added items appear in a distinguishable section or with a badge
+- [ ] RLS correctly allows participant inserts but not edits of others' items
 
 ### Files to Modify
-- `src/components/meetings/MeetingFormDialog.tsx` — add recurrence dropdown
-- `src/hooks/useMeetings.ts` — add `useCreateRecurringMeeting` mutation
-- `src/components/meetings/MeetingDetailDialog.tsx` — add edit scope handling
-- `src/components/calendar/EditScopeDialog.tsx` — reuse as-is (already generic)
-- `src/config/features.ts` — enable `recurringMeetings`
+- `src/components/meetings/MeetingDetailDialog.tsx` — add "added by" display, participant section
+- `src/hooks/useMeetings.ts` — no change needed (insert already works for participants)
+- **Migration:** `ALTER TABLE meeting_agenda_items ADD COLUMN created_by_id UUID REFERENCES people(id)` — to track who added each item
+
+---
+
+## Task 9: Build Event Role Assignment UI
+
+**Journey:** J4 (Event Planning) | **Estimate:** 3 days | **Complexity:** High
+
+### Current State
+- `event_roles` table exists with `event_id`, `person_id`, `role`, `from_country`, `notes`
+- `EventRoleDialog` exists for adding a single role to an event
+- EventDetail page shows roles in a simple list
+- No bulk role assignment, no role templates, no vacancy display
+- Feature is accessible but basic
+
+### What to Build
+1. **Role requirements template** — when creating/editing an event, define needed roles (e.g., "Need 2 Hosts, 1 Tech, 1 Worship Leader") without assigning people yet
+2. **Role vacancy board** — on EventDetail, show required roles vs filled roles with visual fill indicator
+3. **Quick-assign from people list** — click a vacant role → dropdown of available people (filtered by ministry membership)
+4. **Bulk role copy** — copy role assignments from a previous event (useful for recurring events)
+5. **"My Roles" widget** — on volunteer/staff dashboard, show upcoming events where user has a role assigned
+6. **Role summary on event cards** — show role fill status (e.g., "3/5 roles filled") on EventsListView cards
+
+### Acceptance Criteria
+- [ ] Event creator can define required roles with quantities
+- [ ] Vacant roles are visually distinct from filled roles
+- [ ] People can be assigned to roles from the event detail page
+- [ ] Role assignments can be copied from another event
+- [ ] Dashboard shows user's upcoming role assignments
+- [ ] Event cards show role fill status
 
 ### Database Notes
-- No migration needed — `recurrence_pattern` and `recurring_series_id` columns already exist
-- `recurrence_pattern` stores: `"weekly"`, `"biweekly"`, `"monthly"`, or `null`
-- `recurring_series_id` is a UUID shared across all instances in a series
+- May need a `event_role_requirements` table: `event_id`, `role_name`, `quantity_needed`, `is_filled`
+- Or simpler: use `event_roles` with `person_id = NULL` to represent vacant slots
+
+### Files to Create/Modify
+- `src/components/calendar/EventRoleBoard.tsx` — NEW: vacancy board component
+- `src/pages/calendar/EventDetail.tsx` — replace simple role list with EventRoleBoard
+- `src/pages/calendar/EventEditor.tsx` — add role requirements section
+- `src/components/dashboard/MyRolesWidget.tsx` — NEW: dashboard widget for assigned roles
+- `src/hooks/useEventRoles.ts` — add bulk copy mutation
+- **Migration:** Add `event_role_requirements` table if needed
+
+---
+
+## Task 10: Build Event Recurrence Instance Generation
+
+**Journey:** J4 (Event Planning) | **Estimate:** 3 days | **Complexity:** High
+
+### Current State
+- `useRecurringEvents.ts` has `useCreateRecurringEvent` that creates a recurrence rule + generates event instances
+- `RecurrenceRuleEditor.tsx` component exists with frequency/interval/end-type controls
+- `EditScopeDialog` handles "this only" vs "this and future" for edits
+- `useDeleteRecurringEvent` handles scoped deletion
+- **BUT**: Recurrence is only available from the EventEditor page — no easy way to make an existing event recurring
+- Role assignments are NOT copied to generated instances
+
+### What to Build
+1. **Copy event roles to instances** — when generating recurring event instances, also copy `event_roles` from the parent event
+2. **Copy event goals to instances** — also copy `event_goals` linkages
+3. **"Make Recurring" action** — on EventDetail page, add a button to convert a single event into a recurring series
+4. **Instance management** — show all instances in a series on EventDetail with ability to navigate between them
+5. **Exception handling** — when editing a single instance, mark it as `is_recurrence_exception = true` and preserve the edit
+6. **Calendar visual** — recurring events show a recurrence icon (↻) on the calendar views
+
+### Acceptance Criteria
+- [ ] Creating a recurring event copies role assignments to all instances
+- [ ] Creating a recurring event copies goal linkages to all instances
+- [ ] Single events can be converted to recurring series
+- [ ] Series instances are navigable from event detail
+- [ ] Editing "this only" marks the instance as an exception
+- [ ] Recurring events show a visual indicator on calendar views
+- [ ] Deleting "this and future" removes future instances correctly
+
+### Files to Modify
+- `src/hooks/useRecurringEvents.ts` — add role/goal copy logic to instance generation
+- `src/pages/calendar/EventDetail.tsx` — add "Make Recurring" action, series navigation
+- `src/components/calendar/EventsListView.tsx` — add recurrence icon
+- `src/components/calendar/EventsWeekView.tsx` — add recurrence icon
+- `src/components/meetings/MonthlyCalendarView.tsx` — add recurrence icon (if events shown here)
 
 ---
 
 ## Implementation Order & Dependencies
 
-```text
-Task 1 (Feature Flags) ──► unlocks Phase 2 features
-Task 2 (Real Charts)   ──► standalone, no deps
-Task 3 (Action Items)  ──► standalone, no deps
-Task 4 (Welcome State) ──► standalone, no deps
-Task 5 (Recurring Mtgs) ──► depends on Task 1 (feature flag toggle)
+```
+Task 6 (Carry-Forward)     ──► depends on Task 5 (recurring meetings) ✅ done
+Task 7 (Meeting Prep)      ──► standalone, no deps
+Task 8 (Participant Agenda) ──► standalone, needs migration
+Task 9 (Event Roles UI)    ──► standalone, may need migration
+Task 10 (Event Recurrence)  ──► standalone, enhances existing recurrence
 
 Recommended parallel tracks:
-  Track A: Task 1 → Task 5
-  Track B: Task 2 → Task 3 → Task 4
+  Track A: Task 6 → Task 7
+  Track B: Task 8 (quick) → Task 9 → Task 10
 ```
-
