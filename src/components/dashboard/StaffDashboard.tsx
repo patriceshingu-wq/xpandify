@@ -332,31 +332,46 @@ export function StaffDashboard() {
 
 function ActionItemRow({ 
   item, 
+  urgency = 'upcoming',
   onStatusChange 
 }: { 
   item: ActionItem; 
+  urgency?: 'overdue' | 'due_today' | 'upcoming';
   onStatusChange: (id: string, meetingId: string, status: string) => void;
 }) {
   const { getLocalizedField } = useLanguage();
-  const isOverdue = item.action_due_date && isPast(new Date(item.action_due_date));
+
+  const borderClass = urgency === 'overdue' 
+    ? 'border-destructive/30 bg-destructive/5' 
+    : urgency === 'due_today' 
+    ? 'border-warning/30 bg-warning/5' 
+    : '';
 
   return (
-    <div className="p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+    <div className={`p-3 rounded-lg border hover:bg-muted/50 transition-colors ${borderClass}`}>
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">
-            {getLocalizedField(item, 'topic')}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-sm truncate">
+              {getLocalizedField(item, 'topic')}
+            </p>
+            {urgency === 'overdue' && (
+              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Overdue</Badge>
+            )}
+            {urgency === 'due_today' && (
+              <Badge className="text-[10px] px-1.5 py-0 bg-warning text-warning-foreground">Due Today</Badge>
+            )}
+          </div>
           {item.meeting && (
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
               From: {getLocalizedField(item.meeting, 'title')}
             </p>
           )}
           {item.action_due_date && (
-            <div className={`flex items-center gap-1 mt-1 text-xs ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}>
-              {isOverdue ? <AlertCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+            <div className={`flex items-center gap-1 mt-1 text-xs ${urgency === 'overdue' ? 'text-destructive' : 'text-muted-foreground'}`}>
+              {urgency === 'overdue' ? <AlertCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
               <span>
-                {isOverdue ? 'Overdue: ' : 'Due: '}
+                {urgency === 'overdue' ? 'Overdue: ' : 'Due: '}
                 {format(new Date(item.action_due_date), 'MMM d, yyyy')}
               </span>
             </div>
