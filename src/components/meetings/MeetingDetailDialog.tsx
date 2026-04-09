@@ -152,11 +152,21 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
           </DialogHeader>
 
           <Tabs defaultValue="agenda" className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="prep">Prep</TabsTrigger>
               <TabsTrigger value="agenda">Agenda</TabsTrigger>
               <TabsTrigger value="actions">Action Items</TabsTrigger>
               <TabsTrigger value="participants">Participants</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="prep" className="flex-1 overflow-hidden">
+              <MeetingPrepPanel
+                meetingId={meetingId}
+                personFocusId={meeting?.person_focus_id || undefined}
+                organizerId={meeting?.organizer_id || undefined}
+                meetingDateTime={meeting?.date_time}
+              />
+            </TabsContent>
 
             <TabsContent value="agenda" className="flex-1 overflow-hidden">
               <ScrollArea className="h-[500px] pr-4">
