@@ -16,7 +16,13 @@ import {
   Languages,
   Lock,
   Info,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  Users2,
+  BarChart3,
+  PieChart,
+  RefreshCw,
+  ClipboardList,
 } from 'lucide-react';
 
 interface FeatureToggle {
