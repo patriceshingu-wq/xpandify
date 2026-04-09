@@ -356,6 +356,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
             </div>
             <p className="text-xs text-muted-foreground">Select ministries this person belongs to</p>
           </div>
+        </TabsContent>
       </Tabs>
 
       <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
