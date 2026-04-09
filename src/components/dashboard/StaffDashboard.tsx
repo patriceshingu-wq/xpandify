@@ -106,8 +106,8 @@ export function StaffDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${openActions.length > 0 ? 'bg-warning/10' : 'bg-success/10'}`}>
-                <CheckSquare className={`h-4 w-4 ${openActions.length > 0 ? 'text-warning' : 'text-success'}`} />
+              <div className={`p-2 rounded-lg ${urgentCount > 0 ? 'bg-destructive/10' : openActions.length > 0 ? 'bg-warning/10' : 'bg-success/10'}`}>
+                <CheckSquare className={`h-4 w-4 ${urgentCount > 0 ? 'text-destructive' : openActions.length > 0 ? 'text-warning' : 'text-success'}`} />
               </div>
               <div>
                 <p className="text-2xl font-bold">{openActions.length}</p>
