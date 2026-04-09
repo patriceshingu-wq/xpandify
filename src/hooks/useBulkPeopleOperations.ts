@@ -185,7 +185,8 @@ export function validateCSVData(
   csvText: string,
   existingEmails: Set<string>,
   campusCodes: Map<string, string>,
-  supervisorEmails: Map<string, string>
+  supervisorEmails: Map<string, string>,
+  ministryNames?: Map<string, string>
 ): ImportValidationResult[] {
   const lines = parseCSV(csvText);
 
