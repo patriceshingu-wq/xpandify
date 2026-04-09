@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, Plus, User, Target, BookOpen, GripVertical, Trash2, Loader2, Link } from 'lucide-react';
+import { Calendar, Plus, User, Target, BookOpen, GripVertical, Trash2, Loader2, Link, RefreshCw, CornerDownRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
