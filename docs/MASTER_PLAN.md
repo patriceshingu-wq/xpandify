@@ -1034,8 +1034,8 @@ These are critical connections between journeys that must work together:
 | **Goal → Event** | J3 → J4 | Events linked to goals (hidden in simple mode) | ✅ P1 |
 | **PDP → Goal** | J5 → J3 | Development items stored as goals with pdp_id | ✅ P1 |
 | **Course → PDP** | J5 → J5 | Course assignments create PDP goal items | 🔲 P2 |
-| **Review → Meeting History** | J6 → J2 | Formal reviews pull past meeting notes | 🔲 P2 |
-| **Event Role → Dashboard** | J4 → J7 | Volunteer sees serving schedule on dashboard | 🔲 P2 |
+| **Review → Meeting History** | J6 → J2 | Formal reviews pull past meeting notes | ✅ P2 Done |
+| **Event Role → Dashboard** | J4 → J7 | Volunteer sees serving schedule on dashboard | ✅ P2 Done (MyRolesWidget) |
 | **Survey → Analytics** | J6 → J8 | Survey results feed analytics dashboard | 🔲 P2 |
 | **AI Summary → Meeting** | J2 → J8 | AI meeting notes feed into analytics | 🔲 P3 |
 
@@ -1045,63 +1045,63 @@ These are critical connections between journeys that must work together:
 
 ### Phase 2 — Priority Order
 
-#### Sprint 1: Foundation (Weeks 1-2)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 1 | Implement DB-driven feature flags (org_settings → FEATURES) | All | Medium | 3 days |
-| 2 | Replace mock dashboard chart data with real queries | J8 | Medium | 2 days |
-| 3 | Enhance dashboard action items widget (overdue warnings) | J2 | Medium | 2 days |
-| 4 | Build welcome dashboard state for new users | J1 | Medium | 1 day |
+#### Sprint 1: Foundation (Weeks 1-2) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 1 | Implement DB-driven feature flags (org_settings → FEATURES) | All | Medium | ✅ Done |
+| 2 | Replace mock dashboard chart data with real queries | J8 | Medium | ✅ Done |
+| 3 | Enhance dashboard action items widget (overdue warnings) | J2 | Medium | ✅ Done |
+| 4 | Build welcome dashboard state for new users | J1 | Medium | ✅ Done |
 
-#### Sprint 2: Supervision Enhancement (Weeks 3-4)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 5 | Enable recurring meetings | J2 | High | 3 days |
-| 6 | Build action item carry-forward logic | J2 | Medium | 2 days |
-| 7 | Build "Prepare for Meeting" panel | J2 | High | 3 days |
-| 8 | Enable participant agenda item adding | J2 | Low | 1 day |
+#### Sprint 2: Supervision Enhancement (Weeks 3-4) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 5 | Enable recurring meetings | J2 | High | ✅ Done |
+| 6 | Build action item carry-forward logic | J2 | Medium | ✅ Done |
+| 7 | Build "Prepare for Meeting" panel | J2 | High | ✅ Done |
+| 8 | Enable participant agenda item adding | J2 | Low | ✅ Done |
 
-#### Sprint 3: Events & Volunteers (Weeks 5-6)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 9 | Build event role assignment UI | J4 | High | 3 days |
-| 10 | Build event recurrence instance generation | J4 | High | 3 days |
-| 11 | Build volunteer "My Schedule" widget | J7 | Medium | 2 days |
-| 12 | Build volunteer notification system | J4,J7 | Medium | 2 days |
+#### Sprint 3: Events & Volunteers (Weeks 5-6) ✅ MOSTLY COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 9 | Build event role assignment UI | J4 | High | ✅ Done |
+| 10 | Build event recurrence instance generation | J4 | High | 🔲 Partial (UI ready, generation logic needed) |
+| 11 | Build volunteer "My Schedule" widget | J7 | Medium | ✅ Done |
+| 12 | Build volunteer notification system | J4,J7 | Medium | ✅ Done |
 
-#### Sprint 4: Learning & Development (Weeks 7-8)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 13 | Enable Learning Hub (feature flag + wire up) | J5 | Low | 1 day |
-| 14 | Build course catalog + assignment flow | J5 | Medium | 3 days |
-| 15 | Build pathway progress tracking | J5 | High | 3 days |
-| 16 | Enable Mentorship (feature flag + wire up) | J5 | Low | 1 day |
-| 17 | Build mentorship check-in flow | J5 | Medium | 2 days |
+#### Sprint 4: Learning & Development (Weeks 7-8) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 13 | Enable Learning Hub (feature flag + wire up) | J5 | Low | ✅ Done |
+| 14 | Build course catalog + assignment flow | J5 | Medium | ✅ Done |
+| 15 | Build pathway progress tracking | J5 | High | ✅ Done |
+| 16 | Enable Mentorship (feature flag + wire up) | J5 | Low | ✅ Done |
+| 17 | Build mentorship check-in flow | J5 | Medium | ✅ Done |
 
-#### Sprint 5: Feedback & Reviews (Weeks 9-10)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 18 | Build formal review flow | J5,J6 | High | 4 days |
-| 19 | Build self-assessment questionnaire | J5 | Medium | 2 days |
-| 20 | Build review + meeting history integration | J6,J2 | Medium | 2 days |
+#### Sprint 5: Feedback & Reviews (Weeks 9-10) ✅ COMPLETE
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 18 | Build formal review flow | J5,J6 | High | ✅ Done |
+| 19 | Build self-assessment questionnaire | J5 | Medium | ✅ Done |
+| 20 | Build review + meeting history integration | J6,J2 | Medium | ✅ Done |
 
-#### Sprint 6: Analytics & Onboarding (Weeks 11-12)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 21 | Build Analytics page with real metrics | J8 | High | 4 days |
-| 22 | Build report export (PDF/CSV) | J8 | Medium | 2 days |
-| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | 1 day |
-| 24 | Build first-login onboarding wizard | J1 | High | 3 days |
-| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | 2 days |
+#### Sprint 6: Analytics & Onboarding (Weeks 11-12) — NEXT
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 21 | Build Analytics page with real metrics | J8 | High | 🔲 |
+| 22 | Build report export (PDF/CSV) | J8 | Medium | 🔲 |
+| 23 | Enhance invite dialog (ministry + supervisor) | J1 | Medium | 🔲 |
+| 24 | Build first-login onboarding wizard | J1 | High | 🔲 |
+| 25 | Enhance bulk import with ministry/supervisor | J1 | Medium | 🔲 |
 
 #### Sprint 7: Polish & Advanced (Weeks 13-14)
-| # | Task | Journey | Complexity | Estimate |
-|---|------|---------|-----------|----------|
-| 26 | Build RSVP system | J4 | High | 3 days |
-| 27 | Build attendance tracking | J4 | Medium | 2 days |
-| 28 | Enable Surveys feature | J6 | Medium | 3 days |
-| 29 | Build assessment engine | J5 | High | 4 days |
-| 30 | Post-meeting email summary | J2 | Medium | 2 days |
+| # | Task | Journey | Complexity | Status |
+|---|------|---------|-----------|--------|
+| 26 | Build RSVP system | J4 | High | 🔲 |
+| 27 | Build attendance tracking | J4 | Medium | 🔲 |
+| 28 | Enable Surveys feature | J6 | Medium | 🔲 |
+| 29 | Build assessment engine | J5 | High | 🔲 |
+| 30 | Post-meeting email summary | J2 | Medium | 🔲 |
 
 ---
 
