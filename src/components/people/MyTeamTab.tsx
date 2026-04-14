@@ -155,7 +155,7 @@ export function MyTeamTab() {
                   <div className="flex flex-col gap-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="h-12 w-12 shrink-0">
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-base">{initials}</AvatarFallback>
+                        <AvatarFallback className="bg-muted text-foreground font-semibold text-base">{initials}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">

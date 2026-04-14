@@ -223,7 +223,7 @@ export default function Goals() {
 
   const getLevelColor = (lvl: string) => {
     switch (lvl) {
-      case 'church': return 'bg-accent/10 text-accent';
+      case 'church': return 'bg-muted text-foreground';
       case 'ministry': return 'bg-info/10 text-info';
       case 'department': return 'bg-warning/10 text-warning';
       case 'individual': return 'bg-success/10 text-success';

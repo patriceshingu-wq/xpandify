@@ -280,7 +280,7 @@ export function MeetingFormDialog({ open, onOpenChange, meeting }: MeetingFormDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">
+          <DialogTitle>
             {isEditing ? 'Edit Meeting' : t('meetings.addMeeting')}
           </DialogTitle>
           <DialogDescription>

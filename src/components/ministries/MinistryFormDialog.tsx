@@ -103,7 +103,7 @@ export function MinistryFormDialog({ open, onOpenChange, ministry, ministries = 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-serif">
+          <DialogTitle>
             {isEditing ? t('ministries.editMinistry') : t('ministries.addMinistry')}
           </DialogTitle>
           <DialogDescription>

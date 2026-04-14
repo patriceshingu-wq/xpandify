@@ -18,6 +18,8 @@ interface Person {
   last_name: string;
   preferred_name?: string;
   email?: string;
+  onboarding_completed?: boolean;
+  primary_language?: 'en' | 'fr';
 }
 
 interface AuthContextType {
@@ -96,10 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(profileData as Profile);
       }
 
-      // Fetch person record
+      // Fetch person record (include onboarding_completed to gate the wizard)
       const { data: personData } = await supabase
         .from('people')
-        .select('id, first_name, last_name, preferred_name, email')
+        .select('id, first_name, last_name, preferred_name, email, onboarding_completed, primary_language')
         .eq('user_id', userId)
         .maybeSingle();
 

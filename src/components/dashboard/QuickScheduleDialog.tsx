@@ -126,7 +126,7 @@ export function QuickScheduleDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
+            <Calendar className="h-5 w-5 text-muted-foreground" />
             Quick Schedule 1:1
           </DialogTitle>
           <DialogDescription>

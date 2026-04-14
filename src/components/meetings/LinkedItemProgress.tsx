@@ -80,12 +80,12 @@ export function LinkedGoalProgress({ goalId, canEdit }: LinkedGoalProgressProps)
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className={isPDPItem ? "border-accent/20 bg-accent/5" : "border-primary/20 bg-primary/5"}>
+      <Card className="border-border bg-muted/30">
         <CardContent className="p-3">
           <CollapsibleTrigger className="w-full">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Target className={`h-4 w-4 shrink-0 ${isPDPItem ? 'text-accent' : 'text-primary'}`} />
+                <Target className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="text-sm font-medium truncate">
                   {getLocalizedField(goal, 'title')}
                 </span>

@@ -121,8 +121,8 @@ export function StaffDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Calendar className="h-4 w-4 text-primary" />
+              <div className="p-2 rounded-lg bg-muted">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{upcomingMeetings.length}</p>
@@ -135,8 +135,8 @@ export function StaffDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10">
-                <Target className="h-4 w-4 text-accent" />
+              <div className="p-2 rounded-lg bg-muted">
+                <Target className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{myGoals.length}</p>
@@ -411,7 +411,7 @@ function MeetingRow({ meeting }: { meeting: any }) {
 
   const getMeetingTypeStyle = (type: string) => {
     const styles: Record<string, string> = {
-      one_on_one: 'bg-accent/10 text-accent',
+      one_on_one: 'bg-muted text-foreground',
       team: 'bg-info/10 text-info',
       ministry: 'bg-success/10 text-success',
       board: 'bg-warning/10 text-warning',

@@ -167,7 +167,7 @@ export function PersonFormDialog({ open, onOpenChange, person }: PersonFormDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">
+          <DialogTitle>
             {isEditing ? `Edit ${person?.first_name} ${person?.last_name}` : t('people.addPerson')}
           </DialogTitle>
           <DialogDescription>

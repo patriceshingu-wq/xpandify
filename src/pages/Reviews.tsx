@@ -118,7 +118,7 @@ export default function Reviews() {
                     <CardContent className="p-4 sm:p-5">
                       <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                         <Avatar className="h-12 w-12 shrink-0">
-                          <AvatarFallback className="bg-accent/10 text-accent">
+                          <AvatarFallback className="bg-muted text-muted-foreground">
                             {review.person ? getInitials(review.person.first_name, review.person.last_name) : '?'}
                           </AvatarFallback>
                         </Avatar>

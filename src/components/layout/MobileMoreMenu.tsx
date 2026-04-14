@@ -33,15 +33,12 @@ interface NavItem {
   roles?: string[];
 }
 
-const moreNavItems: NavItem[] = [
+// Core items not in BottomNav
+const coreNavItems: NavItem[] = [
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
   { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
-];
-
-const calendarNavItems: NavItem[] = [
   { icon: CalendarDays, labelKey: 'nav.eventsCalendar', path: '/calendar/events' },
-  { icon: Calendar, labelKey: 'nav.quarters', path: '/calendar/quarters' },
-  { icon: Layers, labelKey: 'nav.programs', path: '/calendar/programs' },
+  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
 ];
 
 interface MobileMoreMenuProps {
@@ -53,17 +50,19 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
   const { t } = useLanguage();
   const { hasAnyRole, signOut, person } = useAuth();
   const location = useLocation();
-  const { courses, mentorship, surveys, analytics } = useFeatureFlags();
+  const { quarters, programs, courses, mentorship, surveys, analytics } = useFeatureFlags();
 
-  const developmentNavItems: NavItem[] = [
-    { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
+  // Phase 2 items — only shown when enabled
+  const extraNavItems: NavItem[] = [
+    ...(quarters ? [{ icon: Calendar, labelKey: 'nav.quarters', path: '/calendar/quarters' }] : []),
+    ...(programs ? [{ icon: Layers, labelKey: 'nav.programs', path: '/calendar/programs' }] : []),
     ...(courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
     ...(mentorship ? [{ icon: UsersRound, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
     ...(surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
+    ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
   ];
 
   const adminNavItems: NavItem[] = [
-    ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
     { icon: Shield, labelKey: 'nav.admin', path: '/administration', roles: ['super_admin', 'admin'] },
   ];
 
@@ -85,7 +84,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
         className={cn(
           'flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors touch-target',
           active
-            ? 'bg-primary/10 text-primary'
+            ? 'bg-muted text-foreground'
             : 'text-foreground active:bg-muted'
         )}
       >
@@ -111,8 +110,8 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
             onClick={() => onOpenChange(false)}
             className="flex items-center gap-4 p-4 mb-4 rounded-2xl bg-muted/50 active:bg-muted transition-colors touch-target"
           >
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <User className="h-7 w-7 text-primary" />
+            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+              <User className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground truncate text-base">
@@ -122,44 +121,26 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
             </div>
           </Link>
 
-          {/* More Navigation */}
-          <div className="space-y-1 mb-6">
-            <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              More
-            </p>
-            {moreNavItems.map(renderNavItem)}
+          {/* Core Navigation */}
+          <div className="space-y-1 mb-4">
+            {coreNavItems.map(renderNavItem)}
           </div>
 
-          <Separator className="my-4" />
-
-          {/* Calendar & Events */}
-          <div className="space-y-1 mb-6">
-            <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {t('nav.calendar') || 'Calendar'}
-            </p>
-            {calendarNavItems.map(renderNavItem)}
-          </div>
-
-          <Separator className="my-4" />
-
-          {/* Development */}
-          {developmentNavItems.length > 0 && (
-            <div className="space-y-1 mb-6">
-              <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Development
-              </p>
-              {developmentNavItems.map(renderNavItem)}
-            </div>
+          {/* Phase 2 features — only shown when enabled */}
+          {extraNavItems.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <div className="space-y-1 mb-4">
+                {extraNavItems.map(renderNavItem)}
+              </div>
+            </>
           )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (
             <>
               <Separator className="my-4" />
-              <div className="space-y-1 mb-6">
-                <p className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  System
-                </p>
+              <div className="space-y-1 mb-4">
                 {adminNavItems.map(renderNavItem)}
               </div>
             </>
@@ -179,7 +160,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
             <LogOut className="h-6 w-6" />
             <span className="font-medium text-base">{t('nav.logout')}</span>
           </Button>
-          
+
           {/* Extra bottom padding for safety */}
           <div className="h-8" />
         </div>

@@ -85,13 +85,13 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div className="min-h-screen bg-muted flex items-center justify-center p-4">
       <div className="absolute top-4 right-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}
-          className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted"
           aria-label={t('common.changeLanguage')}
         >
           <Globe className="h-5 w-5" />
@@ -101,12 +101,12 @@ export default function Auth() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <img src={logo} alt="Xpandify logo" className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4" />
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white">Xpandify</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Xpandify</h1>
         </div>
 
-        <Card className="border-0 shadow-xl">
+        <Card className="shadow-lg border">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif">{getTitle()}</CardTitle>
+            <CardTitle>{getTitle()}</CardTitle>
             <CardDescription>{getDescription()}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -142,7 +142,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setMode('forgot')}
-                    className="text-sm text-accent hover:underline font-medium"
+                    className="text-sm text-foreground font-medium hover:underline"
                   >
                     {t('auth.forgotPassword')}
                   </button>
@@ -164,7 +164,7 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={() => setMode('login')}
-                  className="text-accent hover:underline font-medium inline-flex items-center gap-1"
+                  className="text-foreground font-medium hover:underline inline-flex items-center gap-1"
                 >
                   <ArrowLeft className="h-3 w-3" />
                   {t('auth.backToLogin')}
@@ -177,7 +177,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                    className="text-accent hover:underline font-medium"
+                    className="text-foreground font-medium hover:underline"
                   >
                     {mode === 'login' ? t('auth.signup') : t('auth.login')}
                   </button>

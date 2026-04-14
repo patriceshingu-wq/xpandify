@@ -303,7 +303,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="max-h-[90vh]">
           <DrawerHeader className="text-left">
-            <DrawerTitle className="font-serif">{t('people.bulkImport')}</DrawerTitle>
+            <DrawerTitle>{t('people.bulkImport')}</DrawerTitle>
             <DrawerDescription>{t('people.bulkImportDescription')}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-4 overflow-y-auto">{formContent}</div>
@@ -316,7 +316,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">{t('people.bulkImport')}</DialogTitle>
+          <DialogTitle>{t('people.bulkImport')}</DialogTitle>
           <DialogDescription>{t('people.bulkImportDescription')}</DialogDescription>
         </DialogHeader>
         {formContent}

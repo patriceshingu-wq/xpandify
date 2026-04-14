@@ -57,30 +57,30 @@ export function TeamMemberDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden p-0 w-[95vw] sm:w-full">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 sm:p-6">
+        <div className="bg-muted/30 p-4 sm:p-6">
           <div className="flex flex-col gap-4">
             {/* Avatar and Info Row */}
             <div className="flex items-start gap-3 sm:gap-4">
               <Avatar className="h-14 w-14 sm:h-20 sm:w-20 border-4 border-background shadow-lg shrink-0">
-                <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg sm:text-2xl">
+                <AvatarFallback className="bg-muted text-foreground font-bold text-lg sm:text-2xl">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <DialogHeader className="text-left space-y-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <DialogTitle className="text-lg sm:text-2xl font-serif truncate">{displayName}</DialogTitle>
+                    <DialogTitle className="text-lg sm:text-2xl truncate">{displayName}</DialogTitle>
                     <Badge variant="secondary" className="w-fit">{member.member.person_type || 'Staff'}</Badge>
                   </div>
                   <DialogDescription className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-sm">
                     {member.member.email && (
-                      <a href={`mailto:${member.member.email}`} className="flex items-center gap-1.5 hover:text-primary truncate">
+                      <a href={`mailto:${member.member.email}`} className="flex items-center gap-1.5 hover:text-foreground/70 truncate">
                         <Mail className="h-4 w-4 shrink-0" />
                         <span className="truncate">{member.member.email}</span>
                       </a>
                     )}
                     {member.member.phone && (
-                      <a href={`tel:${member.member.phone}`} className="flex items-center gap-1.5 hover:text-primary">
+                      <a href={`tel:${member.member.phone}`} className="flex items-center gap-1.5 hover:text-foreground/70">
                         <Phone className="h-4 w-4 shrink-0" />
                         {member.member.phone}
                       </a>
@@ -129,7 +129,7 @@ export function TeamMemberDetailDialog({
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <Card>
                     <CardContent className="p-3 sm:p-4 text-center">
-                      <Target className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-primary/70" />
+                      <Target className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-1.5 sm:mb-2 text-muted-foreground" />
                       <p className="text-xl sm:text-2xl font-bold">{goalProgress}%</p>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">Goals</p>
                     </CardContent>
@@ -303,8 +303,8 @@ export function TeamMemberDetailDialog({
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4 text-center">
-                      <div className="p-4 rounded-lg bg-primary/10">
-                        <p className="text-2xl font-bold text-primary">{member.pdps.active}</p>
+                      <div className="p-4 rounded-lg bg-muted">
+                        <p className="text-2xl font-bold text-foreground">{member.pdps.active}</p>
                         <p className="text-sm text-muted-foreground">Active Plans</p>
                       </div>
                       <div className="p-4 rounded-lg bg-success/10">

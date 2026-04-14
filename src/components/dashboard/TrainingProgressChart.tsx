@@ -41,7 +41,7 @@ export function TrainingProgressChart() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <GraduationCap className="h-4 w-4 text-accent" />
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
             Training Progress
           </CardTitle>
         </CardHeader>
@@ -91,7 +91,7 @@ export function TrainingProgressChart() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <GraduationCap className="h-4 w-4 text-accent" />
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
             Training Progress
           </CardTitle>
         </CardHeader>
@@ -111,7 +111,7 @@ export function TrainingProgressChart() {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
-            <GraduationCap className="h-4 w-4 text-accent" />
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
             Training Progress
           </span>
           <span className="text-2xl font-bold text-info">{completionRate}%</span>

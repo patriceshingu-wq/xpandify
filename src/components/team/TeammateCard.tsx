@@ -32,7 +32,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
               {teammate.email && (
                 <a
                   href={`mailto:${teammate.email}`}
-                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                  className="flex items-center gap-1 hover:text-foreground/70 transition-colors"
                 >
                   <Mail className="h-3.5 w-3.5" />
                   <span className="truncate max-w-[200px]">{teammate.email}</span>

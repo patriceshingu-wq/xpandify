@@ -70,8 +70,8 @@ export function LinkPersonDialog({ open, onOpenChange, user }: LinkPersonDialogP
                     onClick={() => handleLink(person.id)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-accent/10 flex items-center justify-center">
-                        <User className="h-4 w-4 text-accent" />
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                        <User className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div>
                         <p className="font-medium">

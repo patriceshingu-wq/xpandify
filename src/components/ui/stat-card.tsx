@@ -36,7 +36,7 @@ export function StatCard({ title, value, subtitle, icon, trend, className }: Sta
           )}
         </div>
         {icon && (
-          <div className="p-3 rounded-xl bg-accent/10">
+          <div className="p-3 rounded-xl bg-muted">
             {icon}
           </div>
         )}

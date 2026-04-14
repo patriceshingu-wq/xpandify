@@ -25,7 +25,7 @@ export function DirectReportCard({ report, onSchedule1on1, onViewProfile }: Dire
           {/* Header Row - Avatar & Name */}
           <div className="flex items-start gap-3 md:gap-4">
             <Avatar className="h-12 w-12 md:h-14 md:w-14 shrink-0 cursor-pointer" onClick={() => onViewProfile(report.id)}>
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              <AvatarFallback className="bg-muted text-foreground font-medium">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -33,7 +33,7 @@ export function DirectReportCard({ report, onSchedule1on1, onViewProfile }: Dire
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                 <h3 
-                  className="font-semibold text-base truncate cursor-pointer hover:text-primary transition-colors"
+                  className="font-semibold text-base truncate cursor-pointer hover:text-foreground/70 transition-colors"
                   onClick={() => onViewProfile(report.id)}
                 >
                   {displayName}
@@ -89,7 +89,7 @@ export function DirectReportCard({ report, onSchedule1on1, onViewProfile }: Dire
                 <div
                   className={`h-full rounded-full transition-all ${
                     goalProgress >= 75 ? 'bg-success' :
-                    goalProgress >= 50 ? 'bg-accent' :
+                    goalProgress >= 50 ? 'bg-muted-foreground' :
                     goalProgress >= 25 ? 'bg-info' : 'bg-warning'
                   }`}
                   style={{ width: `${goalProgress}%` }}

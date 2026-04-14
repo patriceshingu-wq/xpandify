@@ -71,7 +71,7 @@ export function NotificationsDropdown() {
         <Button variant="ghost" size="icon" className="relative" aria-label={t('notifications.title')}>
           <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-accent text-accent-foreground">
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-foreground text-background">
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
@@ -112,7 +112,7 @@ export function NotificationsDropdown() {
                 <div
                   key={notification.id}
                   className={`px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors ${
-                    !notification.is_read ? 'bg-accent/5' : ''
+                    !notification.is_read ? 'bg-muted/50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >

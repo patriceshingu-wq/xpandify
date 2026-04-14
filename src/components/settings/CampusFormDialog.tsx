@@ -107,7 +107,7 @@ export function CampusFormDialog({ open, onOpenChange, campus }: CampusFormDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">
+          <DialogTitle>
             {isEditing ? `Edit ${campus?.name}` : 'Add Campus'}
           </DialogTitle>
           <DialogDescription>

@@ -58,7 +58,7 @@ export function MonthlyCalendarView({ meetings, onMeetingClick, onDayClick }: Mo
   const getMeetingTypeColor = (type: string) => {
     switch (type) {
       case 'one_on_one':
-        return 'bg-accent text-accent-foreground';
+        return 'bg-muted text-foreground';
       case 'team':
         return 'bg-info text-info-foreground';
       case 'ministry':
@@ -101,7 +101,7 @@ export function MonthlyCalendarView({ meetings, onMeetingClick, onDayClick }: Mo
           
           {/* Bottom row: Legend */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
-            <Badge variant="outline" className="bg-accent/20 text-accent text-xs">1:1</Badge>
+            <Badge variant="outline" className="bg-muted text-foreground text-xs">1:1</Badge>
             <Badge variant="outline" className="bg-info/20 text-info text-xs">Team</Badge>
             <Badge variant="outline" className="bg-success/20 text-success text-xs">Ministry</Badge>
             <Badge variant="outline" className="bg-destructive/20 text-destructive text-xs">Board</Badge>
@@ -133,8 +133,8 @@ export function MonthlyCalendarView({ meetings, onMeetingClick, onDayClick }: Mo
                 className={cn(
                   'min-h-[100px] border-b border-r p-1 transition-colors',
                   !isCurrentMonth && 'bg-muted/30',
-                  isToday && 'bg-primary/5',
-                  onDayClick && 'cursor-pointer hover:bg-accent/10'
+                  isToday && 'bg-muted/30',
+                  onDayClick && 'cursor-pointer hover:bg-muted/50'
                 )}
                 onClick={() => onDayClick?.(day)}
               >

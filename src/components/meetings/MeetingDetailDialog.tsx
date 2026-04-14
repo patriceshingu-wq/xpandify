@@ -307,7 +307,7 @@ export function MeetingDetailDialog({ open, onOpenChange, meetingId }: MeetingDe
                 <div className="space-y-2">
                   {participants?.map((p) => (
                     <div key={p.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-sm font-medium">
                           {p.person?.first_name?.[0]}{p.person?.last_name?.[0]}
                         </span>

@@ -69,7 +69,7 @@ export function MeetingPrepPanel({ meetingId, personFocusId, organizerId, meetin
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" />
+              <Target className="h-4 w-4 text-muted-foreground" />
               Goal Progress ({goalChanges.length})
             </CardTitle>
           </CardHeader>
@@ -105,7 +105,7 @@ export function MeetingPrepPanel({ meetingId, personFocusId, organizerId, meetin
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-primary" />
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
               Recent Feedback ({recentFeedback.length})
             </CardTitle>
           </CardHeader>
@@ -145,7 +145,7 @@ export function MeetingPrepPanel({ meetingId, personFocusId, organizerId, meetin
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" />
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
               Outstanding Actions ({outstandingActions.length})
             </CardTitle>
           </CardHeader>

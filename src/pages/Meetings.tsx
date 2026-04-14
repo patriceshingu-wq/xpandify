@@ -59,7 +59,7 @@ export default function Meetings() {
   const getMeetingTypeColor = (type: string) => {
     switch (type) {
       case 'one_on_one':
-        return 'bg-accent/10 text-accent';
+        return 'bg-muted text-muted-foreground';
       case 'team':
         return 'bg-info/10 text-info';
       case 'ministry':

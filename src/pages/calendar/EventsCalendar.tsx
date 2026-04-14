@@ -279,7 +279,7 @@ export default function EventsCalendarPage() {
                       return (
                         <div
                           key={dateKey}
-                          className={`min-h-[100px] border-b border-r p-1 cursor-pointer hover:bg-accent/30 transition-colors ${!isCurrentMonth ? 'bg-muted/30' : ''}`}
+                          className={`min-h-[100px] border-b border-r p-1 cursor-pointer hover:bg-muted transition-colors ${!isCurrentMonth ? 'bg-muted/30' : ''}`}
                           onClick={(e) => {
                             if ((e.target as HTMLElement).closest('[data-event]')) return;
                             navigate(`/calendar/events/new?date=${dateKey}&month=${format(currentDate, 'yyyy-MM')}`);

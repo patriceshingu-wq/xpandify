@@ -29,7 +29,7 @@ const roleColors: Record<AppRoleType, string> = {
   admin: 'bg-warning/10 text-warning border-warning/20',
   pastor_supervisor: 'bg-info/10 text-info border-info/20',
   staff: 'bg-success/10 text-success border-success/20',
-  volunteer: 'bg-accent/10 text-accent border-accent/20',
+  volunteer: 'bg-muted text-muted-foreground border-border',
 };
 
 export default function Profile() {
@@ -185,7 +185,7 @@ export default function Profile() {
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
               <Avatar className="h-20 w-20">
-                <AvatarFallback className="bg-accent/10 text-accent text-2xl font-medium">
+                <AvatarFallback className="bg-muted text-muted-foreground text-2xl font-medium">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>

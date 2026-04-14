@@ -296,7 +296,7 @@ export default function Analytics() {
               <Card>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-accent" />
+                    <Target className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-2xl font-bold">{goalStats.total}</p>
                       <p className="text-xs text-muted-foreground">Total Goals</p>

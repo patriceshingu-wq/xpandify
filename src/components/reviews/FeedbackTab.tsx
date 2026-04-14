@@ -76,7 +76,7 @@ export function FeedbackTab() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                   <Avatar className="h-10 w-10 shrink-0">
-                    <AvatarFallback className="bg-accent/10 text-accent">
+                    <AvatarFallback className="bg-muted text-foreground">
                       {item.person ? getInitials(item.person.first_name, item.person.last_name) : '?'}
                     </AvatarFallback>
                   </Avatar>

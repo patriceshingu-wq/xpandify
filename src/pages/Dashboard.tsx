@@ -1,283 +1,346 @@
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
-import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DevelopmentProgressWidget } from '@/components/dashboard/DevelopmentProgressWidget';
+import { Progress } from '@/components/ui/progress';
 import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
 import { YearlyThemeBanner } from '@/components/dashboard/YearlyThemeBanner';
-import { SupervisorDashboard } from '@/components/dashboard/SupervisorDashboard';
-import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
 import { useDirectReports } from '@/hooks/useDirectReports';
 import { usePeople } from '@/hooks/usePeople';
 import { useGoals } from '@/hooks/useGoals';
 import { useMeetings } from '@/hooks/useMeetings';
-import { Users, Target, Calendar, BarChart3 } from 'lucide-react';
+import { useUserActionItems } from '@/hooks/useUserActionItems';
+import {
+  Users,
+  Target,
+  Calendar,
+  CheckSquare,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from 'lucide-react';
 import { format, isToday, isTomorrow, isAfter } from 'date-fns';
-
-// Lazy load chart components (recharts is ~1.2MB)
-const GoalCompletionChart = lazy(() => import('@/components/dashboard/GoalCompletionChart').then(m => ({ default: m.GoalCompletionChart })));
-const TrainingProgressChart = lazy(() => import('@/components/dashboard/TrainingProgressChart').then(m => ({ default: m.TrainingProgressChart })));
-const TeamEngagementChart = lazy(() => import('@/components/dashboard/TeamEngagementChart').then(m => ({ default: m.TeamEngagementChart })));
-
-// Chart skeleton for Suspense fallback
-function ChartSkeleton() {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <Skeleton className="h-5 w-32" />
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="h-[200px] w-full rounded-lg" />
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function Dashboard() {
   const { t, getLocalizedField } = useLanguage();
   const { person } = useAuth();
-  const needsOnboarding = person && !(person as any).onboarding_completed;
+  const navigate = useNavigate();
+  const needsOnboarding = person && !person.onboarding_completed;
   const [showOnboarding, setShowOnboarding] = useState(!!needsOnboarding);
 
-  // Fetch real data
+  // Fetch data
   const { data: allPeople, isLoading: peopleLoading } = usePeople();
   const { data: goals, isLoading: goalsLoading } = useGoals();
   const { data: meetings, isLoading: meetingsLoading } = useMeetings();
   const { data: directReports } = useDirectReports();
-
-  const hasDirectReports = (directReports?.length || 0) > 0;
+  const { data: actionItems } = useUserActionItems('all');
 
   const displayName = person?.preferred_name || person?.first_name || 'User';
 
-  // Calculate people stats
-  const activeStaff = (allPeople || []).filter(p => p.person_type === 'staff' && p.status === 'active').length;
-  const activeVolunteers = (allPeople || []).filter(p => p.person_type === 'volunteer' && p.status === 'active').length;
-  const totalActive = activeStaff + activeVolunteers;
-
-  // Calculate goals stats
+  // Calculate stats
+  const totalPeople = (allPeople || []).filter(p => p.status === 'active').length;
   const goalsInProgress = (goals || []).filter(g => g.status === 'in_progress').length;
-  const recentGoals = (goals || [])
-    .filter(g => g.status === 'in_progress' || g.status === 'not_started')
-    .slice(0, 3);
 
-  // Get upcoming meetings (future meetings, sorted by date)
+  // Open action items
+  const openActions = (actionItems || []).filter(
+    (a: any) => a.action_status === 'open' || a.action_status === 'in_progress'
+  );
+  const today = new Date().toISOString().split('T')[0];
+  const overdueActions = openActions.filter((a: any) => a.action_due_date && a.action_due_date < today);
+
+  // Get upcoming meetings
   const now = new Date();
   const upcomingMeetings = (meetings || [])
     .filter(m => isAfter(new Date(m.date_time), now))
     .sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
-    .slice(0, 4);
+    .slice(0, 5);
+
+  // My active goals
+  const myGoals = (goals || [])
+    .filter(g => g.owner_person_id === person?.id && (g.status === 'in_progress' || g.status === 'not_started'))
+    .slice(0, 5);
+
+  const isLoading = peopleLoading || goalsLoading || meetingsLoading;
 
   const formatMeetingDate = (dateTime: string) => {
     const date = new Date(dateTime);
-    if (isToday(date)) {
-      return `Today at ${format(date, 'h:mm a')}`;
-    }
-    if (isTomorrow(date)) {
-      return `Tomorrow at ${format(date, 'h:mm a')}`;
-    }
-    return format(date, 'MMM d \'at\' h:mm a');
+    if (isToday(date)) return `Today, ${format(date, 'h:mm a')}`;
+    if (isTomorrow(date)) return `Tomorrow, ${format(date, 'h:mm a')}`;
+    return format(date, 'EEE, MMM d · h:mm a');
   };
-
-  const getMeetingTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      one_on_one: '1:1',
-      team: 'Team',
-      ministry: 'Ministry',
-      board: 'Board',
-      other: 'Other',
-    };
-    return labels[type] || type;
-  };
-
-  const getMeetingTypeStyle = (type: string) => {
-    const styles: Record<string, string> = {
-      one_on_one: 'bg-accent/10 text-accent',
-      team: 'bg-info/10 text-info',
-      ministry: 'bg-success/10 text-success',
-      board: 'bg-warning/10 text-warning',
-      other: 'bg-muted text-muted-foreground',
-    };
-    return styles[type] || styles.other;
-  };
-
-  const isLoading = peopleLoading || goalsLoading;
 
   return (
     <>
-    <OnboardingWizard open={showOnboarding} onComplete={() => setShowOnboarding(false)} />
-    <MainLayout
-      title={`${t('dashboard.welcome')}, ${displayName}!`}
-      subtitle={t('dashboard.overview')}
-    >
-      <div className="space-y-6 animate-fade-in">
-        {/* Welcome Banner for new users */}
-        <WelcomeBanner />
+      <OnboardingWizard open={showOnboarding} onComplete={() => setShowOnboarding(false)} />
+      <MainLayout
+        title={`${t('dashboard.welcome')}, ${displayName}!`}
+        subtitle={t('dashboard.overview')}
+      >
+        <div className="space-y-6 animate-fade-in max-w-4xl">
+          {/* Welcome Banner for new users */}
+          <WelcomeBanner />
 
-        {/* Yearly Theme Banner */}
-        <YearlyThemeBanner />
+          {/* Yearly Theme Banner */}
+          <YearlyThemeBanner />
 
-        {/* Stats Grid - 2 cols on mobile, 4 on desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
-              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
-              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
-              <Skeleton className="h-[100px] md:h-[120px] rounded-xl" />
-            </>
-          ) : (
-            <>
-              <StatCard
-                title={t('dashboard.totalPeople')}
-                value={totalActive.toString()}
-                subtitle={`${activeStaff} staff, ${activeVolunteers} vol.`}
-                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-accent" />}
-                className="p-4 md:p-6"
-              />
-              <StatCard
-                title={t('dashboard.activeStaff')}
-                value={activeStaff.toString()}
-                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-info" />}
-                className="p-4 md:p-6"
-              />
-              <StatCard
-                title={t('dashboard.activeVolunteers')}
-                value={activeVolunteers.toString()}
-                icon={<Users className="h-5 w-5 md:h-6 md:w-6 text-success" />}
-                className="p-4 md:p-6"
-              />
-              <StatCard
-                title={t('dashboard.goalsInProgress')}
-                value={goalsInProgress.toString()}
-                icon={<Target className="h-5 w-5 md:h-6 md:w-6 text-warning" />}
-                className="p-4 md:p-6"
-              />
-            </>
+          {/* Compact Stats Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {isLoading ? (
+              <>
+                <Skeleton className="h-[72px] rounded-lg" />
+                <Skeleton className="h-[72px] rounded-lg" />
+                <Skeleton className="h-[72px] rounded-lg" />
+                <Skeleton className="h-[72px] rounded-lg" />
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/meetings')}
+                  className="text-left p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                >
+                  <p className="text-2xl font-semibold">{upcomingMeetings.length}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Upcoming Meetings</p>
+                </button>
+                <button
+                  onClick={() => navigate('/goals')}
+                  className="text-left p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                >
+                  <p className="text-2xl font-semibold">{goalsInProgress}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Active Goals</p>
+                </button>
+                <button
+                  onClick={() => navigate('/people')}
+                  className="text-left p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                >
+                  <p className="text-2xl font-semibold">{totalPeople}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Team Members</p>
+                </button>
+                <button
+                  onClick={() => navigate('/meetings')}
+                  className={`text-left p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors ${overdueActions.length > 0 ? 'border-destructive/30' : ''}`}
+                >
+                  <p className="text-2xl font-semibold">{openActions.length}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Open Actions
+                    {overdueActions.length > 0 && (
+                      <span className="text-destructive ml-1">({overdueActions.length} overdue)</span>
+                    )}
+                  </p>
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Action Items — only show if there are items */}
+          {openActions.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base font-medium">
+                    <CheckSquare className="h-4 w-4" />
+                    Action Items
+                    {overdueActions.length > 0 && (
+                      <Badge variant="destructive" className="text-[10px] px-1.5 py-0 font-normal">
+                        {overdueActions.length} overdue
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/meetings')} className="text-muted-foreground text-xs">
+                    View All <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {openActions.slice(0, 4).map((item: any) => {
+                    const isOverdue = item.action_due_date && item.action_due_date < today;
+                    return (
+                      <div
+                        key={item.id}
+                        className={`flex items-center justify-between p-3 rounded-lg border text-sm ${isOverdue ? 'border-destructive/20 bg-destructive/5' : ''}`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {isOverdue ? (
+                            <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                          ) : (
+                            <CheckSquare className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          )}
+                          <span className="truncate">{getLocalizedField(item, 'topic')}</span>
+                        </div>
+                        {item.action_due_date && (
+                          <span className={`text-xs shrink-0 ml-2 ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}>
+                            {format(new Date(item.action_due_date), 'MMM d')}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {openActions.length > 4 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">
+                      +{openActions.length - 4} more
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Two-column: Upcoming Meetings + My Goals */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Upcoming Meetings */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base font-medium">
+                    <Calendar className="h-4 w-4" />
+                    Upcoming Meetings
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/meetings')} className="text-muted-foreground text-xs">
+                    View All <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {meetingsLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-14 rounded-lg" />
+                    <Skeleton className="h-14 rounded-lg" />
+                  </div>
+                ) : upcomingMeetings.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">No upcoming meetings</p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={() => navigate('/meetings')}>
+                      Schedule a meeting
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {upcomingMeetings.map((meeting) => (
+                      <div key={meeting.id} className="flex items-center justify-between p-3 rounded-lg border text-sm">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{getLocalizedField(meeting, 'title')}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {formatMeetingDate(meeting.date_time)}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] shrink-0 ml-2">
+                          {meeting.meeting_type === 'one_on_one' ? '1:1' : meeting.meeting_type}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* My Goals */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base font-medium">
+                    <Target className="h-4 w-4" />
+                    My Goals
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/goals')} className="text-muted-foreground text-xs">
+                    View All <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {goalsLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-12 rounded-lg" />
+                    <Skeleton className="h-12 rounded-lg" />
+                  </div>
+                ) : myGoals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">No active goals</p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={() => navigate('/goals')}>
+                      Create a goal
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {myGoals.map((goal) => (
+                      <div key={goal.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <p className="font-medium truncate pr-2">
+                            {getLocalizedField(goal, 'title')}
+                          </p>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {goal.progress_percent || 0}%
+                          </span>
+                        </div>
+                        <Progress value={goal.progress_percent || 0} className="h-1.5" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Supervisor: Direct Reports section */}
+          {(directReports?.length || 0) > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base font-medium">
+                    <Users className="h-4 w-4" />
+                    My Team
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({directReports?.length} direct report{(directReports?.length || 0) !== 1 ? 's' : ''})
+                    </span>
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/people')} className="text-muted-foreground text-xs">
+                    View All <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {directReports?.slice(0, 5).map((report: any) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-3 rounded-lg border text-sm cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => navigate(`/people/${report.id}`)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <span className="text-xs font-medium">
+                            {(report.first_name || '?')[0]}{(report.last_name || '?')[0]}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{report.first_name} {report.last_name}</p>
+                          {report.title && (
+                            <p className="text-xs text-muted-foreground truncate">{report.title}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] shrink-0 ${
+                          report.status === 'active' ? 'text-success border-success/20' : ''
+                        }`}
+                      >
+                        {report.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
-
-        {/* Role-Based Dashboards */}
-        {hasDirectReports ? (
-          <SupervisorDashboard />
-        ) : (
-          <StaffDashboard />
-        )}
-
-        {/* Content Grid - Stack on mobile */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Upcoming Meetings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="h-5 w-5 text-accent" />
-                {t('dashboard.upcomingMeetings')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {meetingsLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-16 rounded-lg" />
-                  <Skeleton className="h-16 rounded-lg" />
-                </div>
-              ) : upcomingMeetings.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">
-                  No upcoming meetings
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {upcomingMeetings.map((meeting) => (
-                    <div key={meeting.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{getLocalizedField(meeting, 'title')}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatMeetingDate(meeting.date_time)}
-                        </p>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded ${getMeetingTypeStyle(meeting.meeting_type || 'other')}`}>
-                        {getMeetingTypeLabel(meeting.meeting_type || 'other')}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Goals */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Target className="h-5 w-5 text-accent" />
-                {t('dashboard.recentGoals')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {goalsLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-12 rounded-lg" />
-                  <Skeleton className="h-12 rounded-lg" />
-                </div>
-              ) : recentGoals.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">
-                  No active goals
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {recentGoals.map((goal) => (
-                    <div key={goal.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm truncate pr-2">
-                          {getLocalizedField(goal, 'title')}
-                        </p>
-                        <span className="text-sm text-muted-foreground shrink-0">
-                          {goal.progress_percent || 0}%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all ${
-                            (goal.progress_percent || 0) >= 75 ? 'bg-success' :
-                            (goal.progress_percent || 0) >= 50 ? 'bg-accent' :
-                            (goal.progress_percent || 0) >= 25 ? 'bg-info' : 'bg-warning'
-                          }`}
-                          style={{ width: `${goal.progress_percent || 0}%` }} 
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Analytics Charts - Single column on mobile, lazy loaded */}
-        <div>
-          <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
-            <BarChart3 className="h-5 w-5 text-accent" />
-            Analytics & Insights
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <Suspense fallback={<ChartSkeleton />}>
-              <GoalCompletionChart />
-            </Suspense>
-            <Suspense fallback={<ChartSkeleton />}>
-              <TrainingProgressChart />
-            </Suspense>
-            <Suspense fallback={<ChartSkeleton />}>
-              <TeamEngagementChart />
-            </Suspense>
-          </div>
-        </div>
-
-        {/* Development Progress Widget */}
-        <DevelopmentProgressWidget />
-      </div>
-    </MainLayout>
+      </MainLayout>
     </>
   );
 }

@@ -66,8 +66,8 @@ export function MinistryMembersList({ ministryId, members, isLoading, canManage 
             <Card key={member.id} className="transition-all hover:shadow-sm">
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-accent/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-accent" />
+                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                    <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">
