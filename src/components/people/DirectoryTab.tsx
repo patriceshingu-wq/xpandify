@@ -197,7 +197,7 @@ export function DirectoryTab() {
                       {person.photo_url && (
                         <AvatarImage src={person.photo_url} alt={`${person.first_name} ${person.last_name}`} />
                       )}
-                      <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm md:text-base">
+                      <AvatarFallback className="bg-muted text-foreground font-medium text-sm md:text-base">
                         {getInitials(person)}
                       </AvatarFallback>
                     </Avatar>

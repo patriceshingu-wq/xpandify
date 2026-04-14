@@ -25,19 +25,19 @@ export function YearlyThemeBanner() {
   if (!themeName) return null;
 
   return (
-    <Card className="relative overflow-hidden border-accent/30 bg-gradient-to-r from-accent/5 via-background to-accent/5">
-      <div className="absolute inset-0 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none" />
+    <Card className="relative overflow-hidden border-border bg-muted/20">
+      <div className="absolute inset-0 bg-gradient-to-r from-muted/30 to-transparent pointer-events-none" />
       <div className="relative p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
           {/* Year badge */}
           {settings?.theme_year && (
-            <Badge variant="outline" className="self-start border-accent/40 text-accent text-xs">
+            <Badge variant="outline" className="self-start border-border text-muted-foreground text-xs">
               {settings.theme_year} Theme
             </Badge>
           )}
 
           {/* Theme name */}
-          <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-wide text-foreground uppercase">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-foreground uppercase">
             {themeName}
           </h2>
 
@@ -58,7 +58,7 @@ export function YearlyThemeBanner() {
               {isOpen ? 'Hide vision' : 'View vision'}
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
-              <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-accent/30 pl-3">
+              <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-border pl-3">
                 {vision}
               </p>
             </CollapsibleContent>

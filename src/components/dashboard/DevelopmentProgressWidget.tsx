@@ -43,7 +43,7 @@ export function DevelopmentProgressWidget() {
       <Card className="col-span-full lg:col-span-1">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <GraduationCap className="h-5 w-5 text-accent" />
+            <GraduationCap className="h-5 w-5 text-muted-foreground" />
             Development & Training
           </CardTitle>
         </CardHeader>
@@ -61,7 +61,7 @@ export function DevelopmentProgressWidget() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <GraduationCap className="h-5 w-5 text-accent" />
+            <GraduationCap className="h-5 w-5 text-muted-foreground" />
             Development & Training
           </CardTitle>
           <Link to="/development">

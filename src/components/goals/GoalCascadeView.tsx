@@ -33,9 +33,9 @@ const getLevelConfig = (level: string) => {
     case 'church':
       return {
         icon: Church,
-        color: 'bg-accent text-accent-foreground',
-        borderColor: 'border-l-accent',
-        bgColor: 'bg-accent/5',
+        color: 'bg-muted text-foreground',
+        borderColor: 'border-l-muted-foreground',
+        bgColor: 'bg-muted/30',
         labelKey: 'goals.church'
       };
     case 'ministry':

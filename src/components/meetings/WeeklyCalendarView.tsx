@@ -106,7 +106,7 @@ function DroppableSlot({ date, hour, children }: DroppableSlotProps) {
       ref={setNodeRef}
       className={cn(
         'border-b border-r border-border/50 relative',
-        isOver && 'bg-accent/30'
+        isOver && 'bg-muted/50'
       )}
       style={{ height: `${HOUR_HEIGHT}px` }}
     >
@@ -145,7 +145,7 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
   const getMeetingTypeColor = (type: string) => {
     switch (type) {
       case 'one_on_one':
-        return 'border-l-4 border-l-accent bg-accent/5';
+        return 'border-l-4 border-l-muted-foreground bg-muted/30';
       case 'team':
         return 'border-l-4 border-l-info bg-info/5';
       case 'ministry':
@@ -220,7 +220,7 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
           
           {/* Bottom row: Legend */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
-            <Badge variant="outline" className="border-l-4 border-l-accent text-xs">1:1</Badge>
+            <Badge variant="outline" className="border-l-4 border-l-muted-foreground text-xs">1:1</Badge>
             <Badge variant="outline" className="border-l-4 border-l-info text-xs">Team</Badge>
             <Badge variant="outline" className="border-l-4 border-l-success text-xs">Ministry</Badge>
             <Badge variant="outline" className="border-l-4 border-l-destructive text-xs">Board</Badge>
@@ -258,11 +258,11 @@ export function WeeklyCalendarView({ meetings, onMeetingClick, onMeetingEdit }: 
                       <div
                         className={cn(
                           'h-12 border-b border-r p-2 text-center bg-background',
-                          isToday && 'bg-primary/10'
+                          isToday && 'bg-muted/50'
                         )}
                       >
                         <p className="text-xs font-medium text-muted-foreground">{format(day, 'EEE')}</p>
-                        <p className={cn('text-sm font-semibold', isToday && 'text-primary')}>
+                        <p className={cn('text-sm font-semibold', isToday && 'text-foreground')}>
                           {format(day, 'd')}
                         </p>
                       </div>

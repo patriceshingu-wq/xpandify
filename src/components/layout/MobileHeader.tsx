@@ -28,7 +28,7 @@ export function MobileHeader({ title, subtitle, showBackButton, onBack }: Mobile
   ];
 
   return (
-    <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border safe-area-top">
+    <header className="sticky top-0 z-30 bg-background border-b border-border safe-area-top">
       <div className="flex items-center justify-between h-14 px-4">
         {/* Left Side - Back Button + Title */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -76,7 +76,7 @@ export function MobileHeader({ title, subtitle, showBackButton, onBack }: Mobile
                 <DropdownMenuItem
                   key={lang.code}
                   onClick={() => setLanguage(lang.code)}
-                  className={language === lang.code ? 'bg-accent' : ''}
+                  className={language === lang.code ? 'bg-muted' : ''}
                 >
                   <span className="mr-2">{lang.flag}</span>
                   {lang.label}

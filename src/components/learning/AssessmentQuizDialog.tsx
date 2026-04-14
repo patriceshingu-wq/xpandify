@@ -113,7 +113,7 @@ export function AssessmentQuizDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">
+          <DialogTitle>
             {getLocalizedField(assessment, 'title')}
           </DialogTitle>
           <DialogDescription>

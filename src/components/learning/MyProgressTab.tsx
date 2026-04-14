@@ -68,7 +68,7 @@ export default function MyProgressTab() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/10"><BookOpen className="h-6 w-6 text-primary" /></div>
+              <div className="p-3 rounded-full bg-muted"><BookOpen className="h-6 w-6 text-muted-foreground" /></div>
               <div><p className="text-2xl font-bold">{totalCourses}</p><p className="text-sm text-muted-foreground">Enrolled Courses</p></div>
             </div>
           </CardContent>

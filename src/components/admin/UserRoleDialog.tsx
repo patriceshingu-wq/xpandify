@@ -29,7 +29,7 @@ const roleColors: Record<AppRoleType, string> = {
   admin: 'bg-warning/10 text-warning border-warning/20',
   pastor_supervisor: 'bg-info/10 text-info border-info/20',
   staff: 'bg-success/10 text-success border-success/20',
-  volunteer: 'bg-accent/10 text-accent border-accent/20',
+  volunteer: 'bg-muted text-muted-foreground border-border',
 };
 
 export function UserRoleDialog({ open, onOpenChange, user, roles }: UserRoleDialogProps) {

@@ -50,12 +50,12 @@ export function WelcomeBanner() {
   };
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+    <Card className="border-border bg-muted/30">
       <CardContent className="p-5 md:p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-xl font-serif font-semibold flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-muted-foreground" />
               {t('welcome.title') || `Welcome, ${displayName}!`}
             </h2>
             {themeName && (

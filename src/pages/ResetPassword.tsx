@@ -76,13 +76,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div className="min-h-screen bg-muted flex items-center justify-center p-4">
       <div className="absolute top-4 right-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}
-          className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           <Globe className="h-5 w-5" />
         </Button>
@@ -91,13 +91,13 @@ export default function ResetPassword() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <img src={logo} alt="Xpandify logo" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-3xl font-serif font-bold text-white">Xpandify</h1>
-          <p className="text-primary-foreground/70 mt-2">{t('app.tagline')}</p>
+          <h1 className="text-3xl font-bold text-foreground">Xpandify</h1>
+          <p className="text-muted-foreground mt-2">{t('app.tagline')}</p>
         </div>
 
-        <Card className="border-0 shadow-xl">
+        <Card className="shadow-lg border">
           <CardHeader className="text-center">
-            <CardTitle className="font-serif">{t('auth.resetPassword')}</CardTitle>
+            <CardTitle>{t('auth.resetPassword')}</CardTitle>
             <CardDescription>
               {isReady ? t('auth.forgotPasswordTitle') : t('auth.forgotPasswordDescription')}
             </CardDescription>
@@ -143,7 +143,7 @@ export default function ResetPassword() {
               <button
                 type="button"
                 onClick={() => navigate('/auth')}
-                className="text-accent hover:underline font-medium"
+                className="text-foreground font-medium hover:underline"
               >
                 {t('auth.backToLogin')}
               </button>

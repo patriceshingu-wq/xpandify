@@ -141,7 +141,7 @@ export function SupervisorDashboard() {
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
+          <Users className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold">My Team</h2>
           <span className="text-sm text-muted-foreground">
             ({totalReports} direct report{totalReports !== 1 ? 's' : ''})
@@ -162,8 +162,8 @@ export function SupervisorDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Users className="h-4 w-4 text-primary" />
+              <div className="p-2 rounded-lg bg-muted">
+                <Users className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalReports}</p>
@@ -204,8 +204,8 @@ export function SupervisorDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10">
-                <Target className="h-4 w-4 text-accent" />
+              <div className="p-2 rounded-lg bg-muted">
+                <Target className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalGoalsInProgress}</p>

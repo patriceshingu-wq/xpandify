@@ -14,9 +14,9 @@ function SimpleTrendIndicator({ data }: { data: { label: string; meetings: numbe
   const trend = latest - previous;
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-accent/10">
+    <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
       <div>
-        <div className="text-2xl font-bold text-accent">{latest}</div>
+        <div className="text-2xl font-bold text-foreground">{latest}</div>
         <div className="text-xs text-muted-foreground">Meetings this month</div>
       </div>
       <div className={`flex items-center gap-1 ${trend >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -40,7 +40,7 @@ export function TeamEngagementChart() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <BarChart3 className="h-4 w-4 text-accent" />
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
             Team Engagement
           </CardTitle>
         </CardHeader>
@@ -61,7 +61,7 @@ export function TeamEngagementChart() {
   const hasData = engagementData.some(m => m.meetings > 0 || m.feedback > 0);
 
   const chartConfig = {
-    meetings: { label: 'Meetings', color: 'hsl(var(--accent))' },
+    meetings: { label: 'Meetings', color: 'hsl(var(--muted-foreground))' },
   };
 
   return (
@@ -69,7 +69,7 @@ export function TeamEngagementChart() {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-accent" />
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
             Team Engagement
           </span>
         </CardTitle>
@@ -117,8 +117,8 @@ export function TeamEngagementChart() {
               <AreaChart data={engagementData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                 <defs>
                   <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -132,7 +132,7 @@ export function TeamEngagementChart() {
                 <Area
                   type="monotone"
                   dataKey="meetings"
-                  stroke="hsl(var(--accent))"
+                  stroke="hsl(var(--muted-foreground))"
                   strokeWidth={2}
                   fill="url(#engagementGradient)"
                 />

@@ -149,8 +149,8 @@ export function MinistryRolesManagement() {
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="p-2 rounded-lg bg-accent/10">
-                    <Tag className="h-4 w-4 text-accent" />
+                  <div className="p-2 rounded-lg bg-muted">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

@@ -67,11 +67,11 @@ function MinistryTreeItem({
                 className="flex items-center gap-3 flex-1 cursor-pointer min-w-0"
                 onClick={() => onSelect(node)}
               >
-                <div className="p-2.5 rounded-xl bg-accent/10 shrink-0">
+                <div className="p-2.5 rounded-xl bg-muted shrink-0">
                   {depth === 0 ? (
-                    <Church className="h-5 w-5 text-accent" />
+                    <Church className="h-5 w-5 text-muted-foreground" />
                   ) : (
-                    <Building2 className="h-5 w-5 text-accent" />
+                    <Building2 className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -216,7 +216,7 @@ export default function Ministries() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-serif font-bold">{getLocalizedField(selectedMinistry, 'name')}</h1>
+              <h1 className="text-2xl font-bold">{getLocalizedField(selectedMinistry, 'name')}</h1>
               {getLocalizedField(selectedMinistry, 'description') && (
                 <p className="text-muted-foreground mt-1">{getLocalizedField(selectedMinistry, 'description')}</p>
               )}
@@ -242,7 +242,7 @@ export default function Ministries() {
           {(childMinistries.length > 0 || isAdminOrSuper) && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold font-serif">{t('ministries.subMinistries')}</h2>
+                <h2 className="text-lg font-semibold">{t('ministries.subMinistries')}</h2>
                 {isAdminOrSuper && (
                   <Button
                     variant="outline"
@@ -264,8 +264,8 @@ export default function Ministries() {
                       onClick={() => navigate(`/ministries/${child.id}`)}
                     >
                       <CardContent className="p-4 flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-accent/10">
-                          <Building2 className="h-5 w-5 text-accent" />
+                        <div className="p-2 rounded-xl bg-muted">
+                          <Building2 className="h-5 w-5 text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-foreground truncate">

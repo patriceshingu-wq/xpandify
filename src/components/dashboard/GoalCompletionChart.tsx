@@ -49,7 +49,7 @@ export function GoalCompletionChart() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Target className="h-4 w-4 text-accent" />
+            <Target className="h-4 w-4 text-muted-foreground" />
             Goal Status Overview
           </CardTitle>
         </CardHeader>
@@ -84,7 +84,7 @@ export function GoalCompletionChart() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Target className="h-4 w-4 text-accent" />
+            <Target className="h-4 w-4 text-muted-foreground" />
             Goal Status Overview
           </CardTitle>
         </CardHeader>
@@ -108,7 +108,7 @@ export function GoalCompletionChart() {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-accent" />
+            <Target className="h-4 w-4 text-muted-foreground" />
             Goal Status Overview
           </span>
           <span className="text-2xl font-bold text-success">{completionRate}%</span>

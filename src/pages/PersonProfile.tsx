@@ -135,7 +135,7 @@ export default function PersonProfile() {
                   {person.photo_url && (
                     <AvatarImage src={person.photo_url} alt={displayName} />
                   )}
-                  <AvatarFallback className="bg-accent/10 text-accent text-3xl font-medium">
+                  <AvatarFallback className="bg-muted text-muted-foreground text-3xl font-medium">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -262,7 +262,7 @@ export default function PersonProfile() {
                       <p className="text-xs text-muted-foreground">{t('personProfile.supervisor')}</p>
                       <Link
                         to={`/people/${person.supervisor.id}`}
-                        className="text-sm hover:underline text-accent"
+                        className="text-sm hover:underline text-foreground font-medium"
                       >
                         {person.supervisor.first_name} {person.supervisor.last_name}
                       </Link>
@@ -366,28 +366,28 @@ export default function PersonProfile() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <Target className="h-6 w-6 text-accent mx-auto mb-2" />
+                <Target className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                 <p className="text-2xl font-semibold">{stats?.goalsCount ?? 0}</p>
                 <p className="text-xs text-muted-foreground">{t('personProfile.goals')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <Calendar className="h-6 w-6 text-accent mx-auto mb-2" />
+                <Calendar className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                 <p className="text-2xl font-semibold">{stats?.meetingsCount ?? 0}</p>
                 <p className="text-xs text-muted-foreground">{t('personProfile.meetings')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <BookOpen className="h-6 w-6 text-accent mx-auto mb-2" />
+                <BookOpen className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                 <p className="text-2xl font-semibold">{stats?.coursesCount ?? 0}</p>
                 <p className="text-xs text-muted-foreground">{t('personProfile.courses')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <MessageSquare className="h-6 w-6 text-accent mx-auto mb-2" />
+                <MessageSquare className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                 <p className="text-2xl font-semibold">{stats?.feedbackCount ?? 0}</p>
                 <p className="text-xs text-muted-foreground">{t('personProfile.feedback')}</p>
               </CardContent>

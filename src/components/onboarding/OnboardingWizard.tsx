@@ -24,7 +24,7 @@ const STEPS: Step[] = ['welcome', 'profile', 'language', 'done'];
 
 export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
   const { person, session } = useAuth();
-  const { t } = useLanguage();
+  const { t, setLanguage: setUILanguage } = useLanguage();
   const queryClient = useQueryClient();
   const { uploadPhoto, isUploading } = useProfilePhoto();
 
@@ -36,6 +36,22 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
 
   const currentIndex = STEPS.indexOf(step);
   const progress = ((currentIndex + 1) / STEPS.length) * 100;
+
+  // Dismiss wizard: mark onboarding as completed so it doesn't reappear (Bug 1 fix)
+  const handleDismiss = async () => {
+    if (person?.id) {
+      try {
+        await supabase
+          .from('people')
+          .update({ onboarding_completed: true })
+          .eq('id', person.id);
+        queryClient.invalidateQueries({ queryKey: ['people'] });
+      } catch (err) {
+        console.error('[OnboardingWizard] Error dismissing:', err);
+      }
+    }
+    onComplete();
+  };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,6 +76,8 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
         })
         .eq('id', person.id);
       if (error) throw error;
+      // Sync UI language with the wizard selection (Bug 2 fix)
+      setUILanguage(language as 'en' | 'fr');
       queryClient.invalidateQueries({ queryKey: ['people'] });
       toast.success(t('common.success'));
       onComplete();
@@ -74,10 +92,10 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
   const initials = `${person?.first_name?.[0] || ''}${person?.last_name?.[0] || ''}`;
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleDismiss(); }}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl">
+          <DialogTitle className="text-xl">
             {step === 'welcome' && '✨ Welcome to Xpandify!'}
             {step === 'profile' && 'Set Up Your Profile'}
             {step === 'language' && 'Language Preference'}
@@ -96,8 +114,8 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
         <div className="space-y-6 py-2">
           {step === 'welcome' && (
             <div className="text-center space-y-4">
-              <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-10 w-10 text-primary" />
+              <div className="mx-auto w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+                <Sparkles className="h-10 w-10 text-muted-foreground" />
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
@@ -138,7 +156,7 @@ export function OnboardingWizard({ open, onComplete }: OnboardingWizardProps) {
 
           {step === 'language' && (
             <div className="space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                 <Globe className="h-8 w-8 text-accent-foreground" />
               </div>
               <Select value={language} onValueChange={setLanguage}>

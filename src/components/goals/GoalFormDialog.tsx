@@ -202,7 +202,7 @@ export function GoalFormDialog({ open, onOpenChange, goal, presetLevel }: GoalFo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2">
             {getLevelIcon(formData.goal_level)}
             {isEditing ? t('goals.editGoal') : `${t('goals.newGoal')} - ${t(`goals.${formData.goal_level}`)}`}
           </DialogTitle>

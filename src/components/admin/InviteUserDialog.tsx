@@ -376,7 +376,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="max-h-[90vh]">
           <DrawerHeader className="text-left">
-            <DrawerTitle className="font-serif">{t('admin.inviteUser')}</DrawerTitle>
+            <DrawerTitle>{t('admin.inviteUser')}</DrawerTitle>
             <DrawerDescription>{t('admin.inviteUserDescription')}</DrawerDescription>
           </DrawerHeader>
           <div className="px-4 pb-4 overflow-y-auto">
@@ -391,7 +391,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif">{t('admin.inviteUser')}</DialogTitle>
+          <DialogTitle>{t('admin.inviteUser')}</DialogTitle>
           <DialogDescription>{t('admin.inviteUserDescription')}</DialogDescription>
         </DialogHeader>
         {formContent}

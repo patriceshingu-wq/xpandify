@@ -97,7 +97,7 @@ function OrgNodeCard({ node, isExpanded, onToggle, onClick, zoom }: OrgNodeCardP
             {person.photo_url && (
               <AvatarImage src={person.photo_url} alt={`${person.first_name} ${person.last_name}`} />
             )}
-            <AvatarFallback className="bg-accent/10 text-accent font-medium text-sm">
+            <AvatarFallback className="bg-muted text-foreground font-medium text-sm">
               {getInitials()}
             </AvatarFallback>
           </Avatar>

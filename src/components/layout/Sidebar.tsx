@@ -7,7 +7,6 @@ import { FEATURES } from '@/config/features';
 import { useOrganizationSettings } from '@/hooks/useOrganizationSettings';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { usePrefetch } from '@/hooks/usePrefetch';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   LayoutDashboard,
@@ -39,8 +38,7 @@ interface NavItem {
   roles?: string[];
 }
 
-// Simple mode: 6 nav items (Dashboard, People, Ministries, Goals, Meetings, Calendar)
-// Advanced mode: Adds Quarters, Programs, and Development section
+// Core navigation — always visible
 const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
@@ -48,6 +46,7 @@ const mainNavItems: NavItem[] = [
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
   { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
   { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },
+  { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
 ];
 
 // Development nav items will be built dynamically from feature flags
@@ -80,26 +79,13 @@ export function Sidebar() {
     ...(programs ? [{ icon: Flag, labelKey: 'nav.programs', path: '/calendar/programs' }] : []),
   ];
 
-  // Build development nav items dynamically from feature flags
-  const developmentNavItems: NavItem[] = [
-    { icon: FileText, labelKey: 'nav.feedback', path: '/reviews' },
+  // Phase 2 items — only shown when explicitly enabled in org settings
+  const extraNavItems: NavItem[] = [
     ...(courses ? [{ icon: GraduationCap, labelKey: 'nav.learning', path: '/learning' }] : []),
     ...(mentorship ? [{ icon: Users2, labelKey: 'nav.mentorship', path: '/mentorship' }] : []),
     ...(surveys ? [{ icon: BarChart3, labelKey: 'nav.surveys', path: '/surveys' }] : []),
-  ];
-
-  // Build admin nav items dynamically
-  const dynamicAdminNavItems: NavItem[] = [
     ...(analytics ? [{ icon: PieChart, labelKey: 'nav.analytics', path: '/analytics' }] : []),
-    ...adminNavItems,
   ];
-
-  // Show development section when there are items beyond just Feedback
-  const showDevSection = developmentNavItems.length > 1 || !quarters;
-
-  const themeName = language === 'fr'
-    ? orgSettings?.yearly_theme_fr || orgSettings?.yearly_theme_en
-    : orgSettings?.yearly_theme_en;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -125,7 +111,7 @@ export function Sidebar() {
       >
         <Icon className={cn(
           'h-5 w-5 transition-colors',
-          active ? 'text-sidebar-primary' : 'text-sidebar-foreground/70 group-hover:text-sidebar-foreground'
+          active ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
         )} />
         {!isCollapsed && (
           <span className="truncate">{t(item.labelKey)}</span>
@@ -149,7 +135,7 @@ export function Sidebar() {
           {!isCollapsed && (
             <Link to="/dashboard" className="flex items-center gap-2">
               <img src={logo} alt="Xpandify" className="w-8 h-8" />
-              <span className="font-serif text-xl font-semibold text-sidebar-foreground">
+              <span className="text-xl font-semibold text-sidebar-foreground">
                 Xpandify
               </span>
             </Link>
@@ -158,7 +144,7 @@ export function Sidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
             aria-label={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -166,71 +152,27 @@ export function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
-          {/* Main Navigation - includes Calendar in simple mode */}
-          <div className="space-y-1">
-            {!isCollapsed && (
-              <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                Main
-              </span>
-            )}
-            {mainNavItems.map(renderNavItem)}
-          </div>
+        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+          {/* Core Navigation */}
+          {mainNavItems.map(renderNavItem)}
 
-          {/* Calendar Sub-Items (Quarters, Programs) - only shown when features enabled */}
-          {calendarNavItems.length > 0 && (
-            <div className="space-y-1">
-              {!isCollapsed && (
-                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                  Calendar
-                </span>
-              )}
+          {/* Phase 2 features — only shown when enabled */}
+          {(extraNavItems.length > 0 || calendarNavItems.length > 0) && (
+            <>
+              <Separator className="my-3" />
               {calendarNavItems.map(renderNavItem)}
-            </div>
-          )}
-
-          {/* Development */}
-          {developmentNavItems.length > 0 && (
-            <div className="space-y-1">
-              {!isCollapsed && (
-                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                  Development
-                </span>
-              )}
-              {developmentNavItems.map(renderNavItem)}
-            </div>
+              {extraNavItems.map(renderNavItem)}
+            </>
           )}
 
           {/* Admin */}
           {hasAnyRole(['super_admin', 'admin']) && (
-            <div className="space-y-1">
-              {!isCollapsed && (
-                <span className="px-3 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
-                  System
-                </span>
-              )}
-              {dynamicAdminNavItems.map(renderNavItem)}
-            </div>
+            <>
+              <Separator className="my-3" />
+              {adminNavItems.map(renderNavItem)}
+            </>
           )}
         </nav>
-
-        {/* Theme Badge */}
-        {themeName && !isCollapsed && (
-          <div className="px-4 pb-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className="w-full justify-center border-accent/30 text-accent/80 text-[10px] tracking-wider uppercase py-1 max-w-full truncate">
-                    {orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{orgSettings?.theme_year ? `${orgSettings.theme_year} — ` : ''}{themeName}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
 
         {/* Footer */}
         <div className="border-t border-sidebar-border p-4">
@@ -239,16 +181,16 @@ export function Sidebar() {
               to="/profile"
               className="flex items-center gap-3 mb-3 p-2 -mx-2 rounded-lg hover:bg-sidebar-accent transition-colors"
             >
-              <div className="w-9 h-9 rounded-full bg-sidebar-accent flex items-center justify-center">
-                <span className="text-sm font-medium text-sidebar-foreground">
+              <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
+                <span className="text-sm font-medium text-foreground">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {displayName}
                 </p>
-                <p className="text-xs text-sidebar-foreground/50">{t('profile.title')}</p>
+                <p className="text-xs text-muted-foreground">{t('profile.title')}</p>
               </div>
             </Link>
           )}
@@ -257,7 +199,7 @@ export function Sidebar() {
             size={isCollapsed ? 'icon' : 'default'}
             onClick={signOut}
             className={cn(
-              'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent',
+              'text-muted-foreground hover:text-foreground hover:bg-sidebar-accent',
               !isCollapsed && 'w-full justify-start'
             )}
             aria-label={t('nav.logout')}

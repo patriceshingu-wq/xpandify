@@ -33,7 +33,7 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border pb-safe">
       <div className="flex items-center justify-around h-16 px-1">
         {primaryNavItems.map((item) => {
           const Icon = item.icon;
@@ -46,14 +46,14 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
               className={cn(
                 'flex flex-col items-center justify-center gap-1 touch-target px-3 py-2 rounded-xl transition-colors',
                 active
-                  ? 'text-primary bg-primary/10'
+                  ? 'text-foreground bg-muted'
                   : 'text-muted-foreground active:bg-muted'
               )}
             >
-              <Icon className={cn('h-6 w-6', active && 'text-primary')} />
+              <Icon className={cn('h-6 w-6', active && 'text-foreground')} />
               <span className={cn(
                 'text-[11px] font-medium leading-none',
-                active && 'text-primary'
+                active && 'text-foreground'
               )}>
                 {t(item.labelKey)}
               </span>

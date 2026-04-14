@@ -24,7 +24,7 @@ export function Header({ title, subtitle }: HeaderProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 z-30 bg-background border-b border-border">
       <div className="flex items-center justify-between h-16 px-6">
         {/* Page Title */}
         <div>
@@ -40,7 +40,7 @@ export function Header({ title, subtitle }: HeaderProps) {
             <Input
               type="search"
               placeholder={t('common.search')}
-              className="w-64 pl-9 bg-muted/50 border-border/50"
+              className="w-64 pl-9 bg-muted border-0"
             />
           </div>
 
@@ -62,7 +62,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 <DropdownMenuItem
                   key={lang.code}
                   onClick={() => setLanguage(lang.code)}
-                  className={language === lang.code ? 'bg-accent' : ''}
+                  className={language === lang.code ? 'bg-muted' : ''}
                 >
                   <span className="mr-2">{lang.flag}</span>
                   {lang.label}

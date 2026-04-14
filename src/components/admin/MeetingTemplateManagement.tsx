@@ -34,7 +34,7 @@ const meetingTypeLabels: Record<string, string> = {
 };
 
 const meetingTypeColors: Record<string, string> = {
-  one_on_one: 'bg-accent/10 text-accent',
+  one_on_one: 'bg-muted text-foreground',
   team: 'bg-info/10 text-info',
   ministry: 'bg-success/10 text-success',
   board: 'bg-destructive/10 text-destructive',

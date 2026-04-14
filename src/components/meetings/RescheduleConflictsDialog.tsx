@@ -257,19 +257,19 @@ export function RescheduleConflictsDialog({
                     {suggestions.map((slot, index) => (
                       <Card
                         key={index}
-                        className={`cursor-pointer transition-all hover:bg-accent/50 ${
-                          selectedTimeSlot === slot ? 'ring-2 ring-primary bg-primary/5' : ''
+                        className={`cursor-pointer transition-all hover:bg-muted ${
+                          selectedTimeSlot === slot ? 'ring-2 ring-foreground bg-muted/50' : ''
                         }`}
                         onClick={() => setSelectedTimeSlot(slot)}
                       >
                         <CardContent className="p-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <Calendar className="h-4 w-4 text-primary" />
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
                               <span className="font-medium">{slot.label}</span>
                             </div>
                             {selectedTimeSlot === slot && (
-                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                              <CheckCircle2 className="h-4 w-4 text-foreground" />
                             )}
                           </div>
                         </CardContent>
