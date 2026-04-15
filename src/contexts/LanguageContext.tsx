@@ -220,7 +220,24 @@ const translations: Translations = {
   'goals.category.growth': { en: 'Growth', fr: 'Croissance' },
   'goals.category.training': { en: 'Training', fr: 'Formation' },
   'goals.category.leadership': { en: 'Leadership', fr: 'Leadership' },
+  'goals.category.discipleship': { en: 'Discipleship', fr: 'Discipulat' },
+  'goals.category.evangelism': { en: 'Evangelism', fr: 'Évangélisation' },
   'goals.category.other': { en: 'Other', fr: 'Autre' },
+
+  // Goals - quarter filter
+  'goals.allQuarters': { en: 'All Quarters', fr: 'Tous les trimestres' },
+  'goals.q1': { en: 'Q1 (Jan–Mar)', fr: 'T1 (Jan–Mar)' },
+  'goals.q2': { en: 'Q2 (Apr–Jun)', fr: 'T2 (Avr–Juin)' },
+  'goals.q3': { en: 'Q3 (Jul–Sep)', fr: 'T3 (Juil–Sep)' },
+  'goals.q4': { en: 'Q4 (Oct–Dec)', fr: 'T4 (Oct–Déc)' },
+  'goals.filterByMinistry': { en: 'All Ministries', fr: 'Tous les ministères' },
+  'goals.noGoalsForMinistry': { en: 'No goals found for this ministry', fr: 'Aucun objectif trouvé pour ce ministère' },
+
+  // Ministry detail - goals tab
+  'ministries.goals': { en: 'Goals', fr: 'Objectifs' },
+  'ministries.members': { en: 'Members', fr: 'Membres' },
+  'ministries.noGoals': { en: 'No goals found for this ministry', fr: 'Aucun objectif trouvé pour ce ministère' },
+  'ministries.viewAllGoals': { en: 'View All Goals', fr: 'Voir tous les objectifs' },
   // Goal-Event linking
   'goals.linkedToEvent': { en: 'Goal linked to event', fr: 'Objectif lié à l\'événement' },
   'goals.unlinkedFromEvent': { en: 'Goal unlinked from event', fr: 'Objectif délié de l\'événement' },

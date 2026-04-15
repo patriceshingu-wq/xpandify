@@ -19,7 +19,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Plus, Church, User, ArrowLeft, Pencil, ChevronRight, Building2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Church, User, ArrowLeft, Pencil, ChevronRight, Building2, Target, Calendar, Users as UsersIcon } from 'lucide-react';
+import { useGoals, Goal } from '@/hooks/useGoals';
 import { MinistryFormDialog } from '@/components/ministries/MinistryFormDialog';
 import { MinistryMembersList } from '@/components/ministries/MinistryMembersList';
 import React from 'react';
@@ -116,6 +122,182 @@ function MinistryTreeItem({
   );
 }
 
+const currentYear = new Date().getFullYear();
+
+const QUARTER_LABELS: Record<string, { months: number[]; label: string }> = {
+  Q1: { months: [0, 1, 2], label: 'Q1' },
+  Q2: { months: [3, 4, 5], label: 'Q2' },
+  Q3: { months: [6, 7, 8], label: 'Q3' },
+  Q4: { months: [9, 10, 11], label: 'Q4' },
+};
+
+function getGoalQuarter(goal: Goal): string | null {
+  if (!goal.start_date) return null;
+  const month = new Date(goal.start_date).getMonth();
+  for (const [q, info] of Object.entries(QUARTER_LABELS)) {
+    if (info.months.includes(month)) return q;
+  }
+  return null;
+}
+
+function MinistryGoalsSection({
+  ministryId,
+  childMinistryIds,
+  t,
+  getLocalizedField,
+}: {
+  ministryId: string;
+  childMinistryIds: string[];
+  t: (key: string) => string;
+  getLocalizedField: (obj: Record<string, unknown>, field: string) => string;
+}) {
+  const [quarterFilter, setQuarterFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState(currentYear);
+
+  // Fetch ministry-level goals for this ministry
+  const { data: ministryGoals, isLoading: ministryLoading } = useGoals({
+    year: yearFilter,
+    goal_level: 'ministry',
+    owner_ministry_id: ministryId,
+    exclude_pdp_items: true,
+  });
+
+  // Fetch department-level goals for child ministries
+  const { data: allDeptGoals, isLoading: deptLoading } = useGoals({
+    year: yearFilter,
+    goal_level: 'department',
+    exclude_pdp_items: true,
+  });
+
+  // Filter dept goals to only child ministries of this ministry
+  const deptGoals = (allDeptGoals || []).filter(
+    (g) => g.owner_ministry_id && childMinistryIds.includes(g.owner_ministry_id)
+  );
+
+  const allGoals = [...(ministryGoals || []), ...deptGoals];
+  const isLoading = ministryLoading || deptLoading;
+
+  // Filter by quarter
+  const filteredGoals = quarterFilter === 'all'
+    ? allGoals
+    : allGoals.filter((g) => getGoalQuarter(g) === quarterFilter);
+
+  // Group by quarter for display
+  const goalsByQuarter = new Map<string, Goal[]>();
+  for (const goal of filteredGoals) {
+    const q = getGoalQuarter(goal) || 'Other';
+    if (!goalsByQuarter.has(q)) goalsByQuarter.set(q, []);
+    goalsByQuarter.get(q)!.push(goal);
+  }
+
+  // Sort quarters in order
+  const sortedQuarters = Array.from(goalsByQuarter.entries()).sort(([a], [b]) => {
+    const order = ['Q1', 'Q2', 'Q3', 'Q4', 'Other'];
+    return order.indexOf(a) - order.indexOf(b);
+  });
+
+  const getLevelColor = (lvl: string) => {
+    switch (lvl) {
+      case 'ministry': return 'bg-info/10 text-info';
+      case 'department': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Select value={yearFilter.toString()} onValueChange={(v) => setYearFilter(parseInt(v))}>
+          <SelectTrigger className="w-full sm:w-32" aria-label="Filter by year">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
+              <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={quarterFilter} onValueChange={setQuarterFilter}>
+          <SelectTrigger className="w-full sm:w-40" aria-label="Filter by quarter">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('goals.allQuarters')}</SelectItem>
+            <SelectItem value="Q1">{t('goals.q1')}</SelectItem>
+            <SelectItem value="Q2">{t('goals.q2')}</SelectItem>
+            <SelectItem value="Q3">{t('goals.q3')}</SelectItem>
+            <SelectItem value="Q4">{t('goals.q4')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="spinner" />
+        </div>
+      ) : filteredGoals.length === 0 ? (
+        <EmptyState
+          icon={<Target className="h-12 w-12" />}
+          title={t('ministries.noGoals')}
+          description=""
+        />
+      ) : (
+        <div className="space-y-6">
+          {sortedQuarters.map(([quarterKey, goals]) => (
+            <div key={quarterKey} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-sm font-semibold">
+                  {quarterKey}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {goals.length} {goals.length === 1 ? 'goal' : 'goals'}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {goals.map((goal) => (
+                  <Card key={goal.id} className="transition-all hover:shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
+                              {goal.goal_level === 'ministry' ? t('goals.ministry') : t('goals.department')}
+                            </span>
+                            <StatusBadge status={goal.status} />
+                            {goal.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {t(`goals.category.${goal.category}`) || goal.category}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm font-medium text-foreground leading-snug">
+                            {getLocalizedField(goal as unknown as Record<string, unknown>, 'title')}
+                          </p>
+                          {goal.owner_ministry && goal.goal_level === 'department' && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {getLocalizedField(goal.owner_ministry as unknown as Record<string, unknown>, 'name')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-sm font-bold">{goal.progress_percent || 0}%</span>
+                          <Progress value={goal.progress_percent || 0} className="h-2 w-16" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Ministries() {
   const { id: ministryId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -206,7 +388,6 @@ export default function Ministries() {
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => {
-              // Go to parent or list
               if (selectedMinistry.parent_ministry_id) {
                 navigate(`/ministries/${selectedMinistry.parent_ministry_id}`);
               } else {
@@ -290,12 +471,37 @@ export default function Ministries() {
             </div>
           )}
 
-          <MinistryMembersList
-            ministryId={selectedMinistry.id}
-            members={members}
-            isLoading={membersLoading}
-            canManage={canManageMembers}
-          />
+          {/* Tabs: Goals + Members */}
+          <Tabs defaultValue="goals" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="goals" className="gap-1.5">
+                <Target className="h-4 w-4" />
+                {t('ministries.goals')}
+              </TabsTrigger>
+              <TabsTrigger value="members" className="gap-1.5">
+                <UsersIcon className="h-4 w-4" />
+                {t('ministries.members')}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="goals">
+              <MinistryGoalsSection
+                ministryId={selectedMinistry.id}
+                childMinistryIds={childMinistries.map(c => c.id)}
+                t={t}
+                getLocalizedField={getLocalizedField}
+              />
+            </TabsContent>
+
+            <TabsContent value="members">
+              <MinistryMembersList
+                ministryId={selectedMinistry.id}
+                members={members}
+                isLoading={membersLoading}
+                canManage={canManageMembers}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
 
         {isAdminOrSuper && (
