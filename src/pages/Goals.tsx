@@ -19,17 +19,72 @@ import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { GoalCardSkeleton, ListSkeleton } from '@/components/ui/mobile-skeletons';
 import {
   Plus, Target, Calendar, User, Building, Search, FileText,
-  GitBranch, Loader2, Church, Users,
+  GitBranch, Loader2, Church, Users, ChevronRight, Filter,
 } from 'lucide-react';
 import { GoalFormDialog } from '@/components/goals/GoalFormDialog';
 import { GoalCascadeView } from '@/components/goals/GoalCascadeView';
 import { PDPFormDialog } from '@/components/development/PDPFormDialog';
 import { PDPDetailDialog } from '@/components/development/PDPDetailDialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const currentYear = new Date().getFullYear();
+
+// Collapsible section that groups goals under a ministry name
+function MinistryGoalGroup({
+  ministryName,
+  goals,
+  renderGoalCard,
+  defaultOpen = false,
+}: {
+  ministryName: string;
+  goals: Goal[];
+  renderGoalCard: (goal: Goal) => React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const totalProgress = goals.length > 0
+    ? Math.round(goals.reduce((sum, g) => sum + (g.progress_percent || 0), 0) / goals.length)
+    : 0;
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card>
+        <CollapsibleTrigger asChild>
+          <CardContent className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ChevronRight
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                />
+                <div className="p-2 rounded-lg bg-muted">
+                  <Building className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{ministryName}</h3>
+                  <p className="text-xs text-muted-foreground">{goals.length} {goals.length === 1 ? 'goal' : 'goals'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-sm font-bold text-foreground">{totalProgress}%</div>
+                </div>
+                <Progress value={totalProgress} className="h-2 w-16 sm:w-24" />
+              </div>
+            </div>
+          </CardContent>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="px-4 pb-4 space-y-3">
+            {goals.map(renderGoalCard)}
+          </div>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
+  );
+}
 
 const pdpStatusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
@@ -88,6 +143,8 @@ export default function Goals() {
   // Goals state
   const [year, setYear] = useState(currentYear);
   const [status, setStatus] = useState('all');
+  const [quarter, setQuarter] = useState('all');
+  const [ministryFilter, setMinistryFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [presetLevel, setPresetLevel] = useState<'church' | 'ministry' | 'department' | 'individual' | undefined>();
@@ -98,6 +155,9 @@ export default function Goals() {
   const [isPDPFormOpen, setIsPDPFormOpen] = useState(false);
   const [editingPDP, setEditingPDP] = useState<PDP | null>(null);
   const [viewingPDPId, setViewingPDPId] = useState<string | null>(null);
+
+  // Ministries data for filtering
+  const { data: allMinistries } = useMinistries();
 
   // User's ministries
   const { data: userMinistryIds } = useUserMinistryIds(person?.id);
@@ -199,6 +259,70 @@ export default function Goals() {
     );
   });
 
+  // Filter goals by quarter based on start_date
+  const filterByQuarter = (goals: Goal[]) => {
+    if (quarter === 'all') return goals;
+    return goals.filter((g) => {
+      if (!g.start_date) return false;
+      const month = new Date(g.start_date).getMonth(); // 0-indexed
+      switch (quarter) {
+        case 'Q1': return month >= 0 && month <= 2;
+        case 'Q2': return month >= 3 && month <= 5;
+        case 'Q3': return month >= 6 && month <= 8;
+        case 'Q4': return month >= 9 && month <= 11;
+        default: return true;
+      }
+    });
+  };
+
+  // Filter goals by selected ministry
+  const filterByMinistry = (goals: Goal[]) => {
+    if (ministryFilter === 'all') return goals;
+    return goals.filter((g) => g.owner_ministry_id === ministryFilter);
+  };
+
+  // Group goals by ministry name
+  const groupByMinistry = (goals: Goal[]) => {
+    const groups: Record<string, { ministry: { id: string; name: string }; goals: Goal[] }> = {};
+    const ungrouped: Goal[] = [];
+
+    for (const goal of goals) {
+      if (goal.owner_ministry) {
+        const key = goal.owner_ministry.id;
+        if (!groups[key]) {
+          groups[key] = {
+            ministry: {
+              id: goal.owner_ministry.id,
+              name: getLocalizedField(goal.owner_ministry as unknown as Record<string, unknown>, 'name'),
+            },
+            goals: [],
+          };
+        }
+        groups[key].goals.push(goal);
+      } else {
+        ungrouped.push(goal);
+      }
+    }
+
+    return { groups: Object.values(groups).sort((a, b) => a.ministry.name.localeCompare(b.ministry.name)), ungrouped };
+  };
+
+  // Get distinct ministries from goals for the ministry filter dropdown
+  const getMinistryOptions = (goals: Goal[]) => {
+    const seen = new Map<string, string>();
+    for (const g of goals) {
+      if (g.owner_ministry && !seen.has(g.owner_ministry.id)) {
+        seen.set(
+          g.owner_ministry.id,
+          getLocalizedField(g.owner_ministry as unknown as Record<string, unknown>, 'name'),
+        );
+      }
+    }
+    return Array.from(seen.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   const getStatusLabel = (s: string) => {
     const labels: Record<string, string> = {
       active: t('people.active'),
@@ -232,10 +356,10 @@ export default function Goals() {
   };
 
   // Status filter bar (reusable across tabs)
-  const renderFilters = () => (
+  const renderFilters = (options?: { showQuarter?: boolean; showMinistry?: boolean; goals?: Goal[] }) => (
     <Card>
       <CardContent className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <Select value={year.toString()} onValueChange={(v) => setYear(parseInt(v))}>
             <SelectTrigger className="w-full sm:w-32" aria-label={t('common.filterByYear')}>
               <SelectValue placeholder={t('common.year')} />
@@ -246,6 +370,33 @@ export default function Goals() {
               ))}
             </SelectContent>
           </Select>
+          {options?.showQuarter && (
+            <Select value={quarter} onValueChange={setQuarter}>
+              <SelectTrigger className="w-full sm:w-40" aria-label="Filter by quarter">
+                <SelectValue placeholder={t('goals.allQuarters')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('goals.allQuarters')}</SelectItem>
+                <SelectItem value="Q1">{t('goals.q1')}</SelectItem>
+                <SelectItem value="Q2">{t('goals.q2')}</SelectItem>
+                <SelectItem value="Q3">{t('goals.q3')}</SelectItem>
+                <SelectItem value="Q4">{t('goals.q4')}</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          {options?.showMinistry && options.goals && (
+            <Select value={ministryFilter} onValueChange={setMinistryFilter}>
+              <SelectTrigger className="w-full sm:w-48" aria-label="Filter by ministry">
+                <SelectValue placeholder={t('goals.filterByMinistry')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('goals.filterByMinistry')}</SelectItem>
+                {getMinistryOptions(options.goals).map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-full sm:w-40" aria-label={t('common.filterByStatus')}>
               <SelectValue placeholder={t('common.status')} />
@@ -264,7 +415,69 @@ export default function Goals() {
     </Card>
   );
 
-  // Goal list renderer
+  // Single goal card renderer
+  const renderGoalCard = (goal: Goal) => (
+    <Card
+      key={goal.id}
+      className="cursor-pointer transition-all hover:shadow-md"
+      onClick={() => handleEdit(goal)}
+    >
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex-1 space-y-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
+                {getLevelIcon(goal.goal_level)}
+                {t(`goals.${goal.goal_level}`)}
+              </span>
+              <StatusBadge status={goal.status} />
+              {goal.category && (
+                <Badge variant="outline" className="text-xs">
+                  {t(`goals.category.${goal.category}`) || goal.category}
+                </Badge>
+              )}
+            </div>
+            <h3 className="font-medium text-base sm:text-lg text-foreground leading-snug">
+              {getLocalizedField(goal, 'title')}
+            </h3>
+            {getLocalizedField(goal, 'description') && (
+              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                {getLocalizedField(goal, 'description')}
+              </p>
+            )}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+              {goal.owner_ministry && (
+                <span className="flex items-center gap-1.5">
+                  <Building className="h-3.5 w-3.5 shrink-0" />
+                  {getLocalizedField(goal.owner_ministry as unknown as Record<string, unknown>, 'name')}
+                </span>
+              )}
+              {goal.owner_person && (
+                <span className="flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 shrink-0" />
+                  {goal.owner_person.first_name} {goal.owner_person.last_name}
+                </span>
+              )}
+              {goal.due_date && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 shrink-0" />
+                  {new Date(goal.due_date).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:min-w-[100px]">
+            <div className="text-xl sm:text-2xl font-bold text-foreground">
+              {goal.progress_percent}%
+            </div>
+            <Progress value={goal.progress_percent} className="h-2 w-24 sm:w-full" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // Flat goal list renderer
   const renderGoalList = (goals: Goal[] | undefined, loading: boolean, emptyAction?: () => void) => {
     if (loading) {
       return <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />;
@@ -280,56 +493,49 @@ export default function Goals() {
       );
     }
     return (
+      <div className="space-y-3">
+        {goals.map(renderGoalCard)}
+      </div>
+    );
+  };
+
+  // Grouped goal list renderer — groups goals by ministry with collapsible sections
+  const renderGroupedGoalList = (goals: Goal[] | undefined, loading: boolean) => {
+    if (loading) {
+      return <ListSkeleton count={4} ItemComponent={GoalCardSkeleton} />;
+    }
+
+    // Apply quarter + ministry filters
+    const filtered = filterByMinistry(filterByQuarter(goals || []));
+
+    if (filtered.length === 0) {
+      return (
+        <EmptyState
+          icon={<Target className="h-16 w-16" />}
+          title={t('common.noResults')}
+          description={t('goals.noGoalsForMinistry')}
+        />
+      );
+    }
+
+    const { groups, ungrouped } = groupByMinistry(filtered);
+
+    return (
       <div className="space-y-4">
-        {goals.map((goal) => (
-          <Card
-            key={goal.id}
-            className="cursor-pointer transition-all hover:shadow-md"
-            onClick={() => handleEdit(goal)}
-          >
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${getLevelColor(goal.goal_level)}`}>
-                      {getLevelIcon(goal.goal_level)}
-                      {t(`goals.${goal.goal_level}`)}
-                    </span>
-                    <StatusBadge status={goal.status} />
-                  </div>
-                  <h3 className="font-medium text-base sm:text-lg text-foreground leading-snug">
-                    {getLocalizedField(goal, 'title')}
-                  </h3>
-                  {getLocalizedField(goal, 'description') && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {getLocalizedField(goal, 'description')}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                    {goal.owner_person && (
-                      <span className="flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5 shrink-0" />
-                        {goal.owner_person.first_name} {goal.owner_person.last_name}
-                      </span>
-                    )}
-                    {goal.due_date && (
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 shrink-0" />
-                        {new Date(goal.due_date).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:min-w-[100px]">
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {goal.progress_percent}%
-                  </div>
-                  <Progress value={goal.progress_percent} className="h-2 w-24 sm:w-full" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {groups.map((group) => (
+          <MinistryGoalGroup
+            key={group.ministry.id}
+            ministryName={group.ministry.name}
+            goals={group.goals}
+            renderGoalCard={renderGoalCard}
+            defaultOpen={groups.length <= 3 || ministryFilter !== 'all'}
+          />
         ))}
+        {ungrouped.length > 0 && (
+          <div className="space-y-3">
+            {ungrouped.map(renderGoalCard)}
+          </div>
+        )}
       </div>
     );
   };
@@ -422,8 +628,8 @@ export default function Goals() {
                     </Button>
                   )}
                 </div>
-                {renderFilters()}
-                {renderGoalList(teamGoals, teamGoalsLoading)}
+                {renderFilters({ showQuarter: true, showMinistry: true, goals: teamGoals })}
+                {renderGroupedGoalList(teamGoals, teamGoalsLoading)}
               </TabsContent>
             )}
 
@@ -439,8 +645,8 @@ export default function Goals() {
                     </Button>
                   )}
                 </div>
-                {renderFilters()}
-                {renderGoalList(departmentGoals, deptGoalsLoading)}
+                {renderFilters({ showQuarter: true, showMinistry: true, goals: departmentGoals })}
+                {renderGroupedGoalList(departmentGoals, deptGoalsLoading)}
               </TabsContent>
             )}
 
@@ -456,8 +662,8 @@ export default function Goals() {
                     </Button>
                   )}
                 </div>
-                {renderFilters()}
-                {renderGoalList(ministryGoals, ministryGoalsLoading)}
+                {renderFilters({ showQuarter: true, showMinistry: true, goals: ministryGoals })}
+                {renderGroupedGoalList(ministryGoals, ministryGoalsLoading)}
               </TabsContent>
             )}
 
@@ -472,8 +678,8 @@ export default function Goals() {
                   </Button>
                 )}
               </div>
-              {renderFilters()}
-              {renderGoalList(churchGoals, churchGoalsLoading)}
+              {renderFilters({ showQuarter: true })}
+              {renderGoalList(filterByQuarter(churchGoals || []), churchGoalsLoading)}
             </TabsContent>
 
             {/* ========== Cascade View Tab (Advanced Mode) ========== */}
