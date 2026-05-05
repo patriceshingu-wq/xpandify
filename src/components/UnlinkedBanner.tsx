@@ -25,7 +25,7 @@ export function UnlinkedBanner() {
       <div className="text-sm">
         <p className="text-foreground">{message}</p>
         <Link
-          to="/admin?tab=orgchart-sync"
+          to="/administration?tab=orgchart-sync"
           className="text-primary hover:underline font-medium"
         >
           {t('orgchartSync.finishBackfill')}
