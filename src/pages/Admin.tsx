@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,15 +16,30 @@ import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateMan
 import { MinistryRolesManagement } from '@/components/admin/MinistryRolesManagement';
 import { FeatureUpgradesTab } from '@/components/admin/FeatureUpgradesTab';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
-import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus, Tag, Sparkles } from 'lucide-react';
+import { OrgchartSyncTab } from '@/components/admin/OrgchartSyncTab';
+import { Search, Users, Shield, Settings, ShieldAlert, FileText, UserPlus, Tag, Sparkles, Network } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function Admin() {
   const { t } = useLanguage();
   const { isAdminOrSuper, hasAnyRole, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('users');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'users');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const next = searchParams.get('tab');
+    if (next && next !== activeTab) setActiveTab(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', value);
+    setSearchParams(next, { replace: true });
+  };
 
   const { data: users, isLoading: usersLoading } = useAdminUsers();
   const { data: roles, isLoading: rolesLoading } = useAppRoles();
@@ -97,8 +113,8 @@ export default function Admin() {
         </div>
 
         {/* Tabs - Full width grid on mobile */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 md:w-auto md:inline-flex">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="grid w-full grid-cols-7 md:w-auto md:inline-flex">
             <TabsTrigger value="users" className="gap-1.5 touch-target">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.userManagement')}</span>
@@ -123,6 +139,11 @@ export default function Admin() {
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">{t('admin.featureUpgrades')}</span>
               <span className="sm:hidden">Upgrades</span>
+            </TabsTrigger>
+            <TabsTrigger value="orgchart-sync" className="gap-1.5 touch-target">
+              <Network className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('orgchartSync.tabLabel')}</span>
+              <span className="sm:hidden">Org Sync</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1.5 touch-target">
               <Settings className="h-4 w-4" />
@@ -215,6 +236,18 @@ export default function Admin() {
 
           <TabsContent value="upgrades" className="mt-6">
             <FeatureUpgradesTab />
+          </TabsContent>
+
+          <TabsContent value="orgchart-sync" className="mt-6">
+            {isAdminOrSuper ? (
+              <OrgchartSyncTab />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-sm text-muted-foreground">{t('common.adminOnly')}</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">

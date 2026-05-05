@@ -8,6 +8,7 @@ import { usePersonStats } from '@/hooks/usePersonStats';
 import { usePersonMinistries } from '@/hooks/usePersonMinistries';
 import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 import { useOrgSearch, useOrgPerson, OrgPerson } from '@/hooks/useOrgChartAPI';
+import { UnlinkedBanner } from '@/components/UnlinkedBanner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,11 +50,13 @@ export default function PersonProfile() {
   const { uploadPhoto, deletePhoto, isUploading, isDeleting } = useProfilePhoto();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Try to find this person in the org chart API by name
+  // Try to find this person in the org chart API.
+  // For linked rows (orgchart_id present), fetch directly by id — no fuzzy search.
+  // For unlinked rows, fall back to the existing name search + last-name narrowing.
+  const linkedOrgchartId = (person as { orgchart_id?: string | null } | null | undefined)?.orgchart_id ?? null;
   const personFullName = person ? `${person.first_name} ${person.last_name}` : '';
-  const { data: orgSearchResults } = useOrgSearch(personFullName);
+  const { data: orgSearchResults } = useOrgSearch(linkedOrgchartId ? '' : personFullName);
 
-  // Find the best match from search results
   const orgMatch = useMemo(() => {
     if (!orgSearchResults || !person) return null;
     return orgSearchResults.find((r: OrgPerson) =>
@@ -61,8 +64,7 @@ export default function PersonProfile() {
     ) || null;
   }, [orgSearchResults, person]);
 
-  // Fetch full org person details if we found a match
-  const { data: orgPerson } = useOrgPerson(orgMatch?.id);
+  const { data: orgPerson } = useOrgPerson(linkedOrgchartId ?? orgMatch?.id);
 
   // Access control: Basic info visible to all authenticated users
   // Development + Stats visible to self + supervisors + admins only
@@ -137,6 +139,7 @@ export default function PersonProfile() {
   return (
     <MainLayout title={displayName}>
       <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+        <UnlinkedBanner />
         <div className="flex items-center gap-2 mb-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/people')}>
             <ChevronLeft className="h-4 w-4 mr-1" />

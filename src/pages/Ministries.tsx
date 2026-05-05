@@ -30,6 +30,7 @@ import { useGoals, Goal } from '@/hooks/useGoals';
 import { useOrgMinistries, useOrgPeople, OrgMinistry, OrgPerson } from '@/hooks/useOrgChartAPI';
 import { MinistryFormDialog } from '@/components/ministries/MinistryFormDialog';
 import { MinistryMembersList } from '@/components/ministries/MinistryMembersList';
+import { UnlinkedBanner } from '@/components/UnlinkedBanner';
 import React from 'react';
 
 function MinistryTreeItem({
@@ -136,8 +137,14 @@ function MinistryTreeItem({
                       </span>
                     )}
                     {orgMinistries && (() => {
-                      const localName = (node.name_en || node.name_fr || '').toLowerCase();
-                      const orgData = orgMinistries.find(om => om.title.toLowerCase().includes(localName) || localName.includes(om.title.toLowerCase()));
+                      let orgData: OrgMinistry | undefined;
+                      if (node.orgchart_id) {
+                        orgData = orgMinistries.find(om => om.id === node.orgchart_id);
+                      }
+                      if (!orgData) {
+                        const localName = (node.name_en || node.name_fr || '').toLowerCase();
+                        orgData = orgMinistries.find(om => om.title.toLowerCase().includes(localName) || localName.includes(om.title.toLowerCase()));
+                      }
                       if (!orgData) return null;
                       return (
                         <span className="text-xs flex items-center gap-1">
@@ -383,9 +390,14 @@ export default function Ministries() {
     return map;
   }, [allPeople]);
 
-  // Helper to find org API ministry data matching a local ministry by name
+  // Helper to find org API ministry data matching a local ministry.
+  // Prefers stable orgchart_id link; falls back to fuzzy name match for unlinked rows.
   const getOrgMinistryData = (ministry: Ministry): OrgMinistry | undefined => {
     if (!orgMinistries) return undefined;
+    if (ministry.orgchart_id) {
+      const linked = orgMinistries.find(om => om.id === ministry.orgchart_id);
+      if (linked) return linked;
+    }
     const localName = (ministry.name_en || ministry.name_fr || '').toLowerCase();
     return orgMinistries.find(om => om.title.toLowerCase().includes(localName) || localName.includes(om.title.toLowerCase()));
   };
@@ -436,6 +448,7 @@ export default function Ministries() {
     return (
       <MainLayout title={getLocalizedField(selectedMinistry, 'name')} subtitle={t('ministries.ministryDetails')}>
         <div className="space-y-6 animate-fade-in">
+          <UnlinkedBanner />
           {/* Breadcrumbs */}
           <Breadcrumb>
             <BreadcrumbList>
@@ -694,6 +707,7 @@ export default function Ministries() {
   return (
     <MainLayout title={t('nav.ministries')} subtitle={t('ministries.subtitle')}>
       <div className="space-y-6 animate-fade-in">
+        <UnlinkedBanner />
         <PageHeader
           title={t('nav.ministries')}
           subtitle={t('ministries.subtitle')}
