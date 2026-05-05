@@ -641,7 +641,6 @@ const translations: Translations = {
   'ministries.deleteConfirm': { en: 'Are you sure you want to delete this ministry? This action cannot be undone.', fr: 'Êtes-vous sûr de vouloir supprimer ce ministère ? Cette action est irréversible.' },
   'ministries.department': { en: 'department', fr: 'département' },
   'ministries.departments': { en: 'departments', fr: 'départements' },
-  'ministries.members': { en: 'Members', fr: 'Membres' },
   'ministries.addMember': { en: 'Add Member', fr: 'Ajouter un membre' },
   'ministries.removeMember': { en: 'Remove Member', fr: 'Retirer le membre' },
   'ministries.removeMemberConfirm': { en: 'Remove {name} from this ministry?', fr: 'Retirer {name} de ce ministère ?' },
