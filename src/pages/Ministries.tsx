@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMinistries, Ministry, MinistryTreeNode, buildMinistryTree, getAncestorChain } from '@/hooks/useMinistries';
 import { useMinistryMembers } from '@/hooks/useMinistryMembers';
+import { usePeople } from '@/hooks/usePeople';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,8 +25,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Church, User, ArrowLeft, Pencil, ChevronRight, Building2, Target, Calendar, Users as UsersIcon } from 'lucide-react';
+import { Plus, Church, User, ArrowLeft, Pencil, ChevronRight, Building2, Target, Calendar, Users as UsersIcon, UsersRound, UserCheck, UserX } from 'lucide-react';
 import { useGoals, Goal } from '@/hooks/useGoals';
+import { useOrgMinistries, useOrgPeople, OrgMinistry, OrgPerson } from '@/hooks/useOrgChartAPI';
 import { MinistryFormDialog } from '@/components/ministries/MinistryFormDialog';
 import { MinistryMembersList } from '@/components/ministries/MinistryMembersList';
 import React from 'react';
@@ -36,15 +38,33 @@ function MinistryTreeItem({
   getLocalizedField,
   t,
   depth = 0,
+  orgMinistries,
+  orgLeaders,
+  personIdByName,
 }: {
   node: MinistryTreeNode;
   onSelect: (m: Ministry) => void;
   getLocalizedField: (obj: Record<string, unknown>, field: string) => string;
   t: (key: string) => string;
   depth?: number;
+  orgMinistries?: OrgMinistry[];
+  orgLeaders?: OrgPerson[];
+  personIdByName?: Map<string, string>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = node.children.length > 0;
+
+  // Find the org chart leader for this ministry/department by matching names
+  const orgLeader = orgLeaders ? (() => {
+    const localName = (node.name_en || node.name_fr || '').toLowerCase();
+    return orgLeaders.find(p =>
+      p.title.toLowerCase().includes(localName) || localName.includes(p.title.toLowerCase())
+    );
+  })() : undefined;
+
+  const displayLeaderName = orgLeader?.personName
+    || (node.leader ? `${node.leader.first_name} ${node.leader.last_name}` : null);
+  const hasLeader = !!displayLeaderName;
 
   return (
     <div className={depth > 0 ? 'ml-6 border-l border-border pl-4' : ''}>
@@ -84,11 +104,30 @@ function MinistryTreeItem({
                   <h3 className="font-medium text-foreground truncate">
                     {getLocalizedField(node as unknown as Record<string, unknown>, 'name')}
                   </h3>
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    {node.leader && (
-                      <span className="flex items-center gap-1">
-                        <User className="h-3.5 w-3.5" />
-                        {node.leader.first_name} {node.leader.last_name}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                    {hasLeader ? (
+                      <span className="flex items-center gap-1 text-emerald-600">
+                        <UserCheck className="h-3.5 w-3.5" />
+                        {(() => {
+                          const personId = node.leader?.id || (displayLeaderName && personIdByName?.get(displayLeaderName.toLowerCase()));
+                          const linkTo = personId
+                            ? `/people/${personId}`
+                            : `/org-chart?search=${encodeURIComponent(displayLeaderName || '')}`;
+                          return (
+                            <Link
+                              to={linkTo}
+                              className="text-xs font-medium hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {displayLeaderName}
+                            </Link>
+                          );
+                        })()}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-amber-600">
+                        <UserX className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">{t('ministries.noLeader')}</span>
                       </span>
                     )}
                     {hasChildren && (
@@ -96,6 +135,17 @@ function MinistryTreeItem({
                         {node.children.length} {node.children.length === 1 ? t('ministries.department') : t('ministries.departments')}
                       </span>
                     )}
+                    {orgMinistries && (() => {
+                      const localName = (node.name_en || node.name_fr || '').toLowerCase();
+                      const orgData = orgMinistries.find(om => om.title.toLowerCase().includes(localName) || localName.includes(om.title.toLowerCase()));
+                      if (!orgData) return null;
+                      return (
+                        <span className="text-xs flex items-center gap-1">
+                          <UsersRound className="h-3 w-3" />
+                          {orgData.peopleCount} {t('ministries.people')}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -113,6 +163,9 @@ function MinistryTreeItem({
                 getLocalizedField={getLocalizedField}
                 t={t}
                 depth={depth + 1}
+                orgMinistries={orgMinistries}
+                orgLeaders={orgLeaders}
+                personIdByName={personIdByName}
               />
             ))}
           </CollapsibleContent>
@@ -308,6 +361,34 @@ export default function Ministries() {
   const [parentForNewMinistry, setParentForNewMinistry] = useState<string | undefined>();
 
   const { data: ministries, isLoading } = useMinistries();
+  const { data: orgMinistries } = useOrgMinistries();
+  // Fetch ministry-system and department leaders from org chart API
+  const { data: orgMinistryLeaders } = useOrgPeople({ category: 'ministry-system' });
+  const { data: orgDeptLeaders } = useOrgPeople({ category: 'department' });
+  const orgLeaders = [...(orgMinistryLeaders || []), ...(orgDeptLeaders || [])];
+
+  // Build a name→ID lookup from local people for linking org API leaders to profiles
+  const { data: allPeople } = usePeople();
+  const personIdByName = useMemo(() => {
+    const map = new Map<string, string>();
+    if (allPeople) {
+      for (const p of allPeople) {
+        const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
+        map.set(fullName, p.id);
+        if (p.preferred_name) {
+          map.set(`${p.preferred_name} ${p.last_name}`.toLowerCase(), p.id);
+        }
+      }
+    }
+    return map;
+  }, [allPeople]);
+
+  // Helper to find org API ministry data matching a local ministry by name
+  const getOrgMinistryData = (ministry: Ministry): OrgMinistry | undefined => {
+    if (!orgMinistries) return undefined;
+    const localName = (ministry.name_en || ministry.name_fr || '').toLowerCase();
+    return orgMinistries.find(om => om.title.toLowerCase().includes(localName) || localName.includes(om.title.toLowerCase()));
+  };
 
   // Find the selected ministry from URL param
   const selectedMinistry = ministryId && ministries
@@ -410,12 +491,61 @@ export default function Ministries() {
             )}
           </div>
 
-          {selectedMinistry.leader && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" />
-              <span>{t('ministries.ledBy')} {selectedMinistry.leader.first_name} {selectedMinistry.leader.last_name}</span>
-            </div>
-          )}
+          {/* Ministry Leader — prefer org API data, fallback to local DB */}
+          {(() => {
+            const localName = (selectedMinistry.name_en || selectedMinistry.name_fr || '').toLowerCase();
+            const orgLeader = orgLeaders.find(p =>
+              p.title.toLowerCase().includes(localName) || localName.includes(p.title.toLowerCase())
+            );
+            const leaderName = orgLeader?.personName
+              || (selectedMinistry.leader ? `${selectedMinistry.leader.first_name} ${selectedMinistry.leader.last_name}` : null);
+            const leaderTitle = orgLeader?.personTitle;
+
+            const leaderId = selectedMinistry.leader?.id || personIdByName.get(leaderName?.toLowerCase() || '');
+            const displayName = leaderTitle ? `${leaderTitle} ${leaderName}` : leaderName;
+
+            return leaderName ? (
+              <div className="flex items-center gap-2 text-sm">
+                <UserCheck className="h-4 w-4 text-emerald-600" />
+                <span className="text-muted-foreground">{t('ministries.ledBy')}</span>
+                <Link
+                  to={leaderId ? `/people/${leaderId}` : `/org-chart?search=${encodeURIComponent(leaderName)}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {displayName}
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm">
+                <UserX className="h-4 w-4 text-amber-600" />
+                <span className="text-amber-600 font-medium">{t('ministries.noLeader')}</span>
+              </div>
+            );
+          })()}
+
+          {/* Live stats from Org Chart API */}
+          {(() => {
+            const orgData = getOrgMinistryData(selectedMinistry);
+            if (!orgData) return null;
+            return (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-semibold">{orgData.peopleCount}</p>
+                  <p className="text-xs text-muted-foreground">{t('ministries.totalPeople')}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-semibold">{orgData.departmentCount}</p>
+                  <p className="text-xs text-muted-foreground">{t('ministries.totalDepartments')}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/50 text-center">
+                  <p className="text-2xl font-semibold">
+                    {orgData.departments.filter(d => d.status === 'active').length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('ministries.activeDepartments')}</p>
+                </div>
+              </div>
+            );
+          })()}
 
           <Separator />
 
@@ -438,31 +568,74 @@ export default function Ministries() {
               </div>
               {childMinistries.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {childMinistries.map((child) => (
-                    <Card
-                      key={child.id}
-                      className="transition-all hover:shadow-md cursor-pointer hover:-translate-y-0.5"
-                      onClick={() => navigate(`/ministries/${child.id}`)}
-                    >
-                      <CardContent className="p-4 flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-muted">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-foreground truncate">
-                            {getLocalizedField(child, 'name')}
-                          </h3>
-                          {child.leader && (
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <User className="h-3.5 w-3.5" />
-                              {child.leader.first_name} {child.leader.last_name}
-                            </p>
-                          )}
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {childMinistries.map((child) => {
+                    // Find org API leader for this department
+                    const childLocalName = (child.name_en || child.name_fr || '').toLowerCase();
+                    const deptOrgLeader = orgLeaders.find(p =>
+                      p.title.toLowerCase().includes(childLocalName) || childLocalName.includes(p.title.toLowerCase())
+                    );
+                    const deptLeaderName = deptOrgLeader?.personName
+                      || (child.leader ? `${child.leader.first_name} ${child.leader.last_name}` : null);
+
+                    // Find org ministry data for people count
+                    const orgData = getOrgMinistryData(selectedMinistry);
+                    const deptOrgData = orgData?.departments.find(d =>
+                      d.title.toLowerCase().includes(childLocalName) || childLocalName.includes(d.title.toLowerCase())
+                    );
+
+                    return (
+                      <Card
+                        key={child.id}
+                        className="transition-all hover:shadow-md cursor-pointer hover:-translate-y-0.5"
+                        onClick={() => navigate(`/ministries/${child.id}`)}
+                      >
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-muted">
+                            <Building2 className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-foreground truncate">
+                              {getLocalizedField(child, 'name')}
+                            </h3>
+                            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                              {deptLeaderName ? (
+                                <span className="text-xs text-emerald-600 flex items-center gap-1">
+                                  <UserCheck className="h-3 w-3" />
+                                  {(() => {
+                                    const deptLeaderId = child.leader?.id || personIdByName.get(deptLeaderName.toLowerCase());
+                                    const deptLinkTo = deptLeaderId
+                                      ? `/people/${deptLeaderId}`
+                                      : `/org-chart?search=${encodeURIComponent(deptLeaderName)}`;
+                                    return (
+                                      <Link
+                                        to={deptLinkTo}
+                                        className="hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {deptLeaderName}
+                                      </Link>
+                                    );
+                                  })()}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-amber-600 flex items-center gap-1">
+                                  <UserX className="h-3 w-3" />
+                                  {t('ministries.noLeader')}
+                                </span>
+                              )}
+                              {deptOrgData && deptOrgData.peopleCount > 0 && (
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <UsersRound className="h-3 w-3" />
+                                  {deptOrgData.peopleCount}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">{t('ministries.noDepartments')}</p>
@@ -547,6 +720,9 @@ export default function Ministries() {
                 onSelect={(m) => navigate(`/ministries/${m.id}`)}
                 getLocalizedField={getLocalizedField}
                 t={t}
+                orgMinistries={orgMinistries}
+                orgLeaders={orgLeaders}
+                personIdByName={personIdByName}
               />
             ))}
           </div>

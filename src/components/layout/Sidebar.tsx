@@ -26,6 +26,7 @@ import {
   Flag,
   CalendarRange,
   Users2,
+  Network,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -43,6 +44,7 @@ const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', path: '/dashboard' },
   { icon: Users, labelKey: 'nav.people', path: '/people' },
   { icon: Church, labelKey: 'nav.ministries', path: '/ministries' },
+  { icon: Network, labelKey: 'nav.orgChart', path: '/org-chart' },
   { icon: Target, labelKey: 'nav.goals', path: '/goals' },
   { icon: Calendar, labelKey: 'nav.meetings', path: '/meetings' },
   { icon: CalendarDays, labelKey: 'nav.calendar', path: '/calendar/events' },

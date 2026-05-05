@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MinistryMember, useRemoveMinistryMember } from '@/hooks/useMinistryMembers';
 import { Button } from '@/components/ui/button';
@@ -65,12 +66,12 @@ export function MinistryMembersList({ ministryId, members, isLoading, canManage 
           {members.map((member) => (
             <Card key={member.id} className="transition-all hover:shadow-sm">
               <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                <Link to={`/people/${member.person_id}`} className="flex items-center gap-3 flex-1 min-w-0 group/member">
+                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
                     <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">
+                    <p className="font-medium text-sm group-hover/member:text-primary group-hover/member:underline transition-colors">
                       {member.person.preferred_name || member.person.first_name} {member.person.last_name}
                     </p>
                     {member.person.person_type && (
@@ -80,7 +81,7 @@ export function MinistryMembersList({ ministryId, members, isLoading, canManage 
                     )}
                     <MemberRolesBadge personId={member.person_id} />
                   </div>
-                </div>
+                </Link>
                 {canManage && (
                   <div className="flex items-center gap-1">
                     <Button

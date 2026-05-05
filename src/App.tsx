@@ -33,6 +33,9 @@ import EventsCalendarPage from "./pages/calendar/EventsCalendar";
 import EventDetailPage from "./pages/calendar/EventDetail";
 import EventEditorPage from "./pages/calendar/EventEditor";
 
+// Org Chart
+import OrgChart from "./pages/OrgChart";
+
 // Mentorship
 import MentorshipPage from "./pages/Mentorship";
 
@@ -88,6 +91,7 @@ function AppRoutes() {
       <Route path="/people/:id" element={<ProtectedRoute><PersonProfile /></ProtectedRoute>} />
       <Route path="/ministries" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
       <Route path="/ministries/:id" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />
+      <Route path="/org-chart" element={<ProtectedRoute><OrgChart /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
       <Route path="/development" element={<Navigate to="/goals" replace />} />
