@@ -1418,35 +1418,44 @@ export type Database = {
       ministries: {
         Row: {
           created_at: string | null
+          deleted_at: string | null
           description_en: string | null
           description_fr: string | null
           id: string
           leader_id: string | null
           name_en: string
           name_fr: string | null
+          orgchart_id: string | null
           parent_ministry_id: string | null
+          status: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          deleted_at?: string | null
           description_en?: string | null
           description_fr?: string | null
           id?: string
           leader_id?: string | null
           name_en: string
           name_fr?: string | null
+          orgchart_id?: string | null
           parent_ministry_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          deleted_at?: string | null
           description_en?: string | null
           description_fr?: string | null
           id?: string
           leader_id?: string | null
           name_en?: string
           name_fr?: string | null
+          orgchart_id?: string | null
           parent_ministry_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -1682,6 +1691,89 @@ export type Database = {
         }
         Relationships: []
       }
+      orgchart_sync_review_queue: {
+        Row: {
+          after: Json | null
+          before: Json
+          change_type: string
+          detected_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          orgchart_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          state: string
+          sync_run_id: string
+        }
+        Insert: {
+          after?: Json | null
+          before: Json
+          change_type: string
+          detected_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          orgchart_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          state?: string
+          sync_run_id: string
+        }
+        Update: {
+          after?: Json | null
+          before?: Json
+          change_type?: string
+          detected_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          orgchart_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          state?: string
+          sync_run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orgchart_sync_review_queue_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "orgchart_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orgchart_sync_runs: {
+        Row: {
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          started_at: string
+          status: string
+          summary: Json | null
+          triggered_by: string
+        }
+        Insert: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status: string
+          summary?: Json | null
+          triggered_by: string
+        }
+        Update: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          summary?: Json | null
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       pathway_courses: {
         Row: {
           course_id: string
@@ -1832,6 +1924,7 @@ export type Database = {
           campus_id: string | null
           created_at: string | null
           date_of_birth: string | null
+          deleted_at: string | null
           email: string | null
           end_date: string | null
           first_name: string
@@ -1841,6 +1934,7 @@ export type Database = {
           last_name: string
           notes: string | null
           onboarding_completed: boolean | null
+          orgchart_id: string | null
           other_languages: Database["public"]["Enums"]["language_code"][] | null
           person_type: Database["public"]["Enums"]["person_type"] | null
           phone: string | null
@@ -1860,6 +1954,7 @@ export type Database = {
           campus_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           end_date?: string | null
           first_name: string
@@ -1869,6 +1964,7 @@ export type Database = {
           last_name: string
           notes?: string | null
           onboarding_completed?: boolean | null
+          orgchart_id?: string | null
           other_languages?:
             | Database["public"]["Enums"]["language_code"][]
             | null
@@ -1890,6 +1986,7 @@ export type Database = {
           campus_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           end_date?: string | null
           first_name?: string
@@ -1899,6 +1996,7 @@ export type Database = {
           last_name?: string
           notes?: string | null
           onboarding_completed?: boolean | null
+          orgchart_id?: string | null
           other_languages?:
             | Database["public"]["Enums"]["language_code"][]
             | null
@@ -1937,18 +2035,21 @@ export type Database = {
           created_at: string | null
           id: string
           ministry_id: string
+          orgchart_node_id: string | null
           person_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           ministry_id: string
+          orgchart_node_id?: string | null
           person_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           ministry_id?: string
+          orgchart_node_id?: string | null
           person_id?: string
         }
         Relationships: [
