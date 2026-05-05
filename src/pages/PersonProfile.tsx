@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,6 +7,8 @@ import { usePerson } from '@/hooks/usePeople';
 import { usePersonStats } from '@/hooks/usePersonStats';
 import { usePersonMinistries } from '@/hooks/usePersonMinistries';
 import { useProfilePhoto } from '@/hooks/useProfilePhoto';
+import { useOrgSearch, useOrgPerson, OrgPerson } from '@/hooks/useOrgChartAPI';
+import { UnlinkedBanner } from '@/components/UnlinkedBanner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +26,9 @@ import {
   BookOpen,
   Users,
   ChevronLeft,
+  ChevronRight,
+  Network,
+  MapPin,
   Heart,
   Sparkles,
   TrendingUp,
@@ -44,6 +49,22 @@ export default function PersonProfile() {
   const { data: ministries, isLoading: isLoadingMinistries } = usePersonMinistries(id);
   const { uploadPhoto, deletePhoto, isUploading, isDeleting } = useProfilePhoto();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Try to find this person in the org chart API.
+  // For linked rows (orgchart_id present), fetch directly by id — no fuzzy search.
+  // For unlinked rows, fall back to the existing name search + last-name narrowing.
+  const linkedOrgchartId = (person as { orgchart_id?: string | null } | null | undefined)?.orgchart_id ?? null;
+  const personFullName = person ? `${person.first_name} ${person.last_name}` : '';
+  const { data: orgSearchResults } = useOrgSearch(linkedOrgchartId ? '' : personFullName);
+
+  const orgMatch = useMemo(() => {
+    if (!orgSearchResults || !person) return null;
+    return orgSearchResults.find((r: OrgPerson) =>
+      r.personName.toLowerCase().includes(person.last_name.toLowerCase())
+    ) || null;
+  }, [orgSearchResults, person]);
+
+  const { data: orgPerson } = useOrgPerson(linkedOrgchartId ?? orgMatch?.id);
 
   // Access control: Basic info visible to all authenticated users
   // Development + Stats visible to self + supervisors + admins only
@@ -118,6 +139,7 @@ export default function PersonProfile() {
   return (
     <MainLayout title={displayName}>
       <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+        <UnlinkedBanner />
         <div className="flex items-center gap-2 mb-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/people')}>
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -310,6 +332,85 @@ export default function PersonProfile() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Organization Position - from Org Chart API */}
+        {orgMatch && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Network className="h-5 w-5" />
+                {t('personProfile.orgPosition')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Breadcrumb trail */}
+              {orgMatch.breadcrumb && orgMatch.breadcrumb.length > 0 && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  {orgMatch.breadcrumb.map((crumb, i) => (
+                    <span key={i} className="flex items-center gap-1">
+                      {i > 0 && <ChevronRight className="h-3 w-3" />}
+                      <span>{crumb}</span>
+                    </span>
+                  ))}
+                  <ChevronRight className="h-3 w-3" />
+                  <span className="font-medium text-foreground">{orgMatch.title}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Position */}
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <p className="text-xs text-muted-foreground">{t('personProfile.position')}</p>
+                  <p className="text-sm font-medium">{orgMatch.title}</p>
+                  {orgMatch.personTitle && (
+                    <p className="text-xs text-muted-foreground">{orgMatch.personTitle}</p>
+                  )}
+                </div>
+
+                {/* Ministry */}
+                {orgMatch.ministry && (
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-xs text-muted-foreground">{t('personProfile.ministry')}</p>
+                    <p className="text-sm font-medium">{orgMatch.ministry}</p>
+                  </div>
+                )}
+
+                {/* Department */}
+                {orgMatch.department && (
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-xs text-muted-foreground">{t('personProfile.department')}</p>
+                    <p className="text-sm font-medium">{orgMatch.department}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Direct Reports */}
+              {orgPerson?.directReports && orgPerson.directReports.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">{t('personProfile.directReports')} ({orgPerson.directReports.length})</p>
+                  <div className="flex flex-wrap gap-2">
+                    {orgPerson.directReports.map((report: OrgPerson) => (
+                      <Badge key={report.id} variant="secondary" className="text-xs">
+                        {report.personName || report.title}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Language assignment */}
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs capitalize">
+                  {orgMatch.language === 'both' ? t('personProfile.bilingual') : orgMatch.language}
+                </Badge>
+                <Badge variant="outline" className="text-xs capitalize">
+                  {orgMatch.category.replace('-', ' ')}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Development Section - Only visible to self, supervisor, or admin */}
         {canViewPrivateInfo && (

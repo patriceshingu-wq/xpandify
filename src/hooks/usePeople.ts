@@ -43,6 +43,7 @@ export function usePeople(filters?: PersonFilters) {
       let query = supabase
         .from('people')
         .select('*, campus:campuses(id, name, code)')
+        .is('deleted_at', null)
         .order('last_name', { ascending: true });
 
       if (filters?.search) {
@@ -94,6 +95,7 @@ export function usePeopleInfinite(filters?: PersonFilters) {
       let query = supabase
         .from('people')
         .select('*, campus:campuses(id, name, code)', { count: 'exact' })
+        .is('deleted_at', null)
         .order('last_name', { ascending: true })
         .range(from, to);
 
@@ -153,6 +155,7 @@ export function usePerson(id: string | undefined) {
         .from('people')
         .select('*, campus:campuses(id, name, code)')
         .eq('id', id)
+        .is('deleted_at', null)
         .maybeSingle();
 
       if (error) throw error;

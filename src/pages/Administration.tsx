@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,20 +18,35 @@ import { MeetingTemplateManagement } from '@/components/admin/MeetingTemplateMan
 import { MinistryRolesManagement } from '@/components/admin/MinistryRolesManagement';
 import { FeatureUpgradesTab } from '@/components/admin/FeatureUpgradesTab';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
+import { OrgchartSyncTab } from '@/components/admin/OrgchartSyncTab';
 import { CampusFormDialog } from '@/components/settings/CampusFormDialog';
 import { useOrganizationSettings, useUpdateOrganizationSettings } from '@/hooks/useOrganizationSettings';
 import { useCampuses, Campus } from '@/hooks/useCampuses';
 import {
   Search, Users, Shield, Settings, ShieldAlert, FileText,
-  Building2, Mail, Palette, MapPin, Plus, Loader2, Star, UserPlus, Tag, Sparkles,
+  Building2, Mail, Palette, MapPin, Plus, Loader2, Star, UserPlus, Tag, Sparkles, Network,
 } from 'lucide-react';
 
 export default function Administration() {
   const { t } = useLanguage();
   const { isAdminOrSuper, hasAnyRole, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('users');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'users');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const next = searchParams.get('tab');
+    if (next && next !== activeTab) setActiveTab(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', value);
+    setSearchParams(next, { replace: true });
+  };
 
   // Admin data
   const { data: users, isLoading: usersLoading } = useAdminUsers();
@@ -166,7 +181,7 @@ export default function Administration() {
         </div>
 
         {/* Tabs - Consolidated: Users+Roles, Templates, Ministry Roles, Organization+Campuses, Email, Settings+Branding, Upgrades */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <TabsList className="inline-flex w-auto min-w-full md:min-w-0">
               <TabsTrigger value="users" className="gap-1.5 touch-target">
@@ -203,6 +218,11 @@ export default function Administration() {
                 <Sparkles className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('admin.featureUpgrades')}</span>
                 <span className="sm:hidden">Upgrades</span>
+              </TabsTrigger>
+              <TabsTrigger value="orgchart-sync" className="gap-1.5 touch-target">
+                <Network className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('orgchartSync.tabLabel')}</span>
+                <span className="sm:hidden">Org Sync</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -641,6 +661,18 @@ export default function Administration() {
           {/* Feature Upgrades Tab */}
           <TabsContent value="upgrades" className="mt-6">
             <FeatureUpgradesTab />
+          </TabsContent>
+
+          <TabsContent value="orgchart-sync" className="mt-6">
+            {isAdminOrSuper ? (
+              <OrgchartSyncTab />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-sm text-muted-foreground">{t('common.adminOnly')}</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -11,6 +11,9 @@ export interface Ministry {
   description_fr?: string;
   leader_id?: string;
   parent_ministry_id?: string;
+  orgchart_id?: string | null;
+  status?: 'active' | 'vacant' | 'inactive';
+  deleted_at?: string | null;
   created_at: string;
   updated_at: string;
   leader?: {
@@ -82,6 +85,7 @@ export function useMinistries() {
           *,
           leader:people!fk_ministries_leader(id, first_name, last_name)
         `)
+        .is('deleted_at', null)
         .order('name_en', { ascending: true });
 
       if (error) throw error;
@@ -103,6 +107,7 @@ export function useMinistry(id: string | undefined) {
           leader:people!fk_ministries_leader(id, first_name, last_name)
         `)
         .eq('id', id)
+        .is('deleted_at', null)
         .maybeSingle();
 
       if (error) throw error;
