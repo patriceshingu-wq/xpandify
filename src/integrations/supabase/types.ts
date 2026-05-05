@@ -14,6 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      _reseed_manifest: {
+        Row: {
+          events_with_ministry_count: number
+          goals_with_ministry_count: number
+          id: string
+          meetings_with_ministry_count: number
+          ministries_count: number
+          people_ministries_count: number
+          taken_at: string
+        }
+        Insert: {
+          events_with_ministry_count: number
+          goals_with_ministry_count: number
+          id: string
+          meetings_with_ministry_count: number
+          ministries_count: number
+          people_ministries_count: number
+          taken_at?: string
+        }
+        Update: {
+          events_with_ministry_count?: number
+          goals_with_ministry_count?: number
+          id?: string
+          meetings_with_ministry_count?: number
+          ministries_count?: number
+          people_ministries_count?: number
+          taken_at?: string
+        }
+        Relationships: []
+      }
+      _reseed_snapshot_events_ministry: {
+        Row: {
+          id: string | null
+          ministry_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          ministry_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          ministry_id?: string | null
+        }
+        Relationships: []
+      }
+      _reseed_snapshot_goals_owner: {
+        Row: {
+          id: string | null
+          owner_ministry_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          owner_ministry_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          owner_ministry_id?: string | null
+        }
+        Relationships: []
+      }
+      _reseed_snapshot_meetings_ministry: {
+        Row: {
+          id: string | null
+          ministry_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          ministry_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          ministry_id?: string | null
+        }
+        Relationships: []
+      }
+      _reseed_snapshot_ministries: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          description_en: string | null
+          description_fr: string | null
+          id: string | null
+          leader_id: string | null
+          name_en: string | null
+          name_fr: string | null
+          orgchart_id: string | null
+          parent_ministry_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string | null
+          leader_id?: string | null
+          name_en?: string | null
+          name_fr?: string | null
+          orgchart_id?: string | null
+          parent_ministry_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          id?: string | null
+          leader_id?: string | null
+          name_en?: string | null
+          name_fr?: string | null
+          orgchart_id?: string | null
+          parent_ministry_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      _reseed_snapshot_people_ministries: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          ministry_id: string | null
+          orgchart_node_id: string | null
+          person_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          ministry_id?: string | null
+          orgchart_node_id?: string | null
+          person_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          ministry_id?: string | null
+          orgchart_node_id?: string | null
+          person_id?: string | null
+        }
+        Relationships: []
+      }
       activity_categories: {
         Row: {
           created_at: string | null
